@@ -40,6 +40,7 @@ const defaultRules = {
   metrics: 'clicks',
   allow_ctrlf: true,
   allow_disambiguation: true,
+  banneds: [],
 };
 
 let currentArticle;
@@ -228,6 +229,52 @@ function loadLobby(gameContext, rules, gameHistory) {
     chrome.storage.local.set({rules: rules});
   };
 
+  // Rules - Banned related
+  document.getElementById("wikigame-banned-list").onclick = listBannedArticles(rules);
+
+  document.getElementById("wikigame-banned-add").onclick = function (e) {
+    console.log('add banned article clicked!');
+    let addedEntry = document.getElementById("wikigame-banned-article-entry").value;
+    console.log('added entry: ', addedEntry);
+
+    // Using full links since I think it's easier for player to just paste the link
+    if (addedEntry.length == 0 || !addedEntry.startsWith("https://en.wikipedia.org/wiki/")){
+      alert('Invalid banned article. It should start with: "https://en.wikipedia.org/wiki/"');
+      return;
+    }
+
+    let addedEntrys = addedEntry.split('#');
+    console.log('added entrys: ', addedEntrys);
+    addedEntry = addedEntrys[0];
+
+    // Wiki links in page are in format: /wiki/{article}
+    addedEntrys = addedEntry.split("https://en.wikipedia.org");
+    addedEntry = addedEntrys[1];
+
+    // Make sure it's unique
+    if (!rules.banneds.includes(addedEntry)){
+      rules.banneds.push(addedEntry);
+    }
+    console.log('rules.banneds: ', rules.banneds);
+    chrome.storage.local.set({rules: rules});
+
+    let message = "Article's added. Banned articles: \n";
+    message += rules.banneds.join('\n');
+    alert(message);
+  }
+
+  document.getElementById("wikigame-banned-clear").onclick = function (e) {
+    console.log('clear banned article clicked!');
+    let confirmMessage = 'Are you sure to clear all banned articles?\n';
+    confirmMessage += rules.banneds.join('\n');
+    cleared = confirm(confirmMessage);
+    
+    if (cleared) {
+      rules.banneds = [];
+      chrome.storage.local.set({rules: rules});
+    }
+  }
+
   document.getElementById("wikigame-reset-sidebar").onclick = reset;
 }
 
@@ -281,12 +328,29 @@ function loadGame(gameContext, rules, gameHistory) {
           console.log('Anchor link, doesnt count as a click:', link);
           return;
         }
+
         e.preventDefault();
         // non-wiki links
         if (!link.startsWith('https://en.wikipedia.org/wiki/')) {
           console.log('Ignoring invalid links:', link);
           return;
         }
+
+        // banned links
+        // TODO: Find a better way to do this?
+        // Check without the anchor
+        let trimmedLink = link.split("#")[0];
+        let bannedLinks = rules.banneds.filter(function(banned){
+          // Check with End to avoid case for {wiki}/Math and {wiki}/Math_Function
+          return trimmedLink.endsWith(banned);
+        });
+
+        if (bannedLinks.length != 0) {
+          console.log('banned link: ', link);
+          alert('Oops, sorry, can not go there! ;)')
+          return;
+        }
+        
         // special links
         if (link.startsWith('https://en.wikipedia.org/wiki/Special:')
           || link.startsWith('https://en.wikipedia.org/wiki/Help:')
@@ -330,10 +394,26 @@ function loadGame(gameContext, rules, gameHistory) {
   }
 
   document.getElementById("wikigame-reset-sidebar").onclick = reset;
+  document.getElementById("wikigame-banned-list").onclick = listBannedArticles(rules);
 }
 
 let sidebar = document.getElementById("mw-panel");
 let sidebarOriginalInnerHTML = sidebar.innerHTML;
+
+// Defined here since it should be clickable when in game or lobby
+function listBannedArticles(rules) {
+  return function(e){
+    console.log('list banned articles clicked!');
+    if (rules.banneds.length == 0) {
+      alert('No worries, no banned articles!');
+      return;
+    }
+    bannedMessage = 'You can not click/go to these links:\n';
+    bannedMessage += rules.banneds.join('\n');
+    alert(bannedMessage);
+    return;
+  };
+}
 
 function replaceSidebar(widgets) {
   sidebar.innerHTML = `
@@ -342,12 +422,26 @@ function replaceSidebar(widgets) {
         width: 100%;
         box-sizing: border-box;
       }
-      button#wikigame-start {
-        width: 100%;
+
+      button#wikigame-start, button#wikigame-banned-list, button#wikigame-banned-add, button#wikigame-banned-clear {
         box-sizing: border-box;
         background-color: black;
         color: white;
       }
+
+      button#wikigame-start {
+        width: 100%;
+      }
+
+      button#wikigame-banned-list, button#wikigame-banned-add, button#wikigame-banned-clear {
+        width: 30%;
+        font-size: 0.6em;
+      }
+
+      button#wikigame-banned-list {
+        background-color: green;
+      }
+
       #wikigame-wrapper label, #wikigame-wrapper .a {
         font-size: 0.75em;
       }
@@ -366,6 +460,22 @@ function replaceSidebar(widgets) {
   `;
 };
 
+function bannedWidget(disabled){
+  return `
+    <h3>
+      <span>Ban Articles</span>
+    </h3>
+    <div class="body vector-menu-content">
+      <input type="text" id="wikigame-banned-article-entry" placeholder="https://en.wikipedia.org/wiki/an-article" ${disabled ? 'disabled': ''}>
+      <span>
+        <button id="wikigame-banned-add" ${disabled ? 'disabled': ''}>Add</button>
+        <button id="wikigame-banned-list">List</button>
+        <button id="wikigame-banned-clear" ${disabled ? 'disabled': ''}>Clear</button>
+      </span>
+    </div>
+  `
+}
+
 function rulesWidget(rules, disabled) {
   return `
     <nav class="vector-menu vector-menu-portal portal">
@@ -383,6 +493,7 @@ function rulesWidget(rules, disabled) {
         <input type="checkbox" id="wikigame-rules-allow-disambiguation" value="true" ${rules.allow_disambiguation ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
         <label for="wikigame-rules-allow-disambiguation">Allow Disambiguation Page</label>
       </div>
+      ${bannedWidget(disabled)}
     </nav>
   `;
 };
