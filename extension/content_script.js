@@ -90,6 +90,7 @@ function init() {
       if (rules.banned_articles.includes(currentArticle)){
         alert('Oops, sorry, you can not go here! ;)');
         goto(lastArticle);
+        return;
       }
 
 
@@ -333,21 +334,6 @@ function loadGame(gameContext, rules, gameHistory) {
           return;
         }
 
-        // banned links
-        // TODO: Find a better way to do this?
-        // Check without the anchor
-        let trimmedLink = link.split("#")[0];
-        let bannedLinks = rules.banned_articles.filter(function(banned){
-          // Check with End to avoid case for {wiki}/Math and {wiki}/Math_Function
-          return trimmedLink.endsWith(banned);
-        });
-
-        if (bannedLinks.length != 0) {
-          console.log('banned link: ', link);
-          alert('Oops, sorry, can not go there! ;)')
-          return;
-        }
-        
         // special links
         if (link.startsWith('https://en.wikipedia.org/wiki/Special:')
           || link.startsWith('https://en.wikipedia.org/wiki/Help:')
