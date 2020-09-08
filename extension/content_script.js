@@ -40,7 +40,7 @@ const defaultRules = {
   metrics: 'clicks',
   allow_ctrlf: true,
   allow_disambiguation: true,
-  banneds: [],
+  banned_articles: [],
 };
 
 let currentArticle;
@@ -85,6 +85,13 @@ function init() {
     }
     if (state.startsWith('in_game')) {
       let lastArticle = ((gameContext.path || []).slice(-1)[0] || '').split('#')[0];
+
+      // Check if we are in a banned list
+      if (rules.banned_articles.includes(currentArticle)){
+        alert('Oops, sorry, you can not go here! ;)');
+        goto(lastArticle);
+      }
+
 
       if (state === 'in_game.clicking') {
         // path.push logic should be here, to resolve article name conflicts in redirects
@@ -237,40 +244,30 @@ function loadLobby(gameContext, rules, gameHistory) {
     let addedEntry = document.getElementById("wikigame-banned-article-entry").value;
     console.log('added entry: ', addedEntry);
 
-    // Using full links since I think it's easier for player to just paste the link
-    if (addedEntry.length == 0 || !addedEntry.startsWith("https://en.wikipedia.org/wiki/")){
-      alert('Invalid banned article. It should start with: "https://en.wikipedia.org/wiki/"');
+    if (addedEntry.length == 0){
       return;
     }
 
-    let addedEntrys = addedEntry.split('#');
-    console.log('added entrys: ', addedEntrys);
-    addedEntry = addedEntrys[0];
-
-    // Wiki links in page are in format: /wiki/{article}
-    addedEntrys = addedEntry.split("https://en.wikipedia.org");
-    addedEntry = addedEntrys[1];
-
     // Make sure it's unique
-    if (!rules.banneds.includes(addedEntry)){
-      rules.banneds.push(addedEntry);
+    if (!rules.banned_articles.includes(addedEntry)){
+      rules.banned_articles.push(addedEntry);
     }
-    console.log('rules.banneds: ', rules.banneds);
+    console.log('rules.banned_articles: ', rules.banned_articles);
     chrome.storage.local.set({rules: rules});
 
     let message = "Article's added. Banned articles: \n";
-    message += rules.banneds.join('\n');
+    message += rules.banned_articles.join('\n');
     alert(message);
   }
 
   document.getElementById("wikigame-banned-clear").onclick = function (e) {
     console.log('clear banned article clicked!');
     let confirmMessage = 'Are you sure to clear all banned articles?\n';
-    confirmMessage += rules.banneds.join('\n');
+    confirmMessage += rules.banned_articles.join('\n');
     cleared = confirm(confirmMessage);
     
     if (cleared) {
-      rules.banneds = [];
+      rules.banned_articles = [];
       chrome.storage.local.set({rules: rules});
     }
   }
@@ -340,7 +337,7 @@ function loadGame(gameContext, rules, gameHistory) {
         // TODO: Find a better way to do this?
         // Check without the anchor
         let trimmedLink = link.split("#")[0];
-        let bannedLinks = rules.banneds.filter(function(banned){
+        let bannedLinks = rules.banned_articles.filter(function(banned){
           // Check with End to avoid case for {wiki}/Math and {wiki}/Math_Function
           return trimmedLink.endsWith(banned);
         });
@@ -404,12 +401,12 @@ let sidebarOriginalInnerHTML = sidebar.innerHTML;
 function listBannedArticles(rules) {
   return function(e){
     console.log('list banned articles clicked!');
-    if (rules.banneds.length == 0) {
+    if (rules.banned_articles.length == 0) {
       alert('No worries, no banned articles!');
       return;
     }
     bannedMessage = 'You can not click/go to these links:\n';
-    bannedMessage += rules.banneds.join('\n');
+    bannedMessage += rules.banned_articles.join('\n');
     alert(bannedMessage);
     return;
   };
@@ -460,18 +457,30 @@ function replaceSidebar(widgets) {
   `;
 };
 
-function bannedWidget(disabled){
+function bannedWidget(rules, disabled){
   return `
     <h3>
       <span>Ban Articles</span>
     </h3>
     <div class="body vector-menu-content">
-      <input type="text" id="wikigame-banned-article-entry" placeholder="https://en.wikipedia.org/wiki/an-article" ${disabled ? 'disabled': ''}>
-      <span>
-        <button id="wikigame-banned-add" ${disabled ? 'disabled': ''}>Add</button>
-        <button id="wikigame-banned-list">List</button>
-        <button id="wikigame-banned-clear" ${disabled ? 'disabled': ''}>Clear</button>
-      </span>
+      ${
+        disabled ? 
+        `<ul>
+          ${rules.banned_articles.map(function (a){
+            return `<li>${a}</li>`;
+          }).join('\n')}
+        </ul>` 
+        :
+        ` 
+        <label for="wikigame-banned-article-entry">Article</label>
+        <input type="text" id="wikigame-banned-article-entry" placeholder="Article">
+        <span>
+          <button id="wikigame-banned-add">Add</button>
+          <button id="wikigame-banned-list">List</button>
+          <button id="wikigame-banned-clear">Clear</button>
+        </span>
+        `
+      }
     </div>
   `
 }
@@ -493,7 +502,7 @@ function rulesWidget(rules, disabled) {
         <input type="checkbox" id="wikigame-rules-allow-disambiguation" value="true" ${rules.allow_disambiguation ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
         <label for="wikigame-rules-allow-disambiguation">Allow Disambiguation Page</label>
       </div>
-      ${bannedWidget(disabled)}
+      ${bannedWidget(rules, disabled)}
     </nav>
   `;
 };

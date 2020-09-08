@@ -10,6 +10,7 @@ chrome.pageAction.onClicked.addListener(function () {
       metrics: 'clicks',
       allow_ctrlf: true,
       allow_disambiguation: true,
+      banned_articles: [],
     },
     game_context: {},
     game_history: [],
