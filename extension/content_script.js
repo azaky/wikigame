@@ -40,6 +40,7 @@ const defaultRules = {
   metrics: 'clicks',
   allow_ctrlf: true,
   allow_disambiguation: true,
+  banned_articles: [],
 };
 
 let currentArticle;
@@ -84,6 +85,14 @@ function init() {
     }
     if (state.startsWith('in_game')) {
       let lastArticle = ((gameContext.path || []).slice(-1)[0] || '').split('#')[0];
+
+      // Check if we are in a banned list
+      if (rules.banned_articles.includes(currentArticle)){
+        alert('Oops, sorry, you can not go here! ;)');
+        goto(lastArticle);
+        return;
+      }
+
 
       if (state === 'in_game.clicking') {
         // path.push logic should be here, to resolve article name conflicts in redirects
@@ -228,6 +237,42 @@ function loadLobby(gameContext, rules, gameHistory) {
     chrome.storage.local.set({rules: rules});
   };
 
+  // Rules - Banned related
+  document.getElementById("wikigame-banned-list").onclick = listBannedArticles(rules);
+
+  document.getElementById("wikigame-banned-add").onclick = function (e) {
+    console.log('add banned article clicked!');
+    let addedEntry = document.getElementById("wikigame-banned-article-entry").value;
+    console.log('added entry: ', addedEntry);
+
+    if (addedEntry.length == 0){
+      return;
+    }
+
+    // Make sure it's unique
+    if (!rules.banned_articles.includes(addedEntry)){
+      rules.banned_articles.push(addedEntry);
+    }
+    console.log('rules.banned_articles: ', rules.banned_articles);
+    chrome.storage.local.set({rules: rules});
+
+    let message = "Article's added. Banned articles: \n";
+    message += rules.banned_articles.join('\n');
+    alert(message);
+  }
+
+  document.getElementById("wikigame-banned-clear").onclick = function (e) {
+    console.log('clear banned article clicked!');
+    let confirmMessage = 'Are you sure to clear all banned articles?\n';
+    confirmMessage += rules.banned_articles.join('\n');
+    cleared = confirm(confirmMessage);
+    
+    if (cleared) {
+      rules.banned_articles = [];
+      chrome.storage.local.set({rules: rules});
+    }
+  }
+
   document.getElementById("wikigame-reset-sidebar").onclick = reset;
 }
 
@@ -281,12 +326,14 @@ function loadGame(gameContext, rules, gameHistory) {
           console.log('Anchor link, doesnt count as a click:', link);
           return;
         }
+
         e.preventDefault();
         // non-wiki links
         if (!link.startsWith('https://en.wikipedia.org/wiki/')) {
           console.log('Ignoring invalid links:', link);
           return;
         }
+
         // special links
         if (link.startsWith('https://en.wikipedia.org/wiki/Special:')
           || link.startsWith('https://en.wikipedia.org/wiki/Help:')
@@ -330,10 +377,26 @@ function loadGame(gameContext, rules, gameHistory) {
   }
 
   document.getElementById("wikigame-reset-sidebar").onclick = reset;
+  document.getElementById("wikigame-banned-list").onclick = listBannedArticles(rules);
 }
 
 let sidebar = document.getElementById("mw-panel");
 let sidebarOriginalInnerHTML = sidebar.innerHTML;
+
+// Defined here since it should be clickable when in game or lobby
+function listBannedArticles(rules) {
+  return function(e){
+    console.log('list banned articles clicked!');
+    if (rules.banned_articles.length == 0) {
+      alert('No worries, no banned articles!');
+      return;
+    }
+    bannedMessage = 'You can not click/go to these links:\n';
+    bannedMessage += rules.banned_articles.join('\n');
+    alert(bannedMessage);
+    return;
+  };
+}
 
 function replaceSidebar(widgets) {
   sidebar.innerHTML = `
@@ -342,12 +405,26 @@ function replaceSidebar(widgets) {
         width: 100%;
         box-sizing: border-box;
       }
-      button#wikigame-start {
-        width: 100%;
+
+      button#wikigame-start, button#wikigame-banned-list, button#wikigame-banned-add, button#wikigame-banned-clear {
         box-sizing: border-box;
         background-color: black;
         color: white;
       }
+
+      button#wikigame-start {
+        width: 100%;
+      }
+
+      button#wikigame-banned-list, button#wikigame-banned-add, button#wikigame-banned-clear {
+        width: 30%;
+        font-size: 0.6em;
+      }
+
+      button#wikigame-banned-list {
+        background-color: green;
+      }
+
       #wikigame-wrapper label, #wikigame-wrapper .a {
         font-size: 0.75em;
       }
@@ -366,6 +443,34 @@ function replaceSidebar(widgets) {
   `;
 };
 
+function bannedWidget(rules, disabled){
+  return `
+    <h3>
+      <span>Ban Articles</span>
+    </h3>
+    <div class="body vector-menu-content">
+      ${
+        disabled ? 
+        `<ul>
+          ${rules.banned_articles.map(function (a){
+            return `<li>${a}</li>`;
+          }).join('\n')}
+        </ul>` 
+        :
+        ` 
+        <label for="wikigame-banned-article-entry">Article</label>
+        <input type="text" id="wikigame-banned-article-entry" placeholder="Article">
+        <span>
+          <button id="wikigame-banned-add">Add</button>
+          <button id="wikigame-banned-list">List</button>
+          <button id="wikigame-banned-clear">Clear</button>
+        </span>
+        `
+      }
+    </div>
+  `
+}
+
 function rulesWidget(rules, disabled) {
   return `
     <nav class="vector-menu vector-menu-portal portal">
@@ -383,6 +488,7 @@ function rulesWidget(rules, disabled) {
         <input type="checkbox" id="wikigame-rules-allow-disambiguation" value="true" ${rules.allow_disambiguation ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
         <label for="wikigame-rules-allow-disambiguation">Allow Disambiguation Page</label>
       </div>
+      ${bannedWidget(rules, disabled)}
     </nav>
   `;
 };
