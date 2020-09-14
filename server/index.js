@@ -13,6 +13,9 @@ const io = socketio(http);
 app.get('/', (req, res) => {
   res.json({message: 'Hello from Wikigame'});
 });
+app.get('/heroku', (req, res) => {
+  res.json({message: 'Hello from Heroku'});
+});
 
 io.use((socket, next) => {
   console.log("Query: ", socket.handshake.query);
