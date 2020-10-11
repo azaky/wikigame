@@ -52,6 +52,31 @@ function getCurrentArticle() {
   return getArticleFromUrl(window.location.href).article;
 }
 
+// listens to update
+chrome.runtime.onMessage.addListener(
+  function (request, sender, sendResponse) {
+    console.log('got message from background:', request);
+    if (request.type === 'update') {
+      // currently we repaint the whole thing.
+      // TODO: find more efficient way to update
+      loadUI(request.data);
+    } else if (request.type === 'start') {
+      goto(request.data.currentRound.start);
+    } else if (request.type === 'finished') {
+      alert('Round is finished!');
+      loadUI(request.data);
+    } else if (request.type === 'init') {
+      // TODO: currently this is the way to input username
+      // remove this when popup is introduced
+      let username = prompt('Enter your username:');
+      chrome.storage.local.set({ username: username }, function () {
+        sendResponse({ username });
+      });
+      return true;
+    }
+  }
+);
+
 function init() {
   sidebar = document.getElementById("mw-panel");
   sidebarOriginalInnerHTML = sidebar.innerHTML;
@@ -71,23 +96,6 @@ function init() {
       url.searchParams.set('roomId', data.roomId);
       window.history.pushState({}, document.title, url.pathname + url.search);
     }
-
-    // listens to update
-    chrome.runtime.onMessage.addListener(
-      function (request, sender, sendResponse) {
-        console.log('got message from background:', request);
-        if (request.type === 'update') {
-          // currently we repaint the whole thing.
-          // TODO: find more efficient way to update
-          loadUI(request.data);
-        } else if (request.type === 'start') {
-          goto(request.data.currentRound.start);
-        } else if (request.type === 'finished') {
-          alert('Round is finished!');
-          loadUI(request.data);
-        }
-      }
-    );
 
     // handle local states like click, setStartArticle, setTargetArticle, setBannedArticle
     if (data.state === 'playing' && !data.currentState.finished) {
@@ -362,7 +370,7 @@ function loadGame(data) {
           let article = articleObj.article, hash = articleObj.hash;
 
           // anchor links
-          if (article === currentArticle && hash) {
+          if (article === currentArticle) {
             console.log('Anchor link, doesnt count as a click:', link);
             return;
           }

@@ -1,4 +1,5 @@
 {
+  "manifest_version": 2,
   "name": "Multiplayer Wikigame",
   "version": "0.0.1",
   "description": "Play multiplayer Wikiracing online!",
@@ -8,7 +9,7 @@
     "persistent": false
   },
   "page_action": {
-    "default_icon": "images/wiki.png"
+    "default_icon": "icon.png"
   },
   "content_scripts": [
     {
@@ -18,7 +19,6 @@
     }
   ],
   "icons": {
-    "16": "images/wiki.png"
-  },
-  "manifest_version": 2
+    "128": "icon.png"
+  }
 }

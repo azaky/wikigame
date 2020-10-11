@@ -16,7 +16,7 @@ const createRoom = (host, id) => {
   }
   let room = {
     roomId: id,
-    url: `https://en.wikipedia.org/wiki/Main_Page?roomId=${id}`,
+    url: `https://en.wikipedia.org/wiki/Main_Page?roomId=${encodeURIComponent(id)}`,
     host,
     state: 'lobby',
     players: [host],
@@ -144,7 +144,7 @@ const handler = socket => {
     url: room.url,
     host: room.host,
     state: room.state,
-    players: room.palyers,
+    players: room.players,
     currentRound: room.currentRound,
     rules: room.rules,
     leaderboard: room.leaderboard,
@@ -153,7 +153,7 @@ const handler = socket => {
   });
   // broadcast others that a new player joins
   socket.to(room.roomId).emit('update', {
-    players: room.palyers,
+    players: room.players,
     currentRound: room.currentRound,
     leaderboard: room.leaderboard,
   });
