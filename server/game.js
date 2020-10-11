@@ -345,7 +345,13 @@ const socketHandler = async socket => {
     room.players = room.players.filter(p => p !== username);
 
     // disband room when there's no player
-    if (!room.players.length) return;
+    if (!room.players.length) {
+      const index = rooms.findIndex(_room => _room.roomId === room.roomId);
+      if (index !== -1) {
+        rooms.splice(index, 1);
+      }
+      return;
+    }
 
     // transfer host
     if (room.host === username) {
