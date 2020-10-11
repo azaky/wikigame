@@ -359,9 +359,20 @@ const socketHandler = async socket => {
 const handler = () => {
   const router = express.Router();
 
-  // TODO: currently this is enabled for debugging purposes.
-  //       add some sort of auth if this endpoint stays.
-  router.get('/details/:roomId', (req, res) => {
+  // currently these endpoints are enabled for debugging purposes.
+  // TODO: add some sort of auth if this endpoint stays.
+  router.get('/_/', (req, res) => {
+    res.json({ data: rooms });
+  });
+  router.get('/_/overview', (req, res) => {
+    const data = rooms.map(room => ({
+      roomId: room.roomId,
+      nPlayers: room.players.length,
+      nRounds: room.pastRounds.length,
+    }));
+    res.json({ data });
+  });
+  router.get('/_/:roomId', (req, res) => {
     const roomId = req.params.roomId;
     const game = getRoomById(roomId);
     if (!game) {
