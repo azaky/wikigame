@@ -76,7 +76,8 @@ function initSocketio(data, callback) {
   socket.on('connect', function() {
     console.log('socket.io connected!');
   });
-  socket.on('disconnect', function() {
+  socket.on('disconnect', function () {
+    sendMessage('disconnected');
     console.log('socket.io disconnected!');
   });
   socket.on('reconnect_failed', function () {
@@ -187,7 +188,10 @@ chrome.runtime.onMessage.addListener(
         return;
       }
 
-      if (request.type === 'update') {
+      if (request.type === 'ping') {
+        sendResponse({ status: true });
+        return false;
+      } else if (request.type === 'update') {
         console.log('update:', request.data);
 
         socket.emit('update', request.data, function (ack) {

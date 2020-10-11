@@ -73,6 +73,10 @@ chrome.runtime.onMessage.addListener(
       let confirmMessage = 'You are currently playing in room ' + message.data.old + '. You sure you want to join room ' + message.data.new + '? (You will be removed from the old room)';
       sendResponse({ confirm: confirm(confirmMessage) });
       return true;
+    } else if (message.type === 'disconnected') {
+      alert('You are disconnected! Refresh this page to reconnect');
+    } else {
+      console.warn('unknown message type:', message.type);
     }
     sendResponse(null);
   }
@@ -91,19 +95,27 @@ function init() {
   }, function (data) {
       console.log('init data:', data);
 
-      if (!data) return;
+      if (!data || !data.roomId) return;
       
       if (data.error) {
         alert('Encountered error: ' + data.error);
         return;
       }
 
+      // this (supposedly) resolves inactive background page
+      setInterval(function () {
+        chrome.runtime.sendMessage({ type: 'ping' }, function (reply) {
+          if (!reply || !reply.status) {
+            alert('You are disconnected! Refresh this page to reconnect');
+            // TODO: apply visual hint other than alert to indicate disconnection
+          }
+        });
+      }, 1000);
 
-    if (data.roomId) {
+      // append roomId on the URL
       let url = new URL(window.location.href);
       url.searchParams.set('roomId', data.roomId);
       window.history.pushState({}, document.title, url.pathname + url.search);
-    }
 
     // handle local states like click, setStartArticle, setTargetArticle, setBannedArticle
     if (data.state === 'playing' && !data.currentState.finished) {
