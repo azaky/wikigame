@@ -105,7 +105,7 @@ const validateArticle = async (title) => {
     return {
       found: true,
       title: body.titles.canonical,
-      thumbnail: body.thumbnail.source,
+      thumbnail: (body.thumbnail && body.thumbnail.source) || '',
     };
   } catch (e) {
     console.error(`Error validating article [${title}]:`, e);
