@@ -87,25 +87,33 @@ const calculateLeaderboard = (room) => {
   return room.leaderboard;
 };
 
+// on valid articles, this return:
+// {
+//   found: true,
+//   title: <canonical title>,
+//   thumbnail: <url to thumbnail>
+// }
+//
+// on invalid articles, this returns { found: false }
 const validateArticle = async (title) => {
   try {
     const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
     const body = await response.json();
     if (body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') {
-      return '';
+      return { found: false };
     }
-    // return canonical name instead of the original title
-    return body.titles.canonical;
+    return {
+      found: true,
+      title: body.titles.canonical,
+      thumbnail: body.thumbnail.source,
+    };
   } catch (e) {
     console.error(`Error validating article [${title}]:`, e);
-    return '';
+    return { found: false };
   }
 };
 
-const validateArticles = async (titles) => {
-  const validated = await Promise.all(titles.map(validateArticle));
-  return validated.filter((title) => title !== '');
-};
+const validateArticles = async (titles) => Promise.all(titles.map(validateArticle));
 
 const getElapsedTime = (start) => Math.ceil((new Date().getTime() - start) / 1000);
 
@@ -194,13 +202,28 @@ const socketHandler = async (socket) => {
     console.log(`[room=${room.roomId}] [${username}] updates data:`, data);
 
     if (data.currentRound && data.currentRound.start) {
-      data.currentRound.start = await validateArticle(data.currentRound.start);
+      const validated = await validateArticle(data.currentRound.start);
+      if (validated.found) {
+        data.currentRound.start = validated.title;
+        data.currentRound.startThumbnail = validated.thumbnail;
+      } else {
+        data.currentRound.start = '';
+        data.currentRound.startThumbnail = '';
+      }
     }
     if (data.currentRound && data.currentRound.target) {
-      data.currentRound.target = await validateArticle(data.currentRound.target);
+      const validated = await validateArticle(data.currentRound.target);
+      if (validated.found) {
+        data.currentRound.target = validated.title;
+        data.currentRound.targetThumbnail = validated.thumbnail;
+      } else {
+        data.currentRound.target = '';
+        data.currentRound.targetThumbnail = '';
+      }
     }
     if (data.rules && data.rules.bannedArticles) {
-      data.rules.bannedArticles = await validateArticles(data.rules.bannedArticles);
+      const validated = await validateArticles(data.rules.bannedArticles);
+      data.rules.bannedArticles = validated.filter((v) => v.found).map((v) => v.title);
     }
     // TODO: perform validation to data
     util.mergeDeep(room, data);
@@ -282,7 +305,7 @@ const socketHandler = async (socket) => {
     generateCurrentRoundResult(room);
 
     ticker = setInterval(() => {
-      const elapsed = getElapsedTime(room.currentState.startTimestamp);
+      const elapsed = getElapsedTime(room.currentRound.startTimestamp);
       room.currentRound.timeLeft = room.rules.timeLimit - elapsed;
       if (room.currentRound.timeLeft > 0) {
         console.log(`[room=${room.roomId}] ticker: timeLeft=${room.currentRound.timeLeft}`);
@@ -329,7 +352,7 @@ const socketHandler = async (socket) => {
     // win condition checks
     if (article === room.currentRound.target) {
       room.currentState[username].finished = true;
-      room.currentState[username].timeTaken = getElapsedTime(room.currentState.startTimestamp);
+      room.currentState[username].timeTaken = getElapsedTime(room.currentRound.startTimestamp);
       room.currentState[username].score = calculateScore(room.currentState[username], room.rules);
     }
 

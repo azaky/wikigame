@@ -694,10 +694,12 @@ function currentRoundStatusWidget(currentRound) {
       <div class="body vector-menu-content">
         <div style="padding-bottom:10px">
           <label>Start Article</label><br/>
+          ${currentRound.startThumbnail ? `<img src="${currentRound.startThumbnail}" width="120" style="margin-top:5px; margin-bottom:5px">` : ''}
           <span style="word-break:break-all"><b>${currentRound.start}</b></span>
         </div>
         <div style="padding-bottom:10px">
           <label>Target Article</label><br/>
+          ${currentRound.targetThumbnail ? `<img src="${currentRound.targetThumbnail}" width="120" style="margin-top:5px; margin-bottom:5px">` : ''}
           <span style="word-break:break-all"><b>${currentRound.target}</b></span>
         </div>
         <button id="wikigame-countdown" disabled ${currentRound.timeLeft < 10 ? 'class="red"' : ''}>
