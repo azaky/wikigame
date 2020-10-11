@@ -17,6 +17,8 @@ app.get('/heroku', (req, res) => {
   res.json({message: 'Hello from Heroku'});
 });
 
+app.use('/game', game.handler);
+
 io.use((socket, next) => {
   console.log("Query: ", socket.handshake.query);
   if (!socket.handshake.query.username) {
@@ -26,7 +28,7 @@ io.use((socket, next) => {
   return next();
 });
 
-io.on('connection', game.handler);
+io.on('connection', game.socketHandler);
 
 const port = process.env.PORT || 9454;
 http.listen(port, () => {

@@ -1,5 +1,6 @@
 const util = require('./util');
 const fetch = require('node-fetch');
+const express = require('express');
 
 let rooms = [];
 
@@ -107,7 +108,7 @@ const validateArticles = async titles => {
   return validated.filter(title => title !== '');
 };
 
-const handler = async socket => {
+const socketHandler = async socket => {
   console.log('a user connected!');
   console.log(socket.handshake.query);
   let {username, roomId} = socket.handshake.query;
@@ -355,6 +356,26 @@ const handler = async socket => {
   });
 };
 
+const handler = () => {
+  const router = express.Router();
+
+  // TODO: currently this is enabled for debugging purposes.
+  //       add some sort of auth if this endpoint stays.
+  router.get('/details/:roomId', (req, res) => {
+    const roomId = req.params.roomId;
+    const game = getRoomById(roomId);
+    if (!game) {
+      res.status(404);
+      res.json({ error: `Room ${roomId} is not found` });
+    } else {
+      res.json({ data: game });
+    }
+  });
+
+  return router;
+};
+
 module.exports = {
-  handler,
+  socketHandler,
+  handler: handler(),
 };
