@@ -54,26 +54,27 @@ function getCurrentArticle() {
 
 // listens to update
 chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
-    console.log('got message from background:', request);
-    if (request.type === 'update') {
+  function (message, sender, sendResponse) {
+    console.log('got message from background:', message);
+    if (message.type === 'update') {
       // currently we repaint the whole thing.
       // TODO: find more efficient way to update
-      loadUI(request.data);
-    } else if (request.type === 'start') {
-      goto(request.data.currentRound.start);
-    } else if (request.type === 'finished') {
+      loadUI(message.data);
+    } else if (message.type === 'start') {
+      goto(message.data.currentRound.start);
+    } else if (message.type === 'finished') {
       alert('Round is finished!');
-      loadUI(request.data);
-    } else if (request.type === 'init') {
-      // TODO: currently this is the way to input username
-      // remove this when popup is introduced
+      loadUI(message.data);
+    } else if (message.type === 'username_prompt') {
       let username = prompt('Enter your username:');
-      chrome.storage.local.set({ username: username }, function () {
-        sendResponse({ username });
-      });
+      sendResponse({ username });
+      return true;
+    } else if (message.type === 'room_change_prompt') {
+      let confirmMessage = 'You are currently playing in room ' + message.data.old + '. You sure you want to join room ' + message.data.new + '? (You will be removed from the old room)';
+      sendResponse({ confirm: confirm(confirmMessage) });
       return true;
     }
+    sendResponse(null);
   }
 );
 
@@ -88,8 +89,15 @@ function init() {
     type: 'init',
     roomId: new URLSearchParams(window.location.search).get('roomId')
   }, function (data) {
-    console.log('init data:', data);
-    if (!data) return;
+      console.log('init data:', data);
+
+      if (!data) return;
+      
+      if (data.error) {
+        alert('Encountered error: ' + data.error);
+        return;
+      }
+
 
     if (data.roomId) {
       let url = new URL(window.location.href);
@@ -107,7 +115,7 @@ function init() {
           data: {article: currentArticle},
         }, function (reply) {
           chrome.storage.local.set({localState: null}, function () {
-            if (!reply.valid) {
+            if (!reply || !reply.valid) {
               if (reply.message) alert(reply.message);
               goto(lastArticle);
             } else {

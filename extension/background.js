@@ -67,12 +67,21 @@ function initSocketio(data, callback) {
     console.warn('initSocketio called when existing socket connection still active, will close the existing one');
     socket.close();
   }
-  socket = io(serverUrl, {query: query});
+  let reconnectionAttempts = 1;
+  socket = io(serverUrl, {
+    query: query,
+    reconnectionAttempts: reconnectionAttempts,
+    reconnectionDelay: 0,
+  });
   socket.on('connect', function() {
     console.log('socket.io connected!');
   });
   socket.on('disconnect', function() {
     console.log('socket.io disconnected!');
+  });
+  socket.on('reconnect_failed', function () {
+    console.log('reconnection failed after', reconnectionAttempts, 'attempts');
+    callback({ error: 'Failed to connect to the server' });
   });
 
   // one time room data on init
@@ -113,20 +122,20 @@ function initSocketio(data, callback) {
       });
     });
   });
-
-  // TODO: on error, callback(null)
 }
 
 function init(roomId, callback) {
-  // prompt for username
   reset(function () {
     console.log('sending init');
-    sendMessage('init', null, function (data) {
+    // prompt for username
+    sendMessage('username_prompt', null, function (data) {
       if (!data || !data.username) {
         return callback(null);
       }
 
-      initSocketio({ roomId: roomId, username: data.username }, callback);
+      chrome.storage.local.set({ username: data.username }, function () {
+        initSocketio({ roomId: roomId, username: data.username }, callback);
+      });
     });
   });
 }
@@ -135,7 +144,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     console.log('Message from content_script (tabId =', sender.tab.id, '):', request);
 
-    // TODO: use port in the future?
+    // TODO: handle cases when tabs are changed (e.g. user opens multiple wiki tabs).
     tabId = sender.tab.id;
 
     if (request.type === 'init') {
@@ -143,7 +152,13 @@ chrome.runtime.onMessage.addListener(
         chrome.storage.local.get(null, function (data) {
           // when roomId is different, kick ourself out from the old room and join the new one
           if (request.roomId && request.roomId !== data.roomId) {
-            init(request.roomId, sendResponse);
+            sendMessage('room_change_prompt', { old: data.roomId, new: request.roomId }, function (data) {
+              if (data && data.confirm) {
+                init(request.roomId, sendResponse);
+              } else {
+                sendResponse(null);
+              }
+            });
           } else {
             // a session is active: return current context
             sendResponse(data);
@@ -158,12 +173,17 @@ chrome.runtime.onMessage.addListener(
           init(request.roomId, sendResponse);
         }
       }
+      return true;
     } else {
       if (!active || !socket || !socket.connected) {
         console.warn('onMessage called when not active, ignoring. message:', request);
 
         // let reply when request is click
-        if (request.type === 'click') sendResponse({valid: false});
+        if (request.type === 'click') {
+          sendResponse({ valid: false });
+        } else {
+          sendResponse(null);
+        }
         return;
       }
 
@@ -191,13 +211,14 @@ chrome.runtime.onMessage.addListener(
             });
           }
         });
+
+        return true;
       } else {
         console.warn('onMessage unknown request.type:', request);
       }
     }
 
-    // for async sendResponse
-    return true;
+    sendResponse(null);
   }
 );
 
