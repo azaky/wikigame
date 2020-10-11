@@ -1,4 +1,5 @@
 const util = require('./util');
+const fetch = require('node-fetch');
 
 let rooms = [];
 
@@ -85,7 +86,28 @@ const calculateLeaderboard = room => {
   return room.leaderboard;
 };
 
-const handler = socket => {
+const validateArticle = async title => {
+  try {
+    const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+    const body = await response.json();
+    if (body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') {
+      return '';
+    } else {
+      // return canonical name instead of the original title
+      return body.titles.canonical;
+    }
+  } catch (e) {
+    console.error(`Error validating article [${title}]:`, e);
+    return '';
+  }
+};
+
+const validateArticles = async titles => {
+  const validated = await Promise.all(titles.map(validateArticle));
+  return validated.filter(title => title !== '');
+};
+
+const handler = async socket => {
   console.log('a user connected!');
   console.log(socket.handshake.query);
   let {username, roomId} = socket.handshake.query;
@@ -159,13 +181,22 @@ const handler = socket => {
   });
 
   // update rules etc.
-  socket.on('update', (data, ack) => {
+  socket.on('update', async (data, ack) => {
     if (room.host !== username) {
       console.log(`[room=${room.roomId}] [${username}] is not host and attempted to perform update, ignoring`);
       return;
     }
     console.log(`[room=${room.roomId}] [${username}] updates data:`, data);
 
+    if (data.currentRound && data.currentRound.start) {
+      data.currentRound.start = await validateArticle(data.currentRound.start);
+    }
+    if (data.currentRound && data.currentRound.target) {
+      data.currentRound.target = await validateArticle(data.currentRound.target);
+    }
+    if (data.rules && data.rules.bannedArticles) {
+      data.rules.bannedArticles = await validateArticles(data.rules.bannedArticles);
+    }
     // TODO: perform validation to data
     util.mergeDeep(room, data);
 
