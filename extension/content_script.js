@@ -105,13 +105,19 @@ function init() {
 
     // this (supposedly) resolves inactive background page
     const pingInterval = setInterval(() => {
-      chrome.runtime.sendMessage({ type: 'ping' }, (reply) => {
-        if (!reply || !reply.status) {
-          clearInterval(pingInterval);
-          alert('You are disconnected! Refresh this page to reconnect');
-          // TODO: apply visual hint other than alert to indicate disconnection
-        }
-      });
+      try {
+        chrome.runtime.sendMessage({ type: 'ping' }, (reply) => {
+          if (!reply || !reply.status) {
+            clearInterval(pingInterval);
+            alert('You are disconnected! Refresh this page to reconnect');
+            // TODO: apply visual hint other than alert to indicate disconnection
+          }
+        });
+      } catch (e) {
+        console.warn('ping error:', e);
+        clearInterval(pingInterval);
+        alert('You are disconnected! Refresh this page to reconnect');
+      }
     }, 1000);
 
     // append roomId on the URL
