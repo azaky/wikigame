@@ -1,3 +1,4 @@
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const socketio = require('socket.io');
@@ -7,20 +8,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const http = require('http').createServer(app);
-const io = socketio(http);
+const server = http.createServer(app);
+const io = socketio(server);
 
 app.get('/', (req, res) => {
-  res.json({message: 'Hello from Wikigame'});
+  res.json({ message: 'Hello from Wikigame' });
 });
 app.get('/heroku', (req, res) => {
-  res.json({message: 'Hello from Heroku'});
+  res.json({ message: 'Hello from Heroku' });
 });
 
 app.use('/game', game.handler);
 
 io.use((socket, next) => {
-  console.log("Query: ", socket.handshake.query);
+  console.log('Query: ', socket.handshake.query);
   if (!socket.handshake.query.username) {
     console.log('no username');
     return next(new Error('username is required'));
@@ -31,6 +32,6 @@ io.use((socket, next) => {
 io.on('connection', game.socketHandler);
 
 const port = process.env.PORT || 9454;
-http.listen(port, () => {
+server.listen(port, () => {
   console.log(`Wikigame server listening on port ${port}`);
 });
