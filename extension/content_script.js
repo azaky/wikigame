@@ -182,7 +182,7 @@ function loadLobby(data) {
 
   let widgets = [];
   if (leaderboard && leaderboard.length) {
-    widgets.push(leaderboardWidget(leaderboard, data.host));
+    widgets.push(leaderboardWidget(leaderboard, data.host, data.username));
   }
   widgets.push(currentRoundWidget(currentRound, rules, !isHost));
   if (lastRound) {
@@ -624,7 +624,7 @@ function pathWidget(path, title) {
   `;
 }
 
-function leaderboardWidget(leaderboard, host) {
+function leaderboardWidget(leaderboard, host, username) {
   return `
     <nav class="vector-menu vector-menu-portal portal">
       <h3>
@@ -634,10 +634,11 @@ function leaderboardWidget(leaderboard, host) {
         <ul>
           ${leaderboard.map(function (result, index) {
             return `<li>
-              ${index+1}. ${host === result.username
-                ? `<b>${result.username} (${result.score}) <span title="host">👑</span></b>`
+              ${index + 1}. ${username === result.username
+                ? `<b>${result.username} (${result.score})</b>`
                 : `${result.username} (${result.score})`
               }
+              ${host === result.username ? `<span title="host">👑</span>` : ``}
             </li>`;
           }).join('\n')}
         </ul>
