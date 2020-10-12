@@ -26,7 +26,7 @@ function LobbySidebar(props) {
     chrome.runtime.sendMessage({
       type: 'update',
       data: { currentRound: { start: title } },
-    })
+    });
   };
 
   const onTargetArticleChange = title => {
@@ -35,7 +35,7 @@ function LobbySidebar(props) {
     chrome.runtime.sendMessage({
       type: 'update',
       data: { currentRound: { target: title } },
-    })
+    });
   };
 
   const onRulesChange = newRules => {
@@ -96,12 +96,15 @@ function GameSidebar(props) {
   console.log('GameSidebar:', props);
 
   const {data} = props;
-  const {currentState, currentRound, rules, username, leaderboard, host} = data;
+  const {currentState, currentRound, rules, username} = data;
 
   // enforce rules
   useEffect(() => {
     console.log('enforce rules!');
     if (currentState.finished) return;
+
+    // remove search bar
+    document.getElementById('simpleSearch').remove();
 
     // ctrl+f
     if (typeof rules.allowCtrlf === 'boolean' && !rules.allowCtrlf) {
@@ -165,17 +168,9 @@ function GameSidebar(props) {
   return (
     <div id="wikigame-wrapper">
       <Header username={username} />
-      {
-        (leaderboard && leaderboard.length)
-          ? <Leaderboard
-              leaderboard={leaderboard}
-              host={host}
-              username={username}
-            />
-          : null
-      }
       <CurrentRoundOverview
         round={currentRound}
+        currentState={currentState}
       />
       <Rules
         rules={rules}
