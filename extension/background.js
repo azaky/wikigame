@@ -161,6 +161,8 @@ chrome.runtime.onMessage.addListener(
           if (message.roomId && message.roomId !== data.roomId) {
             sendMessage('room_change_prompt', { old: data.roomId, new: message.roomId }, (changeRoomData) => {
               if (changeRoomData && changeRoomData.confirm) {
+                active = false;
+                socket.close();
                 init(message.roomId, sendResponse);
               } else {
                 sendResponse(null);
