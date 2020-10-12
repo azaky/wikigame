@@ -79,7 +79,10 @@ function initSocketio(initData, callback) {
     console.log('socket.io connected!');
   });
   socket.on('disconnect', () => {
-    sendMessage('disconnected');
+    if (active) {
+      active = false;
+      sendMessage('disconnected');
+    }
     console.log('socket.io disconnected!');
   });
   socket.on('reconnect_failed', () => {
@@ -179,6 +182,17 @@ chrome.runtime.onMessage.addListener(
       }
       return true;
     }
+
+    if (message.type === 'ping') {
+      if (active && socket && socket.connected) {
+        sendResponse({ status: true });
+      } else {
+        active = false;
+        sendResponse({ status: false });
+      }
+      return false;
+    }
+
     if (!active || !socket || !socket.connected) {
       console.warn('onMessage called when not active, ignoring. message:', message);
 
@@ -191,10 +205,7 @@ chrome.runtime.onMessage.addListener(
       return false;
     }
 
-    if (message.type === 'ping') {
-      sendResponse({ status: true });
-      return false;
-    } if (message.type === 'update') {
+    if (message.type === 'update') {
       console.log('update:', message.data);
 
       socket.emit('update', message.data, (ack) => {

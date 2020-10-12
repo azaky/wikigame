@@ -114,8 +114,8 @@ function init() {
           }
         });
       } catch (e) {
-        console.warn('ping error:', e);
         clearInterval(pingInterval);
+        console.log('ping error:', e);
         alert('You are disconnected! Refresh this page to reconnect');
       }
     }, 1000);
