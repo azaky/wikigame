@@ -4,6 +4,12 @@ export function getRandomPage() {
     .then(data => data.items && data.items.length && data.items[0].title);
 }
 
+export function resolveTitle(title) {
+  return window.fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`)
+    .then(res => res.json())
+    .then(data => data.titles && data.titles.canonical);
+}
+
 export function getAutocomplete(keyword) {
   const host = 'https://en.wikipedia.org';
   const endpoint = '/w/api.php';

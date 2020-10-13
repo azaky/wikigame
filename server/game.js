@@ -87,16 +87,23 @@ const calculateLeaderboard = (room) => {
   return room.leaderboard;
 };
 
-// on valid articles, this return:
-// {
-//   found: true,
-//   title: <canonical title>,
-//   thumbnail: <url to thumbnail>
-// }
-//
-// on invalid articles, this returns { found: false }
+/*
+   on valid articles, this return:
+
+   {
+     found: true,
+     type: standard | disambiguation | no-extract (category included),
+     title: <canonical title>,
+     normalizedTitle: <normalized title>,
+     thumbnail: <url to thumbnail>,
+   }
+
+   on invalid articles, this returns { found: false }
+*/
+// TODO: cache this for God's sake
 const validateArticle = async (title) => {
   try {
+    if (!title) return { found: false };
     const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
     const body = await response.json();
     if (body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') {
@@ -104,7 +111,9 @@ const validateArticle = async (title) => {
     }
     return {
       found: true,
+      type: body.type,
       title: body.titles.canonical,
+      normalizedTitle: body.titles.normalized,
       thumbnail: (body.thumbnail && body.thumbnail.source) || '',
     };
   } catch (e) {
@@ -233,8 +242,8 @@ const socketHandler = async (socket) => {
     socket.emit('update', data);
   });
 
-  let ticker; let
-    countdown;
+  let ticker;
+  let countdown;
 
   const onFinished = () => {
     if (room.state !== 'playing') return;
@@ -331,23 +340,39 @@ const socketHandler = async (socket) => {
     socket.emit('start', startData);
   });
 
-  socket.on('click', (data, ack) => {
-    const { article } = data;
-    console.log(`[room=${room.roomId}] [${username}] is clicking ${article}`);
+  socket.on('click', async (data, ack) => {
+    console.log(`[room=${room.roomId}] [${username}] is clicking ${data.article}`);
 
     if (room.state !== 'playing' || room.currentState[username].finished) {
       ack({ valid: false });
       return;
     }
 
+    // resolve article, including redirects etc.
+    const validated = await validateArticle(data.article);
+    if (!validated.found) {
+      ack({ valid: false });
+      return;
+    }
+    const article = validated.title;
+
     if (room.rules.bannedArticles.includes(article)) {
       ack({ valid: false, message: `${article} is banned! You can't go there!` });
       return;
     }
 
-    // TODO: validation?
-    room.currentState[username].path.push(article);
-    room.currentState[username].clicks++;
+    if (!room.rules.allowDisambiguation && validated.type === 'disambiguation') {
+      ack({ valid: false, message: `${article} is a disambiguation page! You can't go there!` });
+      return;
+    }
+
+    // Double articles checks
+    // Since clicking improvement in client side, perhaps we don't need really this.
+    // However, there's no harm in more precaution (other than the slight advantage to users)
+    if (room.currentState[username].path.slice(-1)[0] !== article) {
+      room.currentState[username].path.push(article);
+      room.currentState[username].clicks++;
+    }
 
     // win condition checks
     if (article === room.currentRound.target) {

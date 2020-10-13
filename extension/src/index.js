@@ -2,81 +2,12 @@ import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
 
 import * as util from './util';
+import * as wiki from './wiki';
 import {Sidebar} from './sidebar';
 
 function Root(props) {
-  const currentArticle = util.getCurrentArticle();
-  console.log('currentArticle:', currentArticle);
-
-  let [data, setData] = useState(props.data);
-
-  useEffect(() => {
-    setData(props.data);
-  }, [props.data]);
-
-  console.log('Root: data:', data);
-
-  // this (supposedly) resolves inactive background page
-  useEffect(() => {
-    console.log('set ping interval');
-    const pingInterval = setInterval(() => {
-      try {
-        chrome.runtime.sendMessage({ type: 'ping' }, reply => {
-          if (!reply || !reply.status) {
-            clearInterval(pingInterval);
-            alert('You are disconnected! Refresh this page to reconnect');
-            // TODO: apply visual hint other than alert to indicate disconnection
-          }
-        });
-      } catch (e) {
-        clearInterval(pingInterval);
-        console.log('ping error:', e);
-        alert('You are disconnected! Refresh this page to reconnect');
-      }
-    }, 1000);
-  }, []);
-
-  // handle clicking
-  // TODO: this can (and should) be moved to server-side
-  useEffect(() => {
-    if (data.state === 'playing' && !data.currentState.finished) {
-      const lastArticle = data.currentState.path.slice(-1)[0] || data.currentRound.start;
-
-      if (data.localState === 'clicking') {
-        chrome.runtime.sendMessage({
-          type: 'click',
-          data: { article: currentArticle },
-        }, (reply) => {
-          chrome.storage.local.set({ localState: null }, () => {
-            if (!reply || !reply.valid) {
-              if (reply.message) {
-                alert(reply.message);
-              }
-              util.goto(lastArticle);
-            } else {
-              if (reply.currentState.finished) {
-                alert(`You reached the target! Your score is ${reply.currentState.score}`);
-              }
-              setData({ ...data, currentState: reply.currentState });
-            }
-          });
-        });
-      } else if (lastArticle !== currentArticle) {
-        // prevent infinite loop by introducing invalid state
-        if (data.localState === 'invalid') {
-          console.error('We\'re in invalid state! Will stay on this article to prevent infinite redirects');
-          chrome.storage.local.set({ localState: null });
-        } else {
-          chrome.storage.local.set({ localState: 'invalid' }, () => {
-            util.goto(lastArticle);
-          });
-        }
-      }
-    }
-  }, [data.state, data.localState]);
-
   return (
-    <Sidebar data={data} />
+    <Sidebar data={props.data} />
   );
 };
 
@@ -88,8 +19,10 @@ function init() {
   const rootEl = document.getElementById('mw-panel');
   let el;
   let initialRender = false;
-  function render(data) {
-    if (!data || !initialRender) return;
+  function render(data, initial = false) {
+    console.log('render nih. initial:', initial);
+    if (!data || (!initial && !initialRender)) return;
+    initialRender = true;
     el = ReactDOM.render(<Root data={data} />, rootEl, el);
   }
 
@@ -99,7 +32,8 @@ function init() {
 
       switch (message.type) {
         case 'username_prompt':
-          const username = window.prompt('Enter your username:');
+          // const username = window.prompt('Enter your username:');
+          const username = 'a';
           sendResponse({ username });
           return true;
 
@@ -147,10 +81,80 @@ function init() {
       return;
     }
 
-    util.setRoomIdOnUrl(data.roomId);
+    // this (supposedly) resolves inactive background page
+    const pingInterval = setInterval(() => {
+      try {
+        chrome.runtime.sendMessage({ type: 'ping' }, reply => {
+          if (!reply || !reply.status) {
+            clearInterval(pingInterval);
+            alert('You are disconnected! Refresh this page to reconnect');
+            // TODO: apply visual hint other than alert to indicate disconnection
+          }
+        });
+      } catch (e) {
+        clearInterval(pingInterval);
+        console.log('ping error:', e);
+        alert('You are disconnected! Refresh this page to reconnect');
+      }
+    }, 1000);
 
-    initialRender = true;
-    render(data);
+    util.setRoomIdOnUrl(data.roomId);
+    const currentArticle = util.getCurrentArticle();
+
+    // click checks
+    if (data.state === 'playing' && !data.currentState.finished) {
+      const lastArticle = data.currentState.path.slice(-1)[0] || data.currentRound.start;
+
+      if (data.localState === 'clicking') {
+        chrome.runtime.sendMessage({
+          type: 'click',
+          data: { article: currentArticle },
+        }, reply => {
+          chrome.storage.local.set({ localState: null }, () => {
+            if (!reply || !reply.valid) {
+              if (reply.message) {
+                alert(reply.message);
+              }
+              util.goto(lastArticle);
+            } else {
+              if (reply.currentState.finished) {
+                alert(`You reach the target! Your score is ${reply.currentState.score}`);
+              }
+
+              render({ ...data, currentState: reply.currentState }, true);
+            }
+          });
+        });
+      } else if (lastArticle !== currentArticle) {
+        // resolve redirects for one more time
+        wiki.resolveTitle(currentArticle)
+          .then(resolved => {
+            if (resolved === lastArticle) {
+              render(data, true);
+            } else {
+              // prevent infinite loop by introducing invalid state
+              if (data.localState === 'invalid') {
+                console.error('We\'re in invalid state! Will stay on this article to prevent infinite redirects');
+                chrome.storage.local.set({ localState: null });
+              } else {
+                chrome.storage.local.set({ localState: 'invalid' }, () => {
+                  util.goto(lastArticle);
+                });
+              }
+            }
+          })
+          .catch(err => {
+            console.error('Error resolving title!', err);
+
+            // keep rendering on this case
+            render(data, true);
+          });
+      } else {
+        render(data, true);
+      } 
+    } else {
+      render(data, true);
+    }
   });
 }
 

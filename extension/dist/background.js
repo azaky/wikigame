@@ -227,7 +227,10 @@ chrome.runtime.onMessage.addListener(
           sendResponse({ valid: false, message: ack.message });
         } else {
           chrome.storage.local.set({ currentState: ack.currentState }, () => {
-            sendResponse({ valid: true, currentState: ack.currentState });
+            chrome.storage.local.get(null, updated => {
+              sendMessage('update', updated);
+              sendResponse({ valid: true, currentState: ack.currentState });
+            });
           });
         }
       });

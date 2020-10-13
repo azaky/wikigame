@@ -14,8 +14,6 @@ function Header(props) {
 }
 
 function LobbySidebar(props) {
-  console.log('LobbySidebar:', props);
-
   const {data} = props;
   const {currentRound, rules, leaderboard, lastRound, host, username } = data;
   const isHost = host === username;
@@ -93,8 +91,6 @@ function LobbySidebar(props) {
 }
 
 function GameSidebar(props) {
-  console.log('GameSidebar:', props);
-
   const {data} = props;
   const {currentState, currentRound, rules, username} = data;
 
@@ -115,9 +111,6 @@ function GameSidebar(props) {
         }
       });
     }
-
-    // TODO: disambiguation links
-    // this should be done in server anyway
   }, [currentState.finished]);
 
   // override a.click
@@ -136,7 +129,7 @@ function GameSidebar(props) {
 
           // anchor links
           if (article === util.getCurrentArticle()) {
-            console.log('Anchor link, doesnt count as a click:', link);
+            console.log(`Anchor link, doesn't count as a click:`, link);
             return;
           }
 
@@ -155,10 +148,15 @@ function GameSidebar(props) {
           }
 
           console.log('Navigating to:', article);
-          chrome.storage.local.set({
-            localState: 'clicking',
-          }, () => {
-            util.goto(article);
+
+          chrome.storage.local.get(['localState'], ({localState}) => {
+            if (localState === 'clicking') {
+              console.log(`Ignoring clicks, there's another ongoing clicking event`);
+              return;
+            }
+            chrome.storage.local.set({localState: 'clicking'}, () => {
+              util.goto(article);
+            });
           });
         };
       }(links[i]));
