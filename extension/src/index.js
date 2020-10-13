@@ -60,6 +60,10 @@ function init() {
           // TODO: apply visual hint other than alert to indicate disconnection
           break;
 
+        case 'notification':
+          alert(`${message.data.type}: ${message.data.message}`);
+          break;
+
         default:
           console.warn('unknown message type:', message.type);
       }
@@ -111,7 +115,7 @@ function init() {
           data: { article: currentArticle },
         }, reply => {
           chrome.storage.local.set({ localState: null }, () => {
-            if (!reply || !reply.valid) {
+            if (!reply || !reply.success) {
               if (reply.message) {
                 alert(reply.message);
               }

@@ -203,9 +203,13 @@ const socketHandler = async (socket) => {
   });
 
   // update rules etc.
-  socket.on('update', async (data) => {
+  socket.on('update', async (data, ack) => {
     if (room.host !== username) {
       console.log(`[room=${room.roomId}] [${username}] is not host and attempted to perform update, ignoring`);
+      ack({
+        success: false,
+        message: 'You must be a host to perform update',
+      });
       return;
     }
     console.log(`[room=${room.roomId}] [${username}] updates data:`, data);
@@ -213,6 +217,13 @@ const socketHandler = async (socket) => {
     if (data.currentRound && data.currentRound.start) {
       const validated = await validateArticle(data.currentRound.start);
       if (validated.found) {
+        if (validated.type === 'disambiguation') {
+          ack({
+            success: false,
+            message: 'Start article cannot be a disambiguation page',
+          });
+          return;
+        }
         data.currentRound.start = validated.title;
         data.currentRound.startThumbnail = validated.thumbnail;
       } else {
@@ -223,6 +234,13 @@ const socketHandler = async (socket) => {
     if (data.currentRound && data.currentRound.target) {
       const validated = await validateArticle(data.currentRound.target);
       if (validated.found) {
+        if (validated.type === 'disambiguation') {
+          ack({
+            success: false,
+            message: 'Target article cannot be a disambiguation page',
+          });
+          return;
+        }
         data.currentRound.target = validated.title;
         data.currentRound.targetThumbnail = validated.thumbnail;
       } else {
@@ -234,11 +252,12 @@ const socketHandler = async (socket) => {
       const validated = await validateArticles(data.rules.bannedArticles);
       data.rules.bannedArticles = validated.filter((v) => v.found).map((v) => v.title);
     }
+
     // TODO: perform validation to data
     util.mergeDeep(room, data);
 
     // broadcast changes, and only the changes (not the whole data)
-    socket.to(room.roomId).emit('update', data);
+    ack({ success: true, data });
     socket.emit('update', data);
   });
 
@@ -280,7 +299,7 @@ const socketHandler = async (socket) => {
   };
 
   // start game
-  socket.on('start', () => {
+  socket.on('start', (_, ack) => {
     if (room.host !== username) {
       console.log(`[room=${room.roomId}] [${username}] is not host and attempted to perform start, ignoring`);
       return;
@@ -289,6 +308,36 @@ const socketHandler = async (socket) => {
 
     if (room.currentRound.started) {
       console.log(`[room=${room.roomId}] [${username}] attempted to perform start, but round is already started, ignoring`);
+      return;
+    }
+
+    // round config checks
+    if (!room.currentRound.start) {
+      ack({
+        success: false,
+        message: 'Start article must not be empty!',
+      });
+      return;
+    }
+    if (!room.currentRound.target) {
+      ack({
+        success: false,
+        message: 'Target article must not be empty!',
+      });
+      return;
+    }
+    if (room.rules.bannedArticles.includes(room.currentRound.start)) {
+      ack({
+        success: false,
+        message: 'Start article must not be banned!',
+      });
+      return;
+    }
+    if (room.rules.bannedArticles.includes(room.currentRound.target)) {
+      ack({
+        success: false,
+        message: 'Target article must not be banned!',
+      });
       return;
     }
 
@@ -336,7 +385,8 @@ const socketHandler = async (socket) => {
       currentState,
       currentRound: room.currentRound,
     };
-    socket.to(room.roomId).emit('start', startData);
+
+    ack({ success: true, data: startData });
     socket.emit('start', startData);
   });
 
@@ -344,25 +394,25 @@ const socketHandler = async (socket) => {
     console.log(`[room=${room.roomId}] [${username}] is clicking ${data.article}`);
 
     if (room.state !== 'playing' || room.currentState[username].finished) {
-      ack({ valid: false });
+      ack({ success: false });
       return;
     }
 
     // resolve article, including redirects etc.
     const validated = await validateArticle(data.article);
     if (!validated.found) {
-      ack({ valid: false });
+      ack({ success: false });
       return;
     }
     const article = validated.title;
 
     if (room.rules.bannedArticles.includes(article)) {
-      ack({ valid: false, message: `${article} is banned! You can't go there!` });
+      ack({ success: false, message: `${article} is banned! You can't go there!` });
       return;
     }
 
     if (!room.rules.allowDisambiguation && validated.type === 'disambiguation') {
-      ack({ valid: false, message: `${article} is a disambiguation page! You can't go there!` });
+      ack({ success: false, message: `${article} is a disambiguation page! You can't go there!` });
       return;
     }
 
@@ -383,7 +433,7 @@ const socketHandler = async (socket) => {
 
     generateCurrentRoundResult(room);
 
-    ack({ valid: true, currentState: room.currentState[username] });
+    ack({ success: true, currentState: room.currentState[username] });
 
     socket.to(room.roomId).emit('update', { currentRound: room.currentRound });
     socket.emit('update', { currentRound: room.currentRound });
