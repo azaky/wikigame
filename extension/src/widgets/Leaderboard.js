@@ -4,7 +4,7 @@ export function Leaderboard(props) {
   const {leaderboard, host, username} = props;
   return (
     <nav class="vector-menu vector-menu-portal portal">
-      <h3>
+      <h3 style={{fontSize: '0.9em'}}>
         <span>Leaderboard</span>
       </h3>
       <div class="body vector-menu-content">

@@ -42,7 +42,7 @@ function ScoringMetrics(props) {
 
   return (
     <div>
-      <label>Time Limit</label>
+      <label>Scoring Metrics</label>
       <select
         style={{textTransform:'capitalize'}}
         value={value}
@@ -204,7 +204,7 @@ export function Rules(props) {
 
   return (
     <nav class="vector-menu vector-menu-portal portal">
-      <h3>
+      <h3 style={{fontSize: '0.9em'}}>
         <span>Rules</span>
       </h3>
       <div class="body vector-menu-content">
@@ -218,15 +218,17 @@ export function Rules(props) {
           onChange={onScoringMetricsChange}
           disabled={disabled}
         />
-        <label>Additional Rules</label>
-        <br/>
+      </div>
+      <h3>
+        <span>Additional Rules</span>
+      </h3>
+      <div class="body vector-menu-content">
         <CheckBox
           label="Allow Ctrl+F"
           checked={rules.allowCtrlf}
           onChange={onAllowCtrlfChange}
           disabled={disabled}
         />
-        <br/>
         <CheckBox
           label="Allow disambiguation page"
           checked={rules.allowDisambiguation}

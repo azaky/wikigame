@@ -1,7 +1,7 @@
 import React from 'react';
 import * as util from '../util';
 
-export function LastRound(props) {
+export function LastRoundOverview(props) {
   const {round} = props;
 
   const onShowDetails = player => {
@@ -15,7 +15,7 @@ export function LastRound(props) {
 
   return (
     <nav class="vector-menu vector-menu-portal portal">
-      <h3>
+      <h3 style={{fontSize: '0.9em'}}>
         <span>Last Round</span>
       </h3>
       <div class="body vector-menu-content">

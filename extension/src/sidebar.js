@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {Leaderboard, CurrentRound, LastRound} from './widgets';
+import React, {useEffect} from 'react';
+import {Leaderboard, CurrentRoundOverview, LastRoundOverview, NextRoundArticlePicker, Rules} from './widgets';
 import * as util from './util';
 
 function Header(props) {
   const {username} = props;
   return (
     <nav class="vector-menu vector-menu-portal portal">
-      <h3 style={{fontSize:'1em'}}>
+      <h3 style={{fontSize: '1em'}}>
         <span>Welcome to Wikigame, <b>{username}</b>!</span>
       </h3>
     </nav>
@@ -69,22 +69,25 @@ function LobbySidebar(props) {
             />
           : null
       }
-      <CurrentRound
+      <NextRoundArticlePicker
         round={currentRound}
-        rules={rules}
         disabled={!isHost}
         onStartArticleChange={onStartArticleChange}
         onTargetArticleChange={onTargetArticleChange}
         onStartRound={onStartRound}
-        onRulesChange={onRulesChange}
       />
       {
         lastRound
-          ? <LastRound
+          ? <LastRoundOverview
               round={lastRound}
             />
           : null
       }
+      <Rules
+        rules={rules}
+        disabled={!isHost}
+        onRulesChange={onRulesChange}
+      />
     </div>
   );
 }
@@ -98,9 +101,9 @@ function GameSidebar(props) {
   // enforce rules
   useEffect(() => {
     console.log('enforce rules!');
+    if (currentState.finished) return;
 
     // ctrl+f
-    // TODO: disable this when currentState.finished
     if (typeof rules.allowCtrlf === 'boolean' && !rules.allowCtrlf) {
       window.addEventListener('keydown', e => {
         if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
@@ -112,7 +115,7 @@ function GameSidebar(props) {
 
     // TODO: disambiguation links
     // this should be done in server anyway
-  }, []);
+  }, [currentState.finished]);
 
   // override a.click
   useEffect(() => {
@@ -171,8 +174,10 @@ function GameSidebar(props) {
             />
           : null
       }
-      <CurrentRound
+      <CurrentRoundOverview
         round={currentRound}
+      />
+      <Rules
         rules={rules}
         disabled={true}
       />

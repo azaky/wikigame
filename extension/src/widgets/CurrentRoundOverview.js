@@ -1,74 +1,4 @@
-import React, {useEffect, useState} from 'react';
-import {ArticlePicker} from './ArticlePicker';
-import {Rules} from './Rules';
-
-export function CurrentRound(props) {
-  const {round, rules, disabled, onStartArticleChange, onTargetArticleChange, onStartRound, onRulesChange} = props;
-
-  return (
-    <>
-      {
-        round.started
-          ? <CurrentRoundStatus round={round} />
-          : <CurrentRoundArticlePicker
-              round={round}
-              disabled={disabled}
-              onStartArticleChange={onStartArticleChange}
-              onTargetArticleChange={onTargetArticleChange}
-              onStartRound={onStartRound}
-            />
-      }
-      <Rules
-        rules={rules}
-        disabled={disabled}
-        onRulesChange={onRulesChange}
-      />
-    </>
-  );
-}
-
-function CurrentRoundArticlePicker(props) {
-  const {round, disabled, onStartArticleChange, onTargetArticleChange, onStartRound} = props;
-
-  const onStartClick = () => {
-    if (disabled) return;
-
-    onStartRound();
-  }
-
-  return (
-    <nav class="vector-menu vector-menu-portal portal">
-      <h3>
-        <span>Next Round</span>
-      </h3>
-      <div class="body vector-menu-content">
-        <div style={{paddingBottom: '10px'}}>
-          <label>Start Article</label>
-          <div style={{paddingBottom: '10px'}}>
-            <ArticlePicker
-              value={round.start}
-              onChange={onStartArticleChange}
-              disabled={disabled}
-            />
-          </div>
-          <label>Target Article</label>
-          <div style={{paddingBottom: '10px'}}>
-            <ArticlePicker
-              value={round.target}
-              onChange={onTargetArticleChange}
-              disabled={disabled}
-            />
-          </div>
-        </div>
-        {
-          !disabled
-            ? <button id="wikigame-start" onClick={onStartClick}>Start</button>
-            : null
-        }
-      </div>
-    </nav>
-  );
-}
+import React from 'react';
 
 function ArticleOverview(props) {
   const {article, label, thumbnail} = props;
@@ -128,7 +58,7 @@ function RoundStandings(props) {
   );
 }
 
-function CurrentRoundStatus(props) {
+export function CurrentRoundOverview(props) {
   const {round} = props;
 
   return (
