@@ -48,3 +48,13 @@ export function goto(article) {
 export function getCurrentArticle() {
   return getArticleFromUrl(window.location.href).article;
 }
+
+export function isSpecialArticle(article) {
+  return typeof article === 'string' && (
+    article.startsWith('Special:')
+    || article.startsWith('Help:')
+    || article.startsWith('Wikipedia:')
+    || article.startsWith('Talk:')
+    || article.startsWith('Main_Page')
+    || article.startsWith('File:'));
+}

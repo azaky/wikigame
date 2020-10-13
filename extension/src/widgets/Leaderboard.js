@@ -20,7 +20,7 @@ export function Leaderboard(props) {
                 }
                 {
                   host === player.username
-                    ? <span title="host">👑</span>
+                    ? <span title="host"> 👑</span>
                     : null
                 }
               </li>

@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {ArticlePicker} from './ArticlePicker';
+import {Rules} from './Rules';
 
 export function CurrentRound(props) {
   const {round, rules, disabled, onStartArticleChange, onTargetArticleChange, onStartRound, onRulesChange} = props;
@@ -17,17 +18,24 @@ export function CurrentRound(props) {
               onStartRound={onStartRound}
             />
       }
-      {/* <Rules
+      <Rules
         rules={rules}
         disabled={disabled}
         onRulesChange={onRulesChange}
-      /> */}
+      />
     </>
   );
 }
 
 function CurrentRoundArticlePicker(props) {
   const {round, disabled, onStartArticleChange, onTargetArticleChange, onStartRound} = props;
+
+  const onStartClick = () => {
+    if (disabled) return;
+
+    onStartRound();
+  }
+
   return (
     <nav class="vector-menu vector-menu-portal portal">
       <h3>
@@ -54,7 +62,7 @@ function CurrentRoundArticlePicker(props) {
         </div>
         {
           !disabled
-            ? <button id="wikigame-start" onclick={onStartRound}>Start</button>
+            ? <button id="wikigame-start" onClick={onStartClick}>Start</button>
             : null
         }
       </div>
@@ -77,6 +85,7 @@ function ArticleOverview(props) {
             />
           : null
       }
+      <br/>
       <span style={{wordBreak: 'break-all'}}><b>{article}</b></span>
     </div>
   );
