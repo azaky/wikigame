@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from 'react';
+import {ArticlePicker} from './ArticlePicker';
+import * as util from '../util';
 
 function TimeLimit(props) {
   const {disabled, onChange} = props;
@@ -87,6 +89,91 @@ function CheckBox(props) {
   );
 }
 
+function BannedArticles(props) {
+  const {bannedArticles, disabled, onChange} = props;
+
+  const [pickerValue, setPickerValue] = useState('');
+
+  const pickerOnChange = title => {
+    if (disabled) return;
+
+    setPickerValue(title);
+  };
+
+  const onAdd = value => {
+    if (disabled) return;
+    if (!value || bannedArticles.includes(value)) return;
+
+    onChange(bannedArticles.concat(value));
+  };
+
+  const onDelete = value => {
+    if (disabled) return;
+    if (!value || !bannedArticles.includes(value)) return;
+
+    onChange(bannedArticles.filter(a => a != value));
+  };
+
+  const onCurrent = () => onAdd(util.getCurrentArticle());
+
+  const onClear = () => {
+    if (disabled) return;
+
+    onChange([]);
+  };
+
+  const onAddPicker = () => {
+    onAdd(pickerValue);
+    setPickerValue('');
+  }
+
+  return (
+    <>
+      <h3>
+        <span>Banned Articles</span>
+      </h3>
+      <div class="body vector-menu-content">
+        <ul>
+          {
+            bannedArticles.map(a => (
+              <li>
+                {a}
+                {' '}
+                <a onClick={() => util.goto(a)}>(view)</a>
+                {
+                  disabled ? '' : <>
+                    {' '}
+                    <a onClick={() => onDelete(a)}>(delete)</a>
+                  </>
+                }
+              </li>
+            ))
+          }
+        </ul>
+        {
+          disabled ? null : (
+            <div>
+              <ArticlePicker
+                onChange={pickerOnChange}
+                disabled={disabled}
+                value={pickerValue}
+                placeholder="Add Banned Article"
+              />
+              <span>
+                <button id="wikigame-banned-add" onClick={onAddPicker}>Add</button>
+                {' '}
+                <button id="wikigame-banned-current" onClick={onCurrent}>Current</button>
+                {' '}
+                <button id="wikigame-banned-clear" onClick={onClear}>Clear</button>
+              </span>
+            </div>
+          )
+        }
+      </div>
+    </>
+  );
+}
+
 export function Rules(props) {
   const {rules, disabled, onRulesChange} = props;
 
@@ -108,6 +195,11 @@ export function Rules(props) {
   const onAllowDisambiguationChange = allow => {
     if (disabled) return;
     onRulesChange({ allowDisambiguation: !!allow });
+  };
+
+  const onBannedArticlesChange = bannedArticles => {
+    if (disabled) return;
+    onRulesChange({ bannedArticles: bannedArticles });
   };
 
   return (
@@ -142,6 +234,11 @@ export function Rules(props) {
           disabled={disabled}
         />
       </div>
+      <BannedArticles
+        bannedArticles={rules.bannedArticles}
+        onChange={onBannedArticlesChange}
+        disabled={disabled}
+      />
     </nav>
   );
 }

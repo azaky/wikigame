@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Leaderboard, CurrentRound} from './widgets';
+import {Leaderboard, CurrentRound, LastRound} from './widgets';
 import * as util from './util';
 
 function Header(props) {
@@ -78,6 +78,13 @@ function LobbySidebar(props) {
         onStartRound={onStartRound}
         onRulesChange={onRulesChange}
       />
+      {
+        lastRound
+          ? <LastRound
+              round={lastRound}
+            />
+          : null
+      }
     </div>
   );
 }

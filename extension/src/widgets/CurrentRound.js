@@ -118,7 +118,7 @@ function RoundStandings(props) {
             standings.map(player => (
               <li>
                 {player.username} ({player.clicks} click{player.clicks > 1 ? 's' : ''})
-                {player.finished ? <>(score = ${player.score})</> : null}
+                {player.finished ? <>(score = {player.score})</> : null}
               </li>
             ))
           }

@@ -4,7 +4,7 @@ import {getCurrentArticle, goto} from '../util';
 import {getRandomPage} from '../wiki';
 
 export function ArticlePicker(props) {
-  const {onChange, disabled} = props;
+  const {onChange, disabled, placeholder} = props;
 
   const [value, setValue] = useState(props.value);
   useEffect(() => {
@@ -41,7 +41,7 @@ export function ArticlePicker(props) {
     <div class="wikigame-article-picker">
       <input
         type="text"
-        placeholder="Pick an article"
+        placeholder={placeholder || "Pick an article"}
         disabled={disabled}
         value={value}
         title={value}
