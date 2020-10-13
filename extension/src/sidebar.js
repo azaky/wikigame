@@ -35,6 +35,24 @@ function LobbySidebar(props) {
   const {currentRound, rules, leaderboard, lastRound, host, username } = data;
   const isHost = host === username;
 
+  const onStartArticleChange = title => {
+    console.log('onStartArticleChange', title);
+    if (!isHost) return;
+    chrome.runtime.sendMessage({
+      type: 'update',
+      data: { currentRound: { start: title } },
+    })
+  };
+
+  const onTargetArticleChange = title => {
+    console.log('onTargetArticleChange', title);
+    if (!isHost) return;
+    chrome.runtime.sendMessage({
+      type: 'update',
+      data: { currentRound: { target: title } },
+    })
+  };
+
   return (
     <div id="wikigame-wrapper">
       <Header username={username} />
@@ -51,12 +69,8 @@ function LobbySidebar(props) {
         round={currentRound}
         rules={rules}
         disabled={!isHost}
-        onStartArticleChange={e => {
-          console.log('onStartArticleChange', e);
-        }}
-        onTargetArticleChange={e => {
-          console.log('onTargetArticleChange', e);
-        }}
+        onStartArticleChange={onStartArticleChange}
+        onTargetArticleChange={onTargetArticleChange}
         onStartRound={e => {
           console.log('onStartRound', e);
         }}

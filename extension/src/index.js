@@ -62,8 +62,8 @@ function Root(props) {
 
         switch (message.type) {
           case 'username_prompt':
-            const username = window.prompt('Enter your username:');
-            sendResponse({ username });
+            // const username = window.prompt('Enter your username:');
+            sendResponse({ username: 'a' });
             return true;
 
           case 'update':

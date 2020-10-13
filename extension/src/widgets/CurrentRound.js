@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {ArticlePicker} from './ArticlePicker';
 
 export function CurrentRound(props) {
   const {round, rules, disabled, onStartArticleChange, onTargetArticleChange, onStartRound, onRulesChange} = props;
@@ -25,29 +26,8 @@ export function CurrentRound(props) {
   );
 }
 
-// TODO: export to own widget
-function ArticlePicker(props) {
-  const {value, onChange, disabled} = props;
-  return (
-    <input
-      type="text"
-      placeholder="Pick an article"
-      id="wikigame-article-start"
-      disabled={disabled}
-      value={value}
-      onChange={onChange}
-    />
-      // {/* ${disabled ? '' : `
-      // <a class="a" href="#" id="wikigame-article-start-current">current</a>
-      // |
-      // <a class="a" href="#" id="wikigame-article-start-random">random</a>
-      // `} */}
-
-  );
-}
-
 function CurrentRoundArticlePicker(props) {
-  const {round, disabled, onStartArticleChange, onTargetArticleChange, onStart} = props;
+  const {round, disabled, onStartArticleChange, onTargetArticleChange, onStartRound} = props;
   return (
     <nav class="vector-menu vector-menu-portal portal">
       <h3>
@@ -103,9 +83,15 @@ function ArticleOverview(props) {
 }
 
 function Countdown(props) {
+  const {timeLeft} = props;
+
   return (
-    <button id="wikigame-countdown" disabled class={round.timeLeft < 10 ? 'red' : ''}>
-      {Math.floor(round.timeLeft / 60)}:{(`00${round.timeLeft % 60}`).slice(-2)}
+    <button
+      id="wikigame-countdown"
+      class={timeLeft < 10 ? 'red' : ''}
+      disabled
+    >
+      {Math.floor(timeLeft / 60)}:{(`00${timeLeft % 60}`).slice(-2)}
     </button>
   );
 }
@@ -153,6 +139,7 @@ function CurrentRoundStatus(props) {
             article={round.target}
             thumbnail={round.targetThumbnail}
           />
+          <Countdown timeLeft={round.timeLeft} />
         </div>
       </nav>
       <RoundStandings standings={round.result} />
