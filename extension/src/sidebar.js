@@ -123,11 +123,11 @@ function GameSidebar(props) {
   // override a.click
   useEffect(() => {
     const links = document.getElementsByTagName('a');
+    if (currentState.finished) return;
+
     for (let i = 0; i < links.length; i++) {
       links[i].onclick = (function (target) {
         return function (e) {
-          if (currentState.finished) return;
-
           const link = target.href;
           console.log('Clicking:', link);
 

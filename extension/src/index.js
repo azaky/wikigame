@@ -4,12 +4,6 @@ import ReactDOM from 'react-dom';
 import * as util from './util';
 import {Sidebar} from './sidebar';
 
-// resolves ReferenceError: regeneratorRuntime is not defined
-// https://stackoverflow.com/a/61517521/6662136
-// import * as _chrome from './chrome';
-// import 'regenerator-runtime/runtime';
-// import 'core-js/stable';
-
 function Root(props) {
   const currentArticle = util.getCurrentArticle();
   console.log('currentArticle:', currentArticle);
