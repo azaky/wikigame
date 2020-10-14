@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode production && cp -rf -t dist static/*",
-    "pack": "rm -rf dist && npm run build && cd dist && zip wikigame-v$npm_package_version.zip *"
+    "pack": "rm -rf dist && npm run build && cd dist && zip wikigame-v$npm_package_version.zip *",
+    "init-pre-commit": "echo '#!/bin/sh\necho \"Running pre-commit scripts...\"\ncd ./extension && npm run pre-commit' > `git rev-parse --show-toplevel`/.git/hooks/pre-commit",
+    "pre-commit": "npm run pack && cd .. && git add extension/dist/"
   },
   "keywords": [],
   "author": "",
