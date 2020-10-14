@@ -23,7 +23,7 @@
         "https://en.wikipedia.org/w/*"
       ],
       "js": [
-        "main.js"
+        "content_script.js"
       ],
       "css": [
         "style.css"

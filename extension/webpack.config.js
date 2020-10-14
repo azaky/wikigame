@@ -9,5 +9,8 @@ module.exports = {
         }
       }
     ]
+  },
+  output: {
+    filename: "content_script.js"
   }
 };

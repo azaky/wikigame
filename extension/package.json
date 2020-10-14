@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production && cp -rf -t dist manifest.json background.js images",
-    "pack": "npm run build && cd dist && zip wikigame-v$npm_package_version.zip *"
+    "build": "webpack --mode production && cp -rf -t dist static/*",
+    "pack": "rm -rf dist && npm run build && cd dist && zip wikigame-v$npm_package_version.zip *"
   },
   "keywords": [],
   "author": "",
