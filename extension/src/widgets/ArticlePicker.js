@@ -154,6 +154,7 @@ export function ArticlePicker(props) {
 
   // on props updated
   useEffect(() => {
+    console.log('ArticlePicker props.value change:', props.value);
     setValue(props.value);
     setShowAutocomplete(false);
   }, [props.value]);
@@ -177,6 +178,7 @@ export function ArticlePicker(props) {
     setValue('Loading...');
     getRandomPage()
       .then(title => {
+        setValue(title);
         onChange(title);
       })
       .catch(err => {

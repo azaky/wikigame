@@ -92,14 +92,6 @@ function CheckBox(props) {
 function BannedArticles(props) {
   const {bannedArticles, disabled, onChange} = props;
 
-  const [pickerValue, setPickerValue] = useState('');
-
-  const pickerOnChange = title => {
-    if (disabled) return;
-
-    setPickerValue(title);
-  };
-
   const onAdd = value => {
     if (disabled) return;
     if (!value || bannedArticles.includes(value)) return;
@@ -114,18 +106,11 @@ function BannedArticles(props) {
     onChange(bannedArticles.filter(a => a != value));
   };
 
-  const onCurrent = () => onAdd(util.getCurrentArticle());
-
   const onClear = () => {
     if (disabled) return;
 
     onChange([]);
   };
-
-  const onAddPicker = () => {
-    onAdd(pickerValue);
-    setPickerValue('');
-  }
 
   return (
     <>
@@ -153,19 +138,18 @@ function BannedArticles(props) {
         {
           disabled ? null : (
             <div>
+              {
+                bannedArticles.length > 0 ? (
+                  <div style={{paddingBottom: '10px'}}>
+                    <button id="wikigame-banned-clear" onClick={onClear}>Clear</button>
+                  </div>
+                ) : null
+              }
               <ArticlePicker
-                onChange={pickerOnChange}
+                onChange={onAdd}
                 disabled={disabled}
-                value={pickerValue}
                 placeholder="Add Banned Article"
               />
-              <span>
-                <button id="wikigame-banned-add" onClick={onAddPicker}>Add</button>
-                {' '}
-                <button id="wikigame-banned-current" onClick={onCurrent}>Current</button>
-                {' '}
-                <button id="wikigame-banned-clear" onClick={onClear}>Clear</button>
-              </span>
             </div>
           )
         }
