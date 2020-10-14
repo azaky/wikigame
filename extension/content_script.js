@@ -13,6 +13,40 @@ function getLink(article) {
   return `https://en.wikipedia.org/wiki/${encodeURIComponent(article)}`;
 }
 
+// getArticlesAutoComplete, successFunction should receive articleTitles (list of string)
+function getArticlesAutoComplete(keywords, successFunction) {
+  const autoCompleteLimit = 5; // 1 - 500
+  const host = "https://en.wikipedia.org";
+  const endpoint = "/w/api.php";
+
+  // API Spec: https://en.wikipedia.org/w/api.php?action=help&modules=opensearch
+  let queryParams = {
+    action: "opensearch",
+    format: "json",
+    profile: "fuzzy", // Supporting Typo
+    search: keywords,
+    limit: autoCompleteLimit,
+  };
+
+  let url = new URL(endpoint, host);
+  Object.keys(queryParams).forEach((key) =>
+    url.searchParams.append(key, queryParams[key])
+  );
+
+  fetch(url)
+    .then((resp) => {
+      const jsonResp = resp.json();
+      jsonResp.then((resp) => {
+        // Format: [keywords, articleTitles, somethingElse, urls]
+        const articleTitles = resp[1];
+        successFunction(articleTitles);
+      });
+    })
+    .catch((reason) => {
+      console.log("getArticlesAutoComplete failed", reason);
+    });
+}
+
 function getArticleFromUrl(link) {
   const url = new URL(link);
   if (url.hostname !== 'en.wikipedia.org') {
@@ -224,6 +258,105 @@ function loadLobby(data) {
   // when we're not the host, nothing below this is editable, so we return here
   if (!isHost) return;
 
+  const clearElementChildren = function (element) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+  };
+
+  const autoCompleteTriggerFn = function (anchorId) {
+    const anchor = document.getElementById(anchorId);
+
+    return function (e) {
+      const suggestionBox = document.getElementById("suggestions-box");
+      if (e.target.value.length === 0) {
+        clearElementChildren(suggestionBox);
+      }
+
+      const suggestionListFn = function (articles) {
+        // Wikipedia original element
+        suggestionBox.style.position = "absolute";
+        suggestionBox.style.backgroundColor = "#ffffff";
+        suggestionBox.style.display = "block";
+        suggestionBox.style.height = "auto";
+        suggestionBox.style.lineHeight = "auto";
+        suggestionBox.style.width = "auto";
+        suggestionBox.style.fontSize = "13px"; // Used by search bar
+        suggestionBox.style.top = anchor.offsetTop + anchor.offsetHeight + "px";
+        suggestionBox.style.bottom = "auto";
+        suggestionBox.style.left = anchor.offsetLeft + "px";
+        suggestionBox.style.right = "auto";
+
+        clearElementChildren(suggestionBox);
+        const suggestionResults = document.createElement("div");
+        // Need to set the style, for some reason suggestions-results class only available if we input something wikipedia search
+        const suggestionResultsCss = `background-color: #fff;
+                                      cursor: pointer;
+                                      border: 1px solid #a2a9b1;
+                                      padding: 0;
+                                      margin: 0;`;
+        suggestionResults.className = "suggestions-results";
+        suggestionResults.cssText = suggestionResultsCss;
+
+        if (articles === undefined) {
+          console.log("suggestionListFn oops undefined");
+          return;
+        }
+
+        for (let art of articles) {
+          const aMw = document.createElement("a");
+          aMw.className = "mw-searchSuggest-link";
+          aMw.title = art;
+
+          const suggestionResultDivCss = `color: #000;
+                                          margin: 0;
+                                          line-height: 1.5em;
+                                          padding: 0.01em 0.25em;
+                                          text-align: left;
+                                          overflow: hidden;
+                                          text-overflow: ellipsis;
+                                          white-space: nowrap;`;
+
+          const suggestionResultCurrentDivCss = `background-color: #2a4b8d;color: #fff;`;
+
+          const suggestionResultDiv = document.createElement("div");
+          suggestionResultDiv.className = "suggestions-result";
+          suggestionResultDiv.style.cssText = suggestionResultDivCss;
+          suggestionResultDiv.innerText = art;
+          suggestionResultDiv.onmouseover = function (e) {
+            suggestionResultDiv.className =
+              "suggestions-result suggestions-result-current";
+            suggestionResultDiv.style.cssText =
+              suggestionResultDivCss + suggestionResultCurrentDivCss;
+          };
+
+          suggestionResultDiv.onmouseout = function (e) {
+            suggestionResultDiv.className = "suggestions-result";
+            suggestionResultDiv.style.cssText = suggestionResultDivCss;
+          };
+
+          suggestionResultDiv.onclick = function (e) {
+            e.preventDefault();
+            const changeEvent = new Event("change");
+            anchor.value = art;
+            anchor.dispatchEvent(changeEvent);
+
+            // Will not triggered for start and target
+            clearElementChildren(suggestionBox);
+          };
+
+          aMw.appendChild(suggestionResultDiv);
+          suggestionResults.appendChild(aMw);
+        }
+
+        suggestionBox.appendChild(suggestionResults);
+      };
+
+      getArticlesAutoComplete(e.target.value, suggestionListFn);
+    };
+  };
+
+  elArticleStart.addEventListener('input', autoCompleteTriggerFn(elArticleStart.id));
   elArticleStart.onchange = function (e) {
     console.log('start article changed:', e.target.value);
     chrome.runtime.sendMessage({
@@ -231,6 +364,7 @@ function loadLobby(data) {
       data: { currentRound: { start: e.target.value } },
     });
   };
+  elArticleTarget.addEventListener('input', autoCompleteTriggerFn(elArticleTarget.id));
   elArticleTarget.onchange = function (e) {
     console.log('target article changed:', e.target.value);
     chrome.runtime.sendMessage({
@@ -315,6 +449,7 @@ function loadLobby(data) {
 
   // Rules - Banned related
   const elBannedArticleInput = document.getElementById('wikigame-banned-article-entry');
+  elBannedArticleInput.addEventListener('input', autoCompleteTriggerFn(elBannedArticleInput.id));
   document.getElementById('wikigame-banned-add').onclick = function () {
     console.log('add banned article clicked!');
     const addedEntry = elBannedArticleInput.value;
@@ -510,7 +645,17 @@ function replaceSidebar(widgets, username) {
 }
         </h3>
       </nav>
+      ${suggestionResultDiv()}
       ${widgets.join('\n')}
+    </div>
+  `;
+}
+
+function suggestionResultDiv() {
+  return `
+    <div class="suggestions" id="suggestions-box">
+      <div class="suggestions-results">
+      </div>
     </div>
   `;
 }
@@ -527,7 +672,7 @@ function bannedArticlesWidget(rules, disabled) {
       ${
   disabled ? ''
     : `
-          <input type="text" id="wikigame-banned-article-entry" placeholder="Add Banned Article">
+          <input type="text" id="wikigame-banned-article-entry" placeholder="Add Banned Article" autocomplete="off" />
           <span>
             <button id="wikigame-banned-add">Add</button>
             <button id="wikigame-banned-current">Current</button>
@@ -548,7 +693,7 @@ function currentRoundArticlePickerWidget(currentRound, disabled) {
       <div class="body vector-menu-content">
         <div style="padding-bottom:10px">
           <label>Start Article</label>
-          <input type="text" placeholder="Start Article" id="wikigame-article-start" ${disabled ? 'disabled' : ''} value="${currentRound.start}"/>
+          <input type="text" placeholder="Start Article" id="wikigame-article-start" ${disabled ? 'disabled' : ''} value="${currentRound.start}" autocomplete="off" />
           ${disabled ? '' : `
             <a class="a" href="#" id="wikigame-article-start-current">current</a>
             |
@@ -557,7 +702,7 @@ function currentRoundArticlePickerWidget(currentRound, disabled) {
           </div>
           <div style="padding-bottom:10px">
           <label>Target Article</label>
-          <input type="text" placeholder="Target Article" id="wikigame-article-target" ${disabled ? 'disabled' : ''} value="${currentRound.target}"/>
+          <input type="text" placeholder="Target Article" id="wikigame-article-target" ${disabled ? 'disabled' : ''} value="${currentRound.target}" autocomplete="off" />
           ${disabled ? '' : `
             <a class="a" href="#" id="wikigame-article-target-current">current</a>
             |
