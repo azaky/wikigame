@@ -6,7 +6,7 @@ console.log('Running version tagging..');
 try {
   const version = process.argv[2];
   console.log('detected version:', version);
-  const extVersion = version.replace('-beta', '');
+  const extVersion = version.replace(/-beta.*$/, '');
   console.log('tagging version:', extVersion);
 
   const manifestPath = path.join(__dirname, '../dist/manifest.json');
