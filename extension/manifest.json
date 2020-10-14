@@ -19,7 +19,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://en.wikipedia.org/*"
+        "https://en.wikipedia.org/wiki/*",
+        "https://en.wikipedia.org/w/*"
       ],
       "js": [
         "main.js"

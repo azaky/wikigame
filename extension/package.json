@@ -1,11 +1,12 @@
 {
-  "name": "extension",
-  "version": "1.0.0",
+  "name": "wikigame-chrome-extension",
+  "version": "1.0.0-beta",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production && cp -rf -t dist manifest.json background.js images",
+    "pack": "npm run build && cd dist && zip wikigame-v$npm_package_version.zip *"
   },
   "keywords": [],
   "author": "",
