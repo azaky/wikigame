@@ -99,8 +99,8 @@ function init() {
 
       switch (message.type) {
         case 'username_prompt':
-          // const username = window.prompt('Enter your username:');
-          sendResponse({ username: 'a' });
+          const username = window.prompt('Enter your username:');
+          sendResponse({ username });
           return true;
 
         case 'update':
