@@ -15,9 +15,9 @@ function isObject(item){return (item && typeof item === 'object' && !Array.isArr
 function mergeDeep(target,...sources){if(!sources.length)return target;const source=sources.shift();if(isObject(target)&&isObject(source)){for(const key in source){if(isObject(source[key])){if(!target[key])Object.assign(target,{[key]:{}});mergeDeep(target[key],source[key]);}else{Object.assign(target,{[key]:source[key]});}}}return mergeDeep(target,...sources);}
 /* eslint-enable */
 
-const serverUrl = 'https://wikigame-multiplayer.herokuapp.com/';
+// const serverUrl = 'https://wikigame-multiplayer.herokuapp.com/';
 // for development:
-// const serverUrl = 'http://localhost:9454';
+const serverUrl = 'http://localhost:9454';
 
 let active = false;
 let socket;
@@ -253,7 +253,9 @@ chrome.runtime.onMessage.addListener(
         if (!ack.success) {
           sendResponse({ success: false, message: ack.message });
         } else {
+          console.log('click ack:', ack);
           updateData({currentState: ack.currentState}, updated => {
+            console.log('callback click ack', updated);
             sendMessage('update', updated);
             sendResponse({ success: true, currentState: ack.currentState });
           });

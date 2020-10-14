@@ -44,7 +44,6 @@ function SuggestionResultsItem(props) {
   };
 
   const onClick = () => {
-    console.log('onClick article:', article);
     onSelected(article);
   };
 

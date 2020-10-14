@@ -55,6 +55,15 @@ function LobbySidebar(props) {
     chrome.runtime.sendMessage({ type: 'start' });
   };
 
+  const onTransferHost = (newHost) => {
+    console.log('onTransferHost', newHost);
+    if (!isHost) return;
+    chrome.runtime.sendMessage({
+      type: 'update',
+      data: { host: newHost },
+    });
+  };
+
   return (
     <div id="wikigame-wrapper">
       <Header username={username} />
@@ -64,6 +73,7 @@ function LobbySidebar(props) {
               leaderboard={leaderboard}
               host={host}
               username={username}
+              onTransferHost={onTransferHost}
             />
           : null
       }
