@@ -212,6 +212,15 @@ const socketHandler = async (socket) => {
       });
       return;
     }
+    if (room.currentRound.started) {
+      console.log(`[room=${room.roomId}] [${username}] attempted to perform update when round already started, ignoring`);
+      ack({
+        success: false,
+        message: 'Cannot update a round that has started',
+      });
+      return;
+    }
+
     console.log(`[room=${room.roomId}] [${username}] updates data:`, data);
 
     if (data.currentRound && data.currentRound.start) {
@@ -253,12 +262,23 @@ const socketHandler = async (socket) => {
       data.rules.bannedArticles = validated.filter((v) => v.found).map((v) => v.title);
     }
 
+    // we've been through a lot. other events may happen while we're resolving everything
+    // do not forget to recheck whether the round has started or not
+    if (room.currentRound.started) {
+      console.log(`[room=${room.roomId}] [${username}] attempted to perform update when round already started, ignoring`);
+      ack({
+        success: false,
+        message: 'Cannot update a round that has started',
+      });
+      return;
+    }
+
     // TODO: perform validation to data
     util.mergeDeep(room, data);
 
     // broadcast changes, and only the changes (not the whole data)
     ack({ success: true, data });
-    socket.emit('update', data);
+    socket.to(room.roomId).emit('update', data);
   });
 
   let ticker;
@@ -387,7 +407,7 @@ const socketHandler = async (socket) => {
     };
 
     ack({ success: true, data: startData });
-    socket.emit('start', startData);
+    socket.to(room.roomId).emit('start', startData);
   });
 
   socket.on('click', async (data, ack) => {
@@ -433,7 +453,10 @@ const socketHandler = async (socket) => {
 
     generateCurrentRoundResult(room);
 
-    ack({ success: true, currentState: room.currentState[username] });
+    ack({
+      success: true,
+      data: room.currentState[username],
+    });
 
     socket.to(room.roomId).emit('update', { currentRound: room.currentRound });
     socket.emit('update', { currentRound: room.currentRound });

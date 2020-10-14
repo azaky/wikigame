@@ -18,11 +18,10 @@ function init() {
 
   const rootEl = document.getElementById('mw-panel');
   let el;
-  let initialRender = false;
-  function render(data, initial = false) {
-    console.log('render nih. initial:', initial);
-    if (!data || (!initial && !initialRender)) return;
-    initialRender = true;
+  let rendered = false;
+  function render(data, initData = false) {
+    if (!data || (rendered && initData)) return;
+    rendered = true;
     el = ReactDOM.render(<Root data={data} />, rootEl, el);
   }
 
@@ -34,12 +33,12 @@ function init() {
         case 'username_prompt':
           const username = window.prompt('Enter your username:');
           sendResponse({ username });
-          return true;
+          return false;
 
         case 'update':
           render(message.data);
           break;
-        
+
         case 'start':
           util.goto(message.data.currentRound.start);
           break;
@@ -52,7 +51,7 @@ function init() {
         case 'room_change_prompt':
           const confirmMessage = `You are currently playing in room ${message.data.old}. You sure you want to join room ${message.data.new}? (You will be removed from the old room)`;
           sendResponse({ confirm: window.confirm(confirmMessage) });
-          return true;
+          return false;
 
         case 'disconnected':
           alert('You are disconnected! Refresh this page to reconnect');
@@ -114,20 +113,19 @@ function init() {
           type: 'click',
           data: { article: currentArticle },
         }, reply => {
-          chrome.storage.local.set({ localState: null }, () => {
-            if (!reply || !reply.success) {
-              if (reply.message) {
-                alert(reply.message);
-              }
-              util.goto(lastArticle);
-            } else {
-              if (reply.currentState.finished) {
-                alert(`You reach the target! Your score is ${reply.currentState.score}`);
-              }
-
-              render({ ...data, currentState: reply.currentState }, true);
+          if (!reply || !reply.success) {
+            if (reply.message) {
+              alert(reply.message);
             }
-          });
+            util.goto(lastArticle);
+          } else {
+            // win condition checks
+            if (reply.data && reply.data.finished) {
+              alert(`You reach the target! Your score is ${reply.data.score}`);
+            }
+
+            render(data, true);
+          }
         });
       } else if (lastArticle !== currentArticle) {
         // resolve redirects for one more time
@@ -167,7 +165,12 @@ function init() {
 const documentReadyInterval = setInterval(() => {
   if (document.readyState === 'complete') {
     clearInterval(documentReadyInterval);
-    init();
+
+    // Hacks to make sure that a connection between background and content script is established.
+    // When this port is active, then we can be sure that it's safe to send message both ways.
+    chrome.runtime.sendMessage({type: 'init_port'}, reply => {
+      chrome.runtime.connect({name: `tabId:${reply.tabId}`});
+      init();
+    });
   }
 }, 10);
-

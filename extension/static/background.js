@@ -15,13 +15,26 @@ function isObject(item){return (item && typeof item === 'object' && !Array.isArr
 function mergeDeep(target,...sources){if(!sources.length)return target;const source=sources.shift();if(isObject(target)&&isObject(source)){for(const key in source){if(isObject(source[key])){if(!target[key])Object.assign(target,{[key]:{}});mergeDeep(target[key],source[key]);}else{Object.assign(target,{[key]:source[key]});}}}return mergeDeep(target,...sources);}
 /* eslint-enable */
 
-// const serverUrl = 'https://wikigame-multiplayer.herokuapp.com/';
+const serverUrl = 'https://wikigame-multiplayer.herokuapp.com/';
 // for development:
-const serverUrl = 'http://localhost:9454';
+// const serverUrl = 'http://localhost:9454';
 
 let active = false;
 let socket;
 let tabId;
+let portOpen = false;
+
+chrome.runtime.onConnect.addListener(port => {
+  console.log('received port connection:', port.name);
+  if (port.name === `tabId:${tabId}`) {
+    console.log('port open');
+    portOpen = true;
+    port.onDisconnect.addListener(() => {
+      console.log('port closed');
+      portOpen = false;
+    });
+  }
+});
 
 function reset(callback) {
   if (socket && socket.connected) {
@@ -47,10 +60,15 @@ function reset(callback) {
   });
 }
 
-function sendMessage(type, data, callback) {
-  if (!tabId) {
-    console.error('sendMessage is called when tabId is not defined! data:', data);
-    callback(null);
+function sendMessage(type, data, callback, force) {
+  if (!portOpen) {
+    console.log('sendMessage is called when port is closed (possibly on reload)', type, data);
+    if (force) {
+      setTimeout(() => sendMessage(type, data, callback, force), 10);
+    } else if (callback) callback(null);
+  } else if (!tabId) {
+    console.error('sendMessage is called when tabId is not defined! data:', type, data);
+    if (callback) callback(null);
   } else {
     chrome.tabs.sendMessage(tabId, { type, data }, (response) => {
       console.log('sendMessage response:', response);
@@ -63,13 +81,23 @@ function sendNotification(type, message, callback) {
   sendMessage('notification', {type, message}, callback);
 }
 
+let updateDataLock = false;
 function updateData(data, callback) {
-  chrome.storage.local.get(null, localData => {
-    const updated = mergeDeep(localData, data);
-    chrome.storage.local.set(updated, () => {
-      if (callback) callback(updated);
+  // prevent race condition
+  if (!updateDataLock) {
+    updateDataLock = true;
+    chrome.storage.local.get(null, localData => {
+      const updated = mergeDeep(localData, data);
+      chrome.storage.local.set(updated, () => {
+        updateDataLock = false;
+        if (callback) callback(updated);
+      });
     });
-  });
+  } else {
+    setTimeout(() => {
+      updateData(data, callback);
+    }, 10);
+  }
 }
 
 function initSocketio(initData, callback) {
@@ -131,7 +159,9 @@ function initSocketio(initData, callback) {
   socket.on('finished', (data) => {
     console.log('socket.on(finished):', data);
     updateData(data, updated => {
-      sendMessage('finished', updated);
+      // finished event is critical
+      // make sure that this went through
+      sendMessage('finished', updated, null, true);
     });
   });
 }
@@ -191,6 +221,11 @@ chrome.runtime.onMessage.addListener(
       return true;
     }
 
+    if (message.type === 'init_port') {
+      sendResponse({ tabId: sender.tab.id });
+      return false;
+    }
+
     if (message.type === 'ping') {
       if (active && socket && socket.connected) {
         sendResponse({ status: true });
@@ -221,7 +256,7 @@ chrome.runtime.onMessage.addListener(
           if (ack.message) {
             sendNotification('error', ack.message);
 
-            // we call update to reset any erroneous fields
+            // we call update to reset any obsolete fields
             updateData({}, updated => {
               sendMessage('update', updated);
             });
@@ -250,16 +285,18 @@ chrome.runtime.onMessage.addListener(
       console.log('click!');
 
       socket.emit('click', message.data, (ack) => {
-        if (!ack.success) {
-          sendResponse({ success: false, message: ack.message });
-        } else {
-          console.log('click ack:', ack);
-          updateData({currentState: ack.currentState}, updated => {
-            console.log('callback click ack', updated);
-            sendMessage('update', updated);
-            sendResponse({ success: true, currentState: ack.currentState });
-          });
+        // We need to reset localState *via updateData* to prevent
+        // racing condition (and ultimately, deadlocks).
+        const toUpdate = {localState: null};
+        if (ack.data) {
+          Object.assign(toUpdate, {currentState: ack.data});
         }
+        updateData(toUpdate, updated => {
+          // and we need to include updated data here as well
+          // since update listener in content script currently
+          // has not been active yet.
+          sendResponse(Object.assign(ack, {updatedData: updated}));
+        });
       });
 
       return true;

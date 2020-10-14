@@ -58,10 +58,12 @@ function LobbySidebar(props) {
   const onTransferHost = (newHost) => {
     console.log('onTransferHost', newHost);
     if (!isHost) return;
-    chrome.runtime.sendMessage({
-      type: 'update',
-      data: { host: newHost },
-    });
+    if (window.confirm(`You're about to transfer host to ${newHost}. Are you sure?`)) {
+      chrome.runtime.sendMessage({
+        type: 'update',
+        data: { host: newHost },
+      });
+    }
   };
 
   return (
