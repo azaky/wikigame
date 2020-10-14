@@ -15,7 +15,7 @@ function Header(props) {
 
 function LobbySidebar(props) {
   const {data} = props;
-  const {currentRound, rules, leaderboard, lastRound, host, username } = data;
+  const {currentRound, rules, leaderboard, lastRound, host, username, players } = data;
   const isHost = host === username;
 
   const onStartArticleChange = title => {
@@ -58,6 +58,7 @@ function LobbySidebar(props) {
   const onTransferHost = (newHost) => {
     console.log('onTransferHost', newHost);
     if (!isHost) return;
+    if (!players.includes(newHost)) return;
     if (window.confirm(`You're about to transfer host to ${newHost}. Are you sure?`)) {
       chrome.runtime.sendMessage({
         type: 'update',
@@ -75,6 +76,7 @@ function LobbySidebar(props) {
               leaderboard={leaderboard}
               host={host}
               username={username}
+              players={players}
               onTransferHost={onTransferHost}
             />
           : null

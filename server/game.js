@@ -223,6 +223,17 @@ const socketHandler = async (socket) => {
 
     console.log(`[room=${room.roomId}] [${username}] updates data:`, data);
 
+    if (data.host) {
+      if (!room.players.includes(data.host)) {
+        console.log(`[room=${room.roomId}] [${username}] attempted to transfer host to nonexistent (or perhaps offline) player, ignoring`);
+        ack({
+          success: false,
+          message: 'Cannot only transfer host to online players',
+        });
+        return;
+      }
+    }
+
     if (data.currentRound && data.currentRound.start) {
       const validated = await validateArticle(data.currentRound.start);
       if (validated.found) {
