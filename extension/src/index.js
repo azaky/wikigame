@@ -93,6 +93,12 @@ function init() {
     el = ReactDOM.render(<Root data={data} />, rootEl, el);
   }
 
+  console.log('roomId', util.getRoomId());
+  if (!util.getRoomId()) {
+    const roomId = window.prompt('Enter room id');
+    util.setRoomIdOnUrl(roomId);  
+  }
+  
   chrome.runtime.onMessage.addListener(
     (message, sender, sendResponse) => {
       console.log('got message from background:', message);
