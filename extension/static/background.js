@@ -164,6 +164,11 @@ function initSocketio(initData, callback) {
       sendMessage('finished', updated, null, true);
     });
   });
+
+  socket.on('notification', (data) => {
+    console.log('socket.on(notification):', data);
+    sendNotification('notification', data.message);
+  })
 }
 
 function init(roomId, callback) {

@@ -103,6 +103,10 @@ function init() {
               toast.info(message.data.message);
               break;
 
+            case 'notification':
+              toast(message.data.message, {position: toast.POSITION.BOTTOM_LEFT});
+              break;
+
             default:
               toast(`${message.data.type}: ${message.data.message}`);
           }

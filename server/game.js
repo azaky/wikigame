@@ -201,6 +201,10 @@ const socketHandler = async (socket) => {
     currentRound: room.currentRound,
     leaderboard: room.leaderboard,
   });
+  // broadcast notification separately
+  socket.to(room.roomId).emit('notification', {
+    message: `${username} has joined the room!`,
+  });
 
   // update rules etc.
   socket.on('update', async (data, ack) => {
@@ -472,6 +476,13 @@ const socketHandler = async (socket) => {
     socket.to(room.roomId).emit('update', { currentRound: room.currentRound });
     socket.emit('update', { currentRound: room.currentRound });
 
+    // notify other users when we've finished
+    if (room.currentState[username].finished) {
+      socket.to(room.roomId).emit('notification', {
+        message: `${username} finished with score ${room.currentState[username].score}!`,
+      });
+    }
+
     // check if all players win
     let allWin = true;
     room.players.forEach((player) => {
@@ -504,6 +515,9 @@ const socketHandler = async (socket) => {
     }
 
     socket.to(room.roomId).emit('update', { host: room.host, players: room.players });
+    socket.to(room.roomId).emit('notification', {
+      message: `${username} disconnected from the room`,
+    });
   });
 };
 
