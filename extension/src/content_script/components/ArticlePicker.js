@@ -75,7 +75,7 @@ export function ArticlePicker(props) {
           isDisabled={disabled}
           isLoading={loading}
           value={props.value ? {
-            label: props.value,
+            label: props.value.replace(/_/g, ' '),
             value: props.value,
           } : null}
           placeholder={placeholder || (disabled ? '' : 'Search article...')}

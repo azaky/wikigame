@@ -14,17 +14,26 @@ function onShouldReload(message) {
   const reload = () => window.location.reload();
   const defaultMessage = 'You are disconnected! Reload this page to reconnect!';
 
-  // do not show toast if we voluntarily left the game
-  chrome.storage.local.get(['state'], ({state}) => {
-    if (!state) return;
-
+  const showToast = () => {
     toast(() => (
       <div>{message || defaultMessage} <a onClick={reload}>(reload now)</a></div>
     ), {
       autoClose: false,
       toastId: 'reload',
     });
-  });
+  };
+
+  // do not show toast if we voluntarily left the game
+  if (chrome && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['state'], ({state}) => {
+      if (!state) return;
+
+      showToast();
+    });
+  } else {
+    // possibly we're in the middle of reloading/updating the extension
+    showToast();
+  }
 }
 
 function Root(props) {

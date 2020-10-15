@@ -129,7 +129,7 @@ function BannedArticles(props) {
           {
             bannedArticles.map(article => (
               <li>
-                {article}
+                {article.replace(/_/g, ' ')}
                 {
                   roundStarted ? null : <>
                     {' '}

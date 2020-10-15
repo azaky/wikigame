@@ -17,7 +17,7 @@ function ArticleOverview(props) {
             </div>
           : null
       }
-      <span style={{wordBreak: 'break-all'}}><b>{article}</b></span>
+      <span style={{wordBreak: 'break-all'}}><b>{article.replace(/_/g, ' ')}</b></span>
     </div>
   );
 }
