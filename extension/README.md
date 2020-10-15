@@ -2,19 +2,27 @@
 
 This chrome extension consists of:
 
-- `src/`: Content script: built with ReactJS
-- `static/background.js`: Background script using Socket.io and vanilla JS
-- `static/manifest.json`: Chrome Extension manifest file
-- `static/everything else`: anything else that should be included (but does not need any build step), like stylesheets and images.
+- `src/content_script`: content script, built with ReactJS
+- `src/background`: background script using socket.io
+- `manifest.json`: Chrome extension manifest file
+- `static/`: static files (e.g. icons)
 
-## Build
+## Running & Developing Locally
 
 ```
 npm install
-npm run build
+npm run dev
 ```
 
-## Running & Developing Locally
+To develop with local server, run this instead.
+
+```
+npm run dev-local
+```
+
+Now the extension will be generated to `dist/` folder, and updates are automatically watched.
+
+To load the extension for the first time:
 
 - Go to [chrome://extensions](chrome://extensions).
 - Ensure that **Developer mode is enabled** (toggle on the top-right).
@@ -23,9 +31,8 @@ npm run build
 
 If everything is loaded correctly, you will be prompted for the username, and then a sidebar on the left side should appear.
 
-If you make some changes, the extension should be re-built and reloaded.
+If you make some changes, even though the extension is automatically re-built, it should be reloaded manually from Chrome.
 
-- Run `npm run build`.
 - Go to [chrome://extensions](chrome://extensions).
 - Click reload (you don't have to Load unpacked again after changes).
 

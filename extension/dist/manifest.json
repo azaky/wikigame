@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Multiplayer Wikigame",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Play multiplayer Wikiracing online!",
   "permissions": [
     "declarativeContent",
@@ -14,7 +14,8 @@
     "persistent": false
   },
   "page_action": {
-    "default_icon": "images/icon.png"
+    "default_icon": "images/icon.png",
+    "default_popup": "popup.html"
   },
   "content_scripts": [
     {
@@ -24,9 +25,6 @@
       ],
       "js": [
         "content_script.js"
-      ],
-      "css": [
-        "style.css"
       ],
       "run_at": "document_end"
     }

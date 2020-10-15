@@ -30,3 +30,8 @@ button#wikigame-banned-clear {
 #wikigame-wrapper label, #wikigame-wrapper .wikigame-article-picker .a {
   font-size: 0.75em;
 }
+
+/* override padding on toast content */
+.Toastify__toast {
+  padding: 10px;
+}

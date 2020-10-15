@@ -34,7 +34,13 @@ export function NextRoundArticlePicker(props) {
         </div>
         {
           !disabled
-            ? <button id="wikigame-start" onClick={onStartClick}>Start</button>
+            ? <button
+                id="wikigame-start"
+                onClick={onStartClick}
+                style={{cursor: 'pointer'}}
+              >
+                Start
+              </button>
             : null
         }
       </div>

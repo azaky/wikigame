@@ -1,4 +1,5 @@
 import React, {useEffect} from 'react';
+import { toast } from 'react-toastify';
 import {Leaderboard, CurrentRoundOverview, LastRoundOverview, NextRoundArticlePicker, Rules} from './widgets';
 import * as util from './util';
 
@@ -14,10 +15,8 @@ function Header(props) {
 }
 
 function LobbySidebar(props) {
-  console.log('LobbySidebar:', props);
-
   const {data} = props;
-  const {currentRound, rules, leaderboard, lastRound, host, username } = data;
+  const {currentRound, rules, leaderboard, lastRound, host, username, players } = data;
   const isHost = host === username;
 
   const onStartArticleChange = title => {
@@ -51,10 +50,22 @@ function LobbySidebar(props) {
     console.log('onStartRound!');
     if (!isHost) return;
     if (!currentRound.start || !currentRound.target) {
-      alert('Start and Target article must not be empty!');
+      toast.error('Start and Target article must not be empty!');
       return;
     }
     chrome.runtime.sendMessage({ type: 'start' });
+  };
+
+  const onTransferHost = (newHost) => {
+    console.log('onTransferHost', newHost);
+    if (!isHost) return;
+    if (!players.includes(newHost)) return;
+    if (window.confirm(`You're about to transfer host to ${newHost}. Are you sure?`)) {
+      chrome.runtime.sendMessage({
+        type: 'update',
+        data: { host: newHost },
+      });
+    }
   };
 
   return (
@@ -66,6 +77,8 @@ function LobbySidebar(props) {
               leaderboard={leaderboard}
               host={host}
               username={username}
+              players={players}
+              onTransferHost={onTransferHost}
             />
           : null
       }
@@ -93,8 +106,6 @@ function LobbySidebar(props) {
 }
 
 function GameSidebar(props) {
-  console.log('GameSidebar:', props);
-
   const {data} = props;
   const {currentState, currentRound, rules, username} = data;
 
@@ -111,13 +122,10 @@ function GameSidebar(props) {
       window.addEventListener('keydown', e => {
         if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
           e.preventDefault();
-          alert('Oops, Ctrl+F is not allowed!');
+          toast.error('Oops, Ctrl+F is not allowed!', {toastId: 'ctrlf'});
         }
       });
     }
-
-    // TODO: disambiguation links
-    // this should be done in server anyway
   }, [currentState.finished]);
 
   // override a.click
@@ -136,7 +144,7 @@ function GameSidebar(props) {
 
           // anchor links
           if (article === util.getCurrentArticle()) {
-            console.log('Anchor link, doesnt count as a click:', link);
+            console.log(`Anchor link, doesn't count as a click:`, link);
             return;
           }
 
@@ -155,10 +163,15 @@ function GameSidebar(props) {
           }
 
           console.log('Navigating to:', article);
-          chrome.storage.local.set({
-            localState: 'clicking',
-          }, () => {
-            util.goto(article);
+
+          chrome.storage.local.get(['localState'], ({localState}) => {
+            if (localState === 'clicking') {
+              console.log(`Ignoring clicks, there's another ongoing clicking event`);
+              return;
+            }
+            chrome.storage.local.set({localState: 'clicking'}, () => {
+              util.goto(article);
+            });
           });
         };
       }(links[i]));

@@ -1,16 +1,39 @@
 import React from 'react';
 import * as util from '../util';
 
+import { toast } from 'react-toastify';
+
 export function LastRoundOverview(props) {
   const {round} = props;
 
   const onShowDetails = player => {
-    const details = [
-      `Player: ${player.username} (${player.clicks} ${player.clicks > 1 ? 'clicks' : 'click'}${player.finished ? `, ${player.timeTaken} seconds, score = ${player.score}` : ' (not finished)'})`,
-      `Path:`,
-      ...player.path.map((p, i) => `-> ${p}${i ? '' : ' (start)'}`),
-    ];
-    alert(details.join('\n'));
+    const toastId = 'playerLastRoundDetails';
+    if (toast.isActive(toastId)) {
+      toast.dismiss(toastId);
+    }
+    toast(() => (
+      <div>
+        <div><h3>{player.username}'s last round</h3></div>
+        <div>
+          {player.clicks} {player.clicks > 1 ? ' clicks' : ' click'} {player.finished ? '' : ' (not finished)'}
+        </div>
+        {player.finished ? (
+          <div>
+            Score = {player.score}, Time Taken = {player.timeTaken} {player.timeTaken > 1 ? ' seconds' : ' second'}
+          </div>
+        ) : null}
+        <div>
+          {player.path.map(p => (
+            <div>
+              → <a href={util.getLink(p)}>{p}</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    ), {
+      toastId: toastId,
+      autoClose: false,
+    });
   };
 
   return (

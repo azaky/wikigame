@@ -44,7 +44,6 @@ function SuggestionResultsItem(props) {
   };
 
   const onClick = () => {
-    console.log('onClick article:', article);
     onSelected(article);
   };
 
@@ -187,7 +186,8 @@ export function ArticlePicker(props) {
   };
 
   const onAutocompleteSelected = article => {
-    setValue(article);
+    // Component above should be responsible for updating props.value
+    setValue('');
     setShowAutocomplete(false);
     onChange(article);
   };
