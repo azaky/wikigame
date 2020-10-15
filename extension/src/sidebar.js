@@ -1,4 +1,5 @@
 import React, {useEffect} from 'react';
+import { toast } from 'react-toastify';
 import {Leaderboard, CurrentRoundOverview, LastRoundOverview, NextRoundArticlePicker, Rules} from './widgets';
 import * as util from './util';
 
@@ -49,7 +50,7 @@ function LobbySidebar(props) {
     console.log('onStartRound!');
     if (!isHost) return;
     if (!currentRound.start || !currentRound.target) {
-      alert('Start and Target article must not be empty!');
+      toast.error('Start and Target article must not be empty!');
       return;
     }
     chrome.runtime.sendMessage({ type: 'start' });
@@ -121,7 +122,7 @@ function GameSidebar(props) {
       window.addEventListener('keydown', e => {
         if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
           e.preventDefault();
-          alert('Oops, Ctrl+F is not allowed!');
+          toast.error('Oops, Ctrl+F is not allowed!', {toastId: 'ctrlf'});
         }
       });
     }

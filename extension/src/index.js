@@ -1,5 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './style.css';
 
 import * as util from './util';
 import * as wiki from './wiki';
@@ -13,8 +17,35 @@ function Root(props) {
 
 console.log('content_script is running!');
 
+function initToast() {
+  // inject toast right away
+  const toastEl = document.createElement('div');
+  document.body.appendChild(toastEl);
+  ReactDOM.render(
+    <ToastContainer
+      position={toast.POSITION.TOP_LEFT}
+      autoClose={5000}
+      style={{
+        fontSize: '0.8em'
+      }}
+    />,
+    toastEl
+  );
+}
+
+function onDisconnected() {
+  const onRefresh = () => window.location.reload();
+  toast(() => (
+    <div>You are disconnected! Refresh this page to reconnect! <a onClick={onRefresh}>(refresh now)</a></div>
+  ), {
+    autoClose: false,
+  });
+}
+
 function init() {
   console.log('init called');
+
+  initToast();
 
   const rootEl = document.getElementById('mw-panel');
   let el;
@@ -44,8 +75,8 @@ function init() {
           break;
 
         case 'finished':
+          toast.info('Round is finished!');
           render(message.data);
-          alert('Round is finished!');
           break;
 
         case 'room_change_prompt':
@@ -54,12 +85,27 @@ function init() {
           return false;
 
         case 'disconnected':
-          alert('You are disconnected! Refresh this page to reconnect');
-          // TODO: apply visual hint other than alert to indicate disconnection
+          onDisconnected();
           break;
 
         case 'notification':
-          alert(`${message.data.type}: ${message.data.message}`);
+          switch (message.data.type) {
+            case 'error':
+              toast.error(message.data.message);
+              break;
+            
+            case 'warning':
+              // toast.warn color hurts your eye, trust me
+              toast.error(message.data.message);
+              break;
+            
+            case 'info':
+              toast.info(message.data.message);
+              break;
+
+            default:
+              toast(`${message.data.type}: ${message.data.message}`);
+          }
           break;
 
         default:
@@ -80,7 +126,7 @@ function init() {
     if (!data || !data.roomId) return;
 
     if (data.error) {
-      alert(`Encountered error: ${data.error}`);
+      toast.error(`Error on initializing wikigame: ${data.error}`);
       return;
     }
 
@@ -90,14 +136,13 @@ function init() {
         chrome.runtime.sendMessage({ type: 'ping' }, reply => {
           if (!reply || !reply.status) {
             clearInterval(pingInterval);
-            alert('You are disconnected! Refresh this page to reconnect');
-            // TODO: apply visual hint other than alert to indicate disconnection
+            onDisconnected();
           }
         });
       } catch (e) {
         clearInterval(pingInterval);
         console.log('ping error:', e);
-        alert('You are disconnected! Refresh this page to reconnect');
+        onDisconnected();
       }
     }, 1000);
 
@@ -115,13 +160,13 @@ function init() {
         }, reply => {
           if (!reply || !reply.success) {
             if (reply.message) {
-              alert(reply.message);
+              toast.error(reply.message);
             }
             util.goto(lastArticle);
           } else {
             // win condition checks
             if (reply.data && reply.data.finished) {
-              alert(`You reach the target! Your score is ${reply.data.score}`);
+              toast.success(`You reach the target! Your score is ${reply.data.score}`);
             }
 
             render(data, true);
