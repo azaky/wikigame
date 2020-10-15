@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production && cp -rf -t dist static/*",
-    "pack": "rm -rf dist && npm run build && node scripts/version.js $npm_package_version && echo 'Zipping files...' && cd dist && zip -r wikigame-v$npm_package_version.zip *",
+    "dev": "webpack --watch",
+    "dev-local": "WIKIGAME_SERVER_URL=http://localhost:9454 webpack --watch",
+    "build": "webpack --mode production",
+    "build-local": "WIKIGAME_SERVER_URL=http://localhost:9454 webpack --mode production",
+    "pack": "webpack --mode production && echo 'Zipping files...' && cd dist && zip -r wikigame-v$npm_package_version.zip *",
     "init-pre-commit": "echo '#!/bin/sh\necho \"Running pre-commit scripts...\"\ncd ./extension && npm run pre-commit' > `git rev-parse --show-toplevel`/.git/hooks/pre-commit",
     "pre-commit": "npm run pack && cd .. && git add extension/dist/"
   },
@@ -18,6 +21,8 @@
     "@babel/preset-env": "^7.11.5",
     "@babel/preset-react": "^7.10.4",
     "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.2.1",
     "css-loader": "^5.0.0",
     "style-loader": "^2.0.0",
     "webpack": "^5.1.0",
@@ -25,9 +30,11 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "ramda": "^0.27.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-toastify": "^6.0.9",
-    "regenerator-runtime": "^0.13.7"
+    "regenerator-runtime": "^0.13.7",
+    "socket.io-client": "^2.3.1"
   }
 }
