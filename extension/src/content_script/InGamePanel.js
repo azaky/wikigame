@@ -59,6 +59,7 @@ export function InGamePanel(props) {
       if (e.target.tagName !== 'A') return;
 
       const link = e.target.href;
+      if (!link) return;
 
       const articleObj = util.getArticleFromUrl(link);
       const { article } = articleObj;

@@ -1,9 +1,11 @@
-#wikigame-wrapper input[type=text], #wikigame-wrapper input[type=number], #wikigame-wrapper select {
+#wikigame-wrapper input[type=text],
+#wikigame-wrapper input[type=number],
+#wikigame-wrapper select {
   width: 100%;
   box-sizing: border-box;
 }
 
-#wikigame-wrapper label, #wikigame-wrapper .wikigame-article-picker .a {
+#wikigame-wrapper label {
   font-size: 0.75em;
 }
 
@@ -11,8 +13,3 @@
 .Toastify__toast {
   padding: 10px;
 }
-
-/* resize panel animation */
-/* #content, #left-navigation, #mw-panel {
-  transition: all 1s;
-} */

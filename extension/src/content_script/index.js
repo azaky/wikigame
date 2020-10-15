@@ -14,11 +14,16 @@ function onShouldReload(message) {
   const reload = () => window.location.reload();
   const defaultMessage = 'You are disconnected! Reload this page to reconnect!';
 
-  toast(() => (
-    <div>{message || defaultMessage} <a onClick={reload}>(reload now)</a></div>
-  ), {
-    autoClose: false,
-    toastId: 'reload',
+  // do not show toast if we voluntarily left the game
+  chrome.storage.local.get(['state'], ({state}) => {
+    if (!state) return;
+
+    toast(() => (
+      <div>{message || defaultMessage} <a onClick={reload}>(reload now)</a></div>
+    ), {
+      autoClose: false,
+      toastId: 'reload',
+    });
   });
 }
 
@@ -76,6 +81,12 @@ function init() {
     }
     reactEl = ReactDOM.render(<Root data={data} />, rootEl, reactEl);
     rendered = true;
+  }
+
+  function enablePanelTransitionAnimation() {
+    document.getElementById('content').style.transition = 'all 1s';
+    document.getElementById('left-navigation').style.transition = 'all 1s';
+    rootEl.style.transition = 'all 1s';
   }
 
   chrome.runtime.onMessage.addListener(
@@ -167,6 +178,12 @@ function init() {
 
       if (!data || !data.roomId) return;
 
+      if (data.initial) {
+        toast(() => <div>Welcome to Wikigame, {data.username}!</div>);
+        // animate resize only when joining for the first time
+        enablePanelTransitionAnimation();
+      }
+
       // this (supposedly) resolves inactive background page
       const pingInterval = setInterval(() => {
         try {
@@ -182,10 +199,10 @@ function init() {
           onShouldReload();
         }
       }, 1000);
-  
+
       util.setRoomIdOnUrl(data.roomId);
       const currentArticle = util.getCurrentArticle();
-  
+
       // click checks
       if (data.state === 'playing' && !data.currentState.finished) {
         const lastArticle = data.currentState.path.slice(-1)[0] || data.currentRound.start;

@@ -85,7 +85,16 @@ function updateData(data, callback) {
   }
 }
 
-function initSocketio(initData, callback) {
+function initSocketio(initData, realCallback) {
+  let callbackCalled = false;
+  const callback = (...args) => {
+    if (callbackCalled) return;
+    if (!realCallback) return;
+
+    callbackCalled = true;
+    realCallback(...args);
+  };
+
   let query = `username=${encodeURIComponent(initData.username)}`;
   if (initData.roomId) {
     query += `&roomId=${encodeURIComponent(initData.roomId)}`;
@@ -123,7 +132,9 @@ function initSocketio(initData, callback) {
     active = true;
     console.log('socket.on(init):', data);
     chrome.storage.local.set(data, () => {
-      chrome.storage.local.get(null, callback);
+      chrome.storage.local.get(null, initData => {
+        callback(Object.assign({}, initData, {initial: true}));
+      });
     });
   });
 
@@ -159,7 +170,7 @@ function initSocketio(initData, callback) {
   socket.on('notification', (data) => {
     console.log('socket.on(notification):', data);
     sendNotification('notification', data.message);
-  })
+  });
 }
 
 function init(username, roomId, callback) {
@@ -307,6 +318,10 @@ chrome.runtime.onMessage.addListener(
       });
 
       return true;
+    } else if (message.type === 'leave') {
+      reset(() => {
+        sendResponse({success: true});
+      });
     } else {
       console.warn('onMessage unknown message.type:', message);
     }
