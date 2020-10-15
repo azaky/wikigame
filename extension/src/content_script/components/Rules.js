@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import {toast} from 'react-toastify';
 import {ArticlePicker} from './ArticlePicker';
 import * as util from '../util';
 
@@ -93,7 +94,11 @@ function BannedArticles(props) {
   const {bannedArticles, disabled, onChange, roundStarted} = props;
 
   const onAdd = (value, callback) => {
-    if (disabled || roundStarted || (!value || bannedArticles.includes(value))) {
+    const duplicated = bannedArticles.includes(value);
+    if (disabled || roundStarted || (!value || duplicated)) {
+      if (duplicated) {
+        toast.error(`Article ${value} is already banned!`);
+      }
       if (callback) callback();
       return;
     }
@@ -147,7 +152,16 @@ function BannedArticles(props) {
               {
                 bannedArticles.length > 0 ? (
                   <div style={{paddingBottom: '10px'}}>
-                    <button id="wikigame-banned-clear" onClick={onClear}>Clear</button>
+                    <button
+                      style={{
+                        backgroundColor: '#b32424',
+                        color: 'white',
+                        fontSize: '0.6em',
+                      }}
+                      onClick={onClear}
+                    >
+                      Clear
+                    </button>
                   </div>
                 ) : null
               }

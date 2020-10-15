@@ -1,8 +1,9 @@
 
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {getCurrentArticle} from '../util';
 import {getRandomPage, getAutocomplete} from '../wiki';
 import AsyncSelect from 'react-select/async';
+import {toast} from 'react-toastify';
 
 export function ArticlePicker(props) {
   const {onChange, disabled, placeholder} = props;
@@ -36,7 +37,10 @@ export function ArticlePicker(props) {
   const onChangeToCurrent = () => {
     if (disabled) return;
 
-    onChange(getCurrentArticle());
+    setLoading(true);
+    onChange(getCurrentArticle(), () => {
+      setLoading(false);
+    });
   };
 
   const onChangeToRandom = () => {
@@ -50,7 +54,7 @@ export function ArticlePicker(props) {
         });
       })
       .catch(err => {
-        console.error('onChangeToRandom error:', err);
+        toast.error(`Error getting random articles: ${err.message}`);
         setLoading(false);
       });
   };

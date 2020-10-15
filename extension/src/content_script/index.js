@@ -1,24 +1,46 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import './styles/style.css';
 
 import * as util from './util';
 import * as wiki from './wiki';
-import {Sidebar} from './sidebar';
+import { LobbyPanel } from './LobbyPanel';
+import { InGamePanel } from './InGamePanel.js';
+
+import 'react-toastify/dist/ReactToastify.css';
+import './styles/style.css';
+
+function onShouldReload(message) {
+  const reload = () => window.location.reload();
+  const defaultMessage = 'You are disconnected! Reload this page to reconnect!';
+
+  toast(() => (
+    <div>{message || defaultMessage} <a onClick={reload}>(reload now)</a></div>
+  ), {
+    autoClose: false,
+    toastId: 'reload',
+  });
+}
 
 function Root(props) {
-  return (
-    <Sidebar data={props.data} />
-  );
+  const {data} = props;
+
+  switch (data.state) {
+    case 'lobby':
+      return <LobbyPanel data={data} />;
+    
+    case 'playing':
+      return <InGamePanel data={data} />;
+
+    default:
+      onShouldReload(`There's a problem loading Wikigame. Please reload`)
+      console.error('Root called with unknown data.state:', data.state);
+      toast.error('')
+      return null;
+  }
 };
 
-console.log('content_script is running!');
-
 function initToast() {
-  // inject toast right away
   const toastEl = document.createElement('div');
   document.body.appendChild(toastEl);
   ReactDOM.render(
@@ -28,32 +50,32 @@ function initToast() {
       style={{
         fontSize: '0.8em'
       }}
+      hideProgressBar={true}
     />,
     toastEl
   );
 }
 
-function onDisconnected() {
-  const onRefresh = () => window.location.reload();
-  toast(() => (
-    <div>You are disconnected! Refresh this page to reconnect! <a onClick={onRefresh}>(refresh now)</a></div>
-  ), {
-    autoClose: false,
-  });
-}
-
 function init() {
   console.log('init called');
 
-  initToast();
+  // inject toast right away
+  // but do not let it blocks
+  setTimeout(() => { initToast(); }, 0);
 
   const rootEl = document.getElementById('mw-panel');
-  let el;
+  let reactEl;
   let rendered = false;
   function render(data, initData = false) {
     if (!data || (rendered && initData)) return;
+    if (!rendered) {
+      // resize panel
+      document.getElementById('content').style.marginLeft = '13em';
+      document.getElementById('left-navigation').style.marginLeft = '13em';
+      rootEl.style.width = '12em';
+    }
+    reactEl = ReactDOM.render(<Root data={data} />, rootEl, reactEl);
     rendered = true;
-    el = ReactDOM.render(<Root data={data} />, rootEl, el);
   }
 
   chrome.runtime.onMessage.addListener(
@@ -85,7 +107,7 @@ function init() {
           return false;
 
         case 'disconnected':
-          onDisconnected();
+          onShouldReload();
           break;
 
         case 'notification':
@@ -151,13 +173,13 @@ function init() {
           chrome.runtime.sendMessage({ type: 'ping' }, reply => {
             if (!reply || !reply.status) {
               clearInterval(pingInterval);
-              onDisconnected();
+              onShouldReload();
             }
           });
         } catch (e) {
           clearInterval(pingInterval);
           console.log('ping error:', e);
-          onDisconnected();
+          onShouldReload();
         }
       }, 1000);
   
@@ -176,8 +198,14 @@ function init() {
             if (!reply || !reply.success) {
               if (reply.message) {
                 toast.error(reply.message);
+                // Wait 1s so the user is aware of the error
+                // Think of it as additional penalty for going to an invalid link
+                setTimeout(() => {
+                  util.goto(lastArticle);
+                }, 1000);
+              } else {
+                util.goto(lastArticle);
               }
-              util.goto(lastArticle);
             } else {
               // win condition checks
               if (reply.data && reply.data.finished) {
@@ -222,6 +250,8 @@ function init() {
 
   initData();
 }
+
+console.log('content_script is running!');
 
 // wait for readyState === 'complete'
 // to ensure that page finishes loading and redirects are completed

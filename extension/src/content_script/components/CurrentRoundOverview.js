@@ -32,7 +32,6 @@ function Countdown(props) {
         boxSizing: 'border-box',
         color: 'white',
         backgroundColor: timeLeft < 10 ? 'red' : 'black',
-        cursor: 'pointer',
         height: '32px',
         fontSize: '1em',
         width: '100%',

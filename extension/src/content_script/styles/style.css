@@ -3,11 +3,6 @@
   box-sizing: border-box;
 }
 
-button#wikigame-banned-clear {
-  width: 30%;
-  background-color: #b32424;
-}
-
 #wikigame-wrapper label, #wikigame-wrapper .wikigame-article-picker .a {
   font-size: 0.75em;
 }
@@ -17,11 +12,7 @@ button#wikigame-banned-clear {
   padding: 10px;
 }
 
-/* resize panel */
-#content, #left-navigation {
-  margin-left: 13em;
-}
-
-#mw-panel {
-  width: 12em;
-}
+/* resize panel animation */
+/* #content, #left-navigation, #mw-panel {
+  transition: all 1s;
+} */
