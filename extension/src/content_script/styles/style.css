@@ -5,6 +5,7 @@
   position: fixed;
   overflow-y: scroll;
   max-width: 12em;
+  padding-bottom: 20px;
 }
 
 /* putting scrollbar to the left */

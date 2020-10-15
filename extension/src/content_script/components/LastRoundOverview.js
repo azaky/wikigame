@@ -62,7 +62,7 @@ export function LastRoundOverview(props) {
                   {player.username}
                   {' '}
                   <a onClick={() => onShowDetails(player)}>
-                    ({player.clicks} {player.clicks > 1 ? 'clicks' : 'click'}, {player.finished ? `score = ${player.score}` : 'unfinished'})
+                    ({player.clicks} {player.clicks > 1 ? 'clicks' : 'click'}, {player.finished ? `score = ${player.score}` : 'not finished'})
                   </a>
                 </li>
               );

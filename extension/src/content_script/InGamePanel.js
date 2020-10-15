@@ -39,7 +39,7 @@ export function InGamePanel(props) {
     return () => {
       // restore hidden elements
       hiddenElements.forEach(id => {
-        const el = document.getElementById(el);
+        const el = document.getElementById(id);
         if (el) {
           el.style.display = 'block';
         }
