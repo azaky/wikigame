@@ -47,6 +47,7 @@ function reset(callback) {
     url: null,
     host: null,
     state: null,
+    localState: null,
     players: null,
     currentRound: null,
     currentState: null,
@@ -129,7 +130,7 @@ function initSocketio(initData, callback) {
       active = false;
       sendMessage('disconnected');
     } else {
-      callback({ error: 'Failed to connect to the server' });
+      callback({ success: false, error: 'Failed to connect to the server' });
     }
   });
 
@@ -140,6 +141,12 @@ function initSocketio(initData, callback) {
     chrome.storage.local.set(data, () => {
       chrome.storage.local.get(null, callback);
     });
+  });
+
+  socket.on('init_error', (data) => {
+    console.log('socket.on(init_error):', data);
+    socket.close();
+    callback({ error: data.message });
   });
 
   socket.on('update', (data) => {
@@ -171,20 +178,25 @@ function initSocketio(initData, callback) {
   })
 }
 
-function init(roomId, callback) {
+function init(username, roomId, callback) {
   reset(() => {
-    console.log('sending init');
-    // prompt for username
-    sendMessage('username_prompt', null, (data) => {
-      if (!data || !data.username) {
-        callback(null);
-        return;
-      }
-
-      chrome.storage.local.set({ username: data.username }, () => {
-        initSocketio({ roomId, username: data.username }, callback);
+    if (username) {
+      chrome.storage.local.set({ username }, () => {
+        initSocketio({ roomId, username }, callback);
       });
-    });
+    } else {
+      // prompt for username
+      sendMessage('username_prompt', null, (data) => {
+        if (!data || !data.username) {
+          callback(null);
+          return;
+        }
+  
+        chrome.storage.local.set({ username: data.username }, () => {
+          initSocketio({ roomId, username: data.username }, callback);
+        });
+      });
+    }
   });
 }
 
@@ -204,7 +216,7 @@ chrome.runtime.onMessage.addListener(
               if (changeRoomData && changeRoomData.confirm) {
                 active = false;
                 socket.close();
-                init(message.roomId, sendResponse);
+                init(data.username, message.roomId, sendResponse);
               } else {
                 sendResponse(null);
               }
@@ -220,7 +232,7 @@ chrome.runtime.onMessage.addListener(
         if (!message.roomId) {
           sendResponse(null);
         } else {
-          init(message.roomId, sendResponse);
+          init(message.username, message.roomId, sendResponse);
         }
       }
       return true;

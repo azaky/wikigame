@@ -22,7 +22,7 @@ const createRoom = (host, id) => {
     url: `https://en.wikipedia.org/wiki/Main_Page?roomId=${encodeURIComponent(roomId)}`,
     host,
     state: 'lobby',
-    players: [host],
+    players: [],
     currentRound: {
       start: '',
       target: '',
@@ -138,41 +138,47 @@ const socketHandler = async (socket) => {
     room = getRoomById(roomId);
   }
 
-  // TODO: check username duplicates on the same room
+  // check if there's a duplicate username
+  if (room.players.find((p) => p === username)) {
+    console.log(`[room=${room.roomId}] duplicated username: ${username}`);
+    socket.emit('init_error', {
+      message: `Duplicated username ${username} found, pick another one!`,
+    });
+    socket.disconnect(true);
+    return;
+  }
 
-  if (!room.players.find((p) => p === username)) {
-    // special case of orphaned room, set self as host
-    if (!room.players.length) {
-      room.host = username;
-    }
+  // special case of orphaned room, set self as host
+  if (!room.players.length) {
+    room.host = username;
+  }
 
-    room.players.push(username);
-    // push to current leaderboard if currently a game is active
-    if (room.state === 'playing') {
-      room.currentRound.result = room.currentRound.result.filter(
-        (result) => result.username !== username,
-      );
-      room.currentRound.result.push({
-        username,
-        finished: false,
-        clicks: 0,
-        timeTaken: 0,
-        score: 0,
-      });
-      room.currentState[username] = {
-        path: [room.currentRound.start],
-        clicks: 0,
-        finished: false,
-        timeTaken: 0,
-        score: 0,
-      };
-    }
-    if (!room.leaderboard.find((l) => l.username === username)) {
-      room.leaderboard.push({
-        username,
-        score: 0,
-      });
-    }
+  room.players.push(username);
+  // push to current leaderboard if currently a game is active
+  if (room.state === 'playing') {
+    room.currentRound.result = room.currentRound.result.filter(
+      (result) => result.username !== username,
+    );
+    room.currentRound.result.push({
+      username,
+      finished: false,
+      clicks: 0,
+      timeTaken: 0,
+      score: 0,
+    });
+    room.currentState[username] = {
+      path: [room.currentRound.start],
+      clicks: 0,
+      finished: false,
+      timeTaken: 0,
+      score: 0,
+    };
+  }
+  if (!room.leaderboard.find((l) => l.username === username)) {
+    room.leaderboard.push({
+      username,
+      score: 0,
+    });
   }
 
   socket.join(room.roomId, (err) => {

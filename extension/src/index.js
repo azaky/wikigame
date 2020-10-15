@@ -121,92 +121,106 @@ function init() {
     }
   );
 
-  chrome.runtime.sendMessage({
-    type: 'init',
-    roomId: util.getRoomId(),
-  }, data => {
-    console.log('init data:', data);
+  const initData = username => {
+    chrome.runtime.sendMessage({
+      type: 'init',
+      roomId: util.getRoomId(),
+      username: username,
+    }, data => {
+      console.log('initData:', data);
 
-    if (!data || !data.roomId) return;
-
-    if (data.error) {
-      toast.error(`Error on initializing wikigame: ${data.error}`);
-      return;
-    }
-
-    // this (supposedly) resolves inactive background page
-    const pingInterval = setInterval(() => {
-      try {
-        chrome.runtime.sendMessage({ type: 'ping' }, reply => {
-          if (!reply || !reply.status) {
-            clearInterval(pingInterval);
-            onDisconnected();
+      if (data && data.error) {
+        if (data.error.startsWith('Duplicated username')) {
+          const newUsername = window.prompt(data.error);
+          if (newUsername) {
+            setTimeout(() => {
+              initData(newUsername);
+            }, 0);
           }
-        });
-      } catch (e) {
-        clearInterval(pingInterval);
-        console.log('ping error:', e);
-        onDisconnected();
+          return;
+        }
+        toast.error(`Error on initializing wikigame: ${data.error}`);
+        return;
       }
-    }, 1000);
 
-    util.setRoomIdOnUrl(data.roomId);
-    const currentArticle = util.getCurrentArticle();
+      if (!data || !data.roomId) return;
 
-    // click checks
-    if (data.state === 'playing' && !data.currentState.finished) {
-      const lastArticle = data.currentState.path.slice(-1)[0] || data.currentRound.start;
-
-      if (data.localState === 'clicking') {
-        chrome.runtime.sendMessage({
-          type: 'click',
-          data: { article: currentArticle },
-        }, reply => {
-          if (!reply || !reply.success) {
-            if (reply.message) {
-              toast.error(reply.message);
+      // this (supposedly) resolves inactive background page
+      const pingInterval = setInterval(() => {
+        try {
+          chrome.runtime.sendMessage({ type: 'ping' }, reply => {
+            if (!reply || !reply.status) {
+              clearInterval(pingInterval);
+              onDisconnected();
             }
-            util.goto(lastArticle);
-          } else {
-            // win condition checks
-            if (reply.data && reply.data.finished) {
-              toast.success(`You reach the target! Your score is ${reply.data.score}`);
-            }
-
-            render(data, true);
-          }
-        });
-      } else if (lastArticle !== currentArticle) {
-        // resolve redirects for one more time
-        wiki.resolveTitle(currentArticle)
-          .then(resolved => {
-            if (resolved === lastArticle) {
-              render(data, true);
-            } else {
-              // prevent infinite loop by introducing invalid state
-              if (data.localState === 'invalid') {
-                console.error('We\'re in invalid state! Will stay on this article to prevent infinite redirects');
-                chrome.storage.local.set({ localState: null });
-              } else {
-                chrome.storage.local.set({ localState: 'invalid' }, () => {
-                  util.goto(lastArticle);
-                });
-              }
-            }
-          })
-          .catch(err => {
-            console.error('Error resolving title!', err);
-
-            // keep rendering on this case
-            render(data, true);
           });
+        } catch (e) {
+          clearInterval(pingInterval);
+          console.log('ping error:', e);
+          onDisconnected();
+        }
+      }, 1000);
+  
+      util.setRoomIdOnUrl(data.roomId);
+      const currentArticle = util.getCurrentArticle();
+  
+      // click checks
+      if (data.state === 'playing' && !data.currentState.finished) {
+        const lastArticle = data.currentState.path.slice(-1)[0] || data.currentRound.start;
+  
+        if (data.localState === 'clicking') {
+          chrome.runtime.sendMessage({
+            type: 'click',
+            data: { article: currentArticle },
+          }, reply => {
+            if (!reply || !reply.success) {
+              if (reply.message) {
+                toast.error(reply.message);
+              }
+              util.goto(lastArticle);
+            } else {
+              // win condition checks
+              if (reply.data && reply.data.finished) {
+                toast.success(`You reach the target! Your score is ${reply.data.score}`);
+              }
+  
+              render(data, true);
+            }
+          });
+        } else if (lastArticle !== currentArticle) {
+          // resolve redirects for one more time
+          wiki.resolveTitle(currentArticle)
+            .then(resolved => {
+              if (resolved === lastArticle) {
+                render(data, true);
+              } else {
+                // prevent infinite loop by introducing invalid state
+                if (data.localState === 'invalid') {
+                  console.error('We\'re in invalid state! Will stay on this article to prevent infinite redirects');
+                  chrome.storage.local.set({ localState: null });
+                } else {
+                  chrome.storage.local.set({ localState: 'invalid' }, () => {
+                    util.goto(lastArticle);
+                  });
+                }
+              }
+            })
+            .catch(err => {
+              console.error('Error resolving title!', err);
+  
+              // keep rendering on this case
+              render(data, true);
+            });
+        } else {
+          render(data, true);
+        } 
       } else {
         render(data, true);
-      } 
-    } else {
-      render(data, true);
-    }
-  });
+      }
+    });
+  };
+
+  initData();
 }
 
 // wait for readyState === 'complete'

@@ -5,7 +5,7 @@ function LeaderboardItem(props) {
 
   let displayName = null;
   if (username === player.username) {
-    displayName = <b>{player.username} ({player.score})</b>;
+    displayName = <b title="It's you!">{player.username} ({player.score})</b>;
   } else {
     displayName = <>{player.username} ({player.score})</>;
   }
@@ -13,14 +13,17 @@ function LeaderboardItem(props) {
   let displayHost = null;
   if (isOnline) {
     if (host === player.username) {
-      displayHost = <span title="host"> 👑</span>;
+      displayHost = <span title="Host"> 👑</span>;
     } else if (username === host) {
       displayHost = <a onClick={() => onTransferHost(player.username)}>(make host)</a>;
     }
   }
 
   return (
-    <li style={!isOnline ? {color: '#c7c7c7'} : {}}>
+    <li
+      style={!isOnline ? {color: '#c7c7c7'} : {}}
+      title={!isOnline ? 'Disconnected' : ''}
+    >
       {index+1}. {displayName} {displayHost}
     </li>
   );
