@@ -256,18 +256,24 @@ chrome.runtime.onMessage.addListener(
         if (!ack || !ack.success) {
           if (ack.message) {
             sendNotification('error', ack.message);
-
+            
             // we call update to reset any obsolete fields
             updateData({}, updated => {
               sendMessage('update', updated);
+              // For now, this is only for resetting loading state in ArticlePicker
+              sendResponse({error: ack.message});
             });
           }
         } else if (ack.data) {
           updateData(ack.data, updated => {
             sendMessage('update', updated);
+            sendResponse(null);
           });
+        } else {
+          sendResponse(null);
         }
       });
+      return true;
     } else if (message.type === 'start') {
       console.log('start!');
 

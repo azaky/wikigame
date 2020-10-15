@@ -1,4 +1,5 @@
 import React from 'react';
+import * as util from '../util';
 import {ArticlePicker} from './ArticlePicker';
 
 export function NextRoundArticlePicker(props) {
@@ -15,8 +16,13 @@ export function NextRoundArticlePicker(props) {
       <h3 style={{fontSize: '0.9em'}}>
         <span>Next Round</span>
       </h3>
-      <div class="body vector-menu-content">
+      <div class="body vector-menu-content" style={{paddingTop: '10px'}}>
         <label>Start Article</label>
+        {
+          round.start ? (
+            <a style={{fontSize: '0.75em'}} onClick={() => util.goto(round.start)}>&nbsp;(view)</a>
+          ) : null
+        }
         <div style={{paddingBottom: '10px'}}>
           <ArticlePicker
             value={round.start}
@@ -25,6 +31,11 @@ export function NextRoundArticlePicker(props) {
           />
         </div>
         <label>Target Article</label>
+        {
+          round.target ? (
+            <a style={{fontSize: '0.75em'}} onClick={() => util.goto(round.target)}>&nbsp;(view)</a>
+          ) : null
+        }
         <div style={{paddingBottom: '10px'}}>
           <ArticlePicker
             value={round.target}
@@ -37,7 +48,15 @@ export function NextRoundArticlePicker(props) {
             ? <button
                 id="wikigame-start"
                 onClick={onStartClick}
-                style={{cursor: 'pointer'}}
+                style={{
+                  boxSizing: 'border-box',
+                  color: 'white',
+                  backgroundColor: 'black',
+                  cursor: 'pointer',
+                  height: '32px',
+                  fontSize: '1em',
+                  width: '100%',
+                }}
               >
                 Start
               </button>

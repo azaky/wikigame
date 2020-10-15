@@ -59,4 +59,5 @@ module.exports = {
       ],
     }),
   ],
+  devtool: process.env.GENERATE_SOURCE_MAP === 'true' ? 'inline-source-map' : false,
 };

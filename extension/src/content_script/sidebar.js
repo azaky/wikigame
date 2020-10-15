@@ -19,31 +19,29 @@ function LobbySidebar(props) {
   const {currentRound, rules, leaderboard, lastRound, host, username, players } = data;
   const isHost = host === username;
 
-  const onStartArticleChange = title => {
+  const onUpdate = (toUpdate, callback) => {
+    if (!isHost) return;
+    chrome.runtime.sendMessage({
+      type: 'update',
+      data: toUpdate,
+    }, reply => {
+      if (callback) callback(reply);
+    });
+  };
+
+  const onStartArticleChange = (title, callback) => {
     console.log('onStartArticleChange', title);
-    if (!isHost) return;
-    chrome.runtime.sendMessage({
-      type: 'update',
-      data: { currentRound: { start: title } },
-    });
+    onUpdate({ currentRound: { start: title } }, callback);
   };
 
-  const onTargetArticleChange = title => {
+  const onTargetArticleChange = (title, callback) => {
     console.log('onTargetArticleChange', title);
-    if (!isHost) return;
-    chrome.runtime.sendMessage({
-      type: 'update',
-      data: { currentRound: { target: title } },
-    });
+    onUpdate({ currentRound: { target: title } }, callback);
   };
 
-  const onRulesChange = newRules => {
+  const onRulesChange = (newRules, callback) => {
     console.log('onRulesChange', newRules);
-    if (!isHost) return;
-    chrome.runtime.sendMessage({
-      type: 'update',
-      data: { rules: newRules },
-    });
+    onUpdate({ rules: newRules }, callback);
   };
 
   const onStartRound = () => {
@@ -56,15 +54,14 @@ function LobbySidebar(props) {
     chrome.runtime.sendMessage({ type: 'start' });
   };
 
-  const onTransferHost = (newHost) => {
+  const onTransferHost = (newHost, callback) => {
     console.log('onTransferHost', newHost);
-    if (!isHost) return;
-    if (!players.includes(newHost)) return;
+    if (!isHost || !players.includes(newHost)) {
+      if (callback) callback();
+      return;
+    }
     if (window.confirm(`You're about to transfer host to ${newHost}. Are you sure?`)) {
-      chrome.runtime.sendMessage({
-        type: 'update',
-        data: { host: newHost },
-      });
+      onUpdate({host: newHost}, callback);
     }
   };
 
@@ -111,7 +108,6 @@ function GameSidebar(props) {
 
   // enforce rules
   useEffect(() => {
-    console.log('enforce rules!');
     if (currentState.finished) return;
 
     // remove search bar
@@ -188,6 +184,7 @@ function GameSidebar(props) {
       <Rules
         rules={rules}
         disabled={true}
+        roundStarted={true}
       />
     </div>
   );

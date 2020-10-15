@@ -90,24 +90,26 @@ function CheckBox(props) {
 }
 
 function BannedArticles(props) {
-  const {bannedArticles, disabled, onChange} = props;
+  const {bannedArticles, disabled, onChange, roundStarted} = props;
 
-  const onAdd = value => {
-    if (disabled) return;
-    if (!value || bannedArticles.includes(value)) return;
+  const onAdd = (value, callback) => {
+    if (disabled || roundStarted || (!value || bannedArticles.includes(value))) {
+      if (callback) callback();
+      return;
+    }
 
-    onChange(bannedArticles.concat(value));
+    onChange(bannedArticles.concat(value), callback);
   };
 
   const onDelete = value => {
-    if (disabled) return;
+    if (disabled || roundStarted) return;
     if (!value || !bannedArticles.includes(value)) return;
 
     onChange(bannedArticles.filter(a => a != value));
   };
 
   const onClear = () => {
-    if (disabled) return;
+    if (disabled || roundStarted) return;
 
     onChange([]);
   };
@@ -120,15 +122,19 @@ function BannedArticles(props) {
       <div class="body vector-menu-content">
         <ul>
           {
-            bannedArticles.map(a => (
+            bannedArticles.map(article => (
               <li>
-                {a}
-                {' '}
-                <a onClick={() => util.goto(a)}>(view)</a>
+                {article}
                 {
-                  disabled ? '' : <>
+                  roundStarted ? null : <>
                     {' '}
-                    <a onClick={() => onDelete(a)}>(delete)</a>
+                    <a onClick={() => util.goto(article)}>(view)</a>
+                  </>
+                }
+                {
+                  disabled || roundStarted ? null : <>
+                    {' '}
+                    <a onClick={() => onDelete(article)}>(delete)</a>
                   </>
                 }
               </li>
@@ -148,7 +154,8 @@ function BannedArticles(props) {
               <ArticlePicker
                 onChange={onAdd}
                 disabled={disabled}
-                placeholder="Add Banned Article"
+                placeholder="Ban an article..."
+                hideView={true}
               />
             </div>
           )
@@ -159,31 +166,34 @@ function BannedArticles(props) {
 }
 
 export function Rules(props) {
-  const {rules, disabled, onRulesChange} = props;
+  const {rules, disabled, roundStarted, onRulesChange} = props;
 
   const onTimeLimitChange = timeLimit => {
-    if (disabled) return;
+    if (disabled || roundStarted) return;
     onRulesChange({ timeLimit: parseInt(timeLimit) });
   };
 
   const onScoringMetricsChange = metrics => {
-    if (disabled) return;
+    if (disabled || roundStarted) return;
     onRulesChange({ metrics: metrics });
   };
 
   const onAllowCtrlfChange = allow => {
-    if (disabled) return;
+    if (disabled || roundStarted) return;
     onRulesChange({ allowCtrlf: !!allow });
   };
 
   const onAllowDisambiguationChange = allow => {
-    if (disabled) return;
+    if (disabled || roundStarted) return;
     onRulesChange({ allowDisambiguation: !!allow });
   };
 
-  const onBannedArticlesChange = bannedArticles => {
-    if (disabled) return;
-    onRulesChange({ bannedArticles: bannedArticles });
+  const onBannedArticlesChange = (bannedArticles, callback) => {
+    if (disabled || roundStarted) {
+      if (callback) return callback();
+      return;
+    }
+    onRulesChange({ bannedArticles: bannedArticles }, callback);
   };
 
   return (
@@ -224,6 +234,7 @@ export function Rules(props) {
         bannedArticles={rules.bannedArticles}
         onChange={onBannedArticlesChange}
         disabled={disabled}
+        roundStarted={roundStarted}
       />
     </nav>
   );

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './style.css';
+import './styles/style.css';
 
 import * as util from './util';
 import * as wiki from './wiki';
