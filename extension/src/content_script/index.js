@@ -87,6 +87,7 @@ function init() {
       document.getElementById('content').style.marginLeft = '13em';
       document.getElementById('left-navigation').style.marginLeft = '13em';
       rootEl.style.width = '12em';
+      rootEl.style.paddingLeft = '0';
     }
     reactEl = ReactDOM.render(<Root data={data} />, rootEl, reactEl);
     rendered = true;
@@ -188,7 +189,7 @@ function init() {
       if (!data || !data.roomId) return;
 
       if (data.initial) {
-        toast(() => <div>Welcome to Wikigame, {data.username}!</div>);
+        toast(() => <div>Welcome to Wikigame, <b>{data.username}</b>!</div>);
         // animate resize only when joining for the first time
         enablePanelTransitionAnimation();
       }

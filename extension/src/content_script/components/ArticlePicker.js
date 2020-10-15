@@ -1,4 +1,3 @@
-
 import React, {useState, useEffect} from 'react';
 import {getCurrentArticle} from '../util';
 import {getRandomPage, getAutocomplete} from '../wiki';
