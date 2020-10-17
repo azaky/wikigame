@@ -1,1 +1,0 @@
-if(""!=data.roomId&&""!=data.username){const a=new URL(window.location.href);a.searchParams.set("roomId",data.roomId),window.history.pushState({},document.title,a.pathname+a.search);let e={type:"set_room_id",data};chrome.runtime.sendMessage(e)}
