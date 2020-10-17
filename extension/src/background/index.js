@@ -197,11 +197,12 @@ function init(username, roomId, callback) {
 
 chrome.runtime.onMessage.addListener(
   (message, sender, sendResponse) => {
-    console.log('Message from content_script (tabId =', sender.tab.id, '):', message);
-
-    // TODO: handle cases when tabs are changed (e.g. user opens multiple wiki tabs).
-    tabId = sender.tab.id;
-
+    if (sender.tab && sender.tab.id) {
+      console.log('Message from content_script (tabId =', sender.tab.id, '):', message);
+      // TODO: handle cases when tabs are changed (e.g. user opens multiple wiki tabs).
+      tabId = sender.tab.id;
+    }
+    
     if (message.type === 'init') {
       if (active && socket && socket.connected) {
         chrome.storage.local.get(null, (data) => {
@@ -245,6 +246,13 @@ chrome.runtime.onMessage.addListener(
         active = false;
         sendResponse({ status: false });
       }
+      return false;
+    }
+
+    if (message.type === 'set_room_id') {
+      sendMessage(message.type, message.data);
+      sendResponse(null);
+      console.log("set_room_id", message);
       return false;
     }
 
