@@ -7,11 +7,11 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const package = require('./package.json');
 
 function tagManifestVersion(buffer) {
-   const manifest = JSON.parse(buffer.toString());
+  const manifest = JSON.parse(buffer.toString());
 
-   manifest.version = package.version.replace(/-.*$/, ''); // removes -beta...
+  manifest.version = package.version.replace(/-.*$/, ''); // removes -beta...
 
-   return JSON.stringify(manifest, null, 2);
+  return JSON.stringify(manifest, null, 2);
 }
 
 module.exports = {
@@ -49,9 +49,16 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [
-        'static',
         {
-          from: './manifest.json',
+          from: 'src/images',
+          to: 'images',
+        },
+        {
+          from: 'src/popup',
+          to: '.',
+        },
+        {
+          from: './src/manifest.json',
           transform(content, path) {
             return tagManifestVersion(content);
           },

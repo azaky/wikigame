@@ -99,6 +99,10 @@ function init() {
     rootEl.style.transition = 'all 1s';
   }
 
+  function changeFavicon() {
+    document.querySelector("link[rel*='shortcut icon']").href = chrome.runtime.getURL('images/icon-32.png');
+  }
+
   chrome.runtime.onMessage.addListener(
     (message, sender, sendResponse) => {
       console.log('got message from background:', message);
@@ -171,7 +175,7 @@ function init() {
   const initData = (username, roomId) => {
     chrome.runtime.sendMessage({
       type: 'init',
-      roomId: roomId || util.getRoomId(),
+      roomId: roomId,
       username: username,
     }, data => {
       console.log('initData:', data);
@@ -192,8 +196,12 @@ function init() {
 
       if (!data || !data.roomId) return;
 
+      changeFavicon();
       if (data.initial) {
-        toast(() => <div>Welcome to Wikigame, <b>{data.username}</b>!</div>);
+        toast(() => <div>Welcome to Wikigame, <b>{data.username}</b>!</div>, {
+          toastId: 'welcome',
+          position: toast.POSITION.BOTTOM_LEFT,
+        });
         // animate resize only when joining for the first time
         enablePanelTransitionAnimation();
       }
@@ -279,7 +287,7 @@ function init() {
     });
   };
 
-  initData();
+  initData(null, util.getRoomId());
 }
 
 console.log('content_script is running!');

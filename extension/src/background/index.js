@@ -223,9 +223,9 @@ chrome.runtime.onMessage.addListener(
           }
         });
       } else {
-        // if roomId is not defined, then it means that the user does not
-        // intentionally start a new game. so we're ignoring that case
-        if (!message.roomId) {
+        // if both roomId and username is not defined, then it means that the user
+        // does not intentionally start a new game. so we're ignoring that case
+        if (!message.roomId && !message.username) {
           sendResponse(null);
         } else {
           init(message.username, message.roomId, sendResponse);

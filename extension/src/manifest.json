@@ -14,8 +14,11 @@
     "persistent": false
   },
   "page_action": {
-    "default_icon": "images/icon.png",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "images/icon-128.png",
+      "32": "images/icon-32.png"
+    }
   },
   "content_scripts": [
     {
@@ -29,7 +32,12 @@
       "run_at": "document_end"
     }
   ],
+  "web_accessible_resources": [
+    "images/header.png",
+    "images/icon-32.png"
+  ],
   "icons": {
-    "128": "images/icon.png"
+    "128": "images/icon-128.png",
+    "32": "images/icon-32.png"
   }
 }

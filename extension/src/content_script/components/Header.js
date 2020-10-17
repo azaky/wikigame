@@ -4,7 +4,7 @@ import copy from 'copy-to-clipboard';
 import {getCurrentArticle, getLink, getLinkWithRoomId} from '../util';
 
 export function Header(props) {
-  const {username, roomId} = props;
+  const {roomId} = props;
 
   const onShareClick = () => {
     copy(getLinkWithRoomId('Main_Page'), {
@@ -14,7 +14,6 @@ export function Header(props) {
       },
     });
   };
-
 
   const onLeaveClick = () => {
     const confirmed = window.confirm('Are you sure you want to leave Wikigame?');
@@ -31,9 +30,12 @@ export function Header(props) {
 
   return (
     <nav class="vector-menu vector-menu-portal portal">
-      <h3 style={{fontSize: '1em'}}>
-        <span>Welcome to Wikigame, <b>{username}</b>!</span>
-      </h3>
+      <div role="banner" style={{paddingTop:'20px'}}>
+        <img
+          src={chrome.runtime.getURL('images/header.png')} 
+          style={{ width: '100%' }}
+        />
+      </div>
       <h3>
         <span>
           Room: <b>{roomId}</b>
