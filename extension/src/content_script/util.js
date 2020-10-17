@@ -58,3 +58,7 @@ export function isSpecialArticle(article) {
     || article.startsWith('Main_Page')
     || article.startsWith('File:'));
 }
+
+export function getLinkWithRoomId(article, roomId = getRoomId()) {
+  return `https://en.wikipedia.org/wiki/${encodeURIComponent(article)}?roomId=${encodeURIComponent(roomId)}`;
+}

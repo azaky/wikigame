@@ -8,18 +8,20 @@
   </head>
   <body>
     <form>
-        <h1>Welcome to </h1>
-        <div class="icon">
-            <image src='./images/icon.png'>
+      <h1>Welcome to </h1>
+      <div class="icon">
+        <image src='./images/icon.png'>
+      </div>
+      <div class="formcontainer">
+        <div class="container">
+          <label for="roomId"><strong>Room Id</strong></label>
+          <input type="text" placeholder="Enter Room Id" name="roomId" id="roomId" required>
+          <label for="roomId"><strong>Username</strong></label>
+          <input type="text" placeholder="Enter Username" name="username" id="username" required>
         </div>
-        <div class="formcontainer">
-            <div class="container">
-                <label for="roomId"><strong>Room Id</strong></label>
-                <input type="text" placeholder="Enter Room Id" name="roomId" id="roomId" required>
-            </div>
-            <button type="button" id="startButton"><strong>Start</strong></button>
-        </div>
+        <button type="button" id="startButton"><strong>Start</strong></button>
+      </div>
     </form>
-    <script src="../src/content_script/widgets/Popup.js"></script> 
+    <script src="./popup.js"></script> 
   </body>
 </html>

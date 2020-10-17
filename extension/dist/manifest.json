@@ -5,7 +5,10 @@
   "description": "Play multiplayer Wikiracing online!",
   "permissions": [
     "declarativeContent",
-    "storage"
+    "storage",
+    "tabs",
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
     "scripts": [

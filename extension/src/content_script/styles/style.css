@@ -1,0 +1,45 @@
+/* fix sidebar */
+#wikigame-wrapper {
+  top: 0;
+  bottom: 0;
+  position: fixed;
+  overflow-y: scroll;
+  max-width: 12em;
+  padding-bottom: 20px;
+}
+
+/* putting scrollbar to the left */
+#wikigame-wrapper {
+  direction: rtl;
+}
+#wikigame-wrapper>div {
+  direction: ltr;
+}
+
+/* thin scrollbar */
+#wikigame-wrapper::-webkit-scrollbar {
+  width: 5px;
+}
+#wikigame-wrapper::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8; 
+}
+
+#wikigame-wrapper input[type=text],
+#wikigame-wrapper input[type=number],
+#wikigame-wrapper select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#wikigame-wrapper label {
+  font-size: 0.75em;
+}
+
+/* override padding on toast content */
+.Toastify__toast {
+  padding: 10px;
+}

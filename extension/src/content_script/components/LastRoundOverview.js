@@ -25,7 +25,7 @@ export function LastRoundOverview(props) {
         <div>
           {player.path.map(p => (
             <div>
-              → <a href={util.getLink(p)}>{p}</a>
+              → <a href={util.getLink(p)}>{p.replace(/_/g, ' ')}</a>
             </div>
           ))}
         </div>
@@ -45,7 +45,7 @@ export function LastRoundOverview(props) {
         <ul>
           <li>
             <b>
-              <a href={util.getLink(round.start)}>{round.start}</a>
+              <a href={util.getLink(round.start)}>{round.start.replace(/_/g, ' ')}</a>
               {' to '}
               <a href={util.getLink(round.target)}>{round.target}</a>
             </b>
@@ -62,7 +62,7 @@ export function LastRoundOverview(props) {
                   {player.username}
                   {' '}
                   <a onClick={() => onShowDetails(player)}>
-                    ({player.clicks} {player.clicks > 1 ? 'clicks' : 'click'})
+                    ({player.clicks} {player.clicks > 1 ? 'clicks' : 'click'}, {player.finished ? `score = ${player.score}` : 'not finished'})
                   </a>
                 </li>
               );
@@ -72,10 +72,15 @@ export function LastRoundOverview(props) {
       </div>
       <div class="body vector-menu-content">
         <ul>
-          <li><b>Solution</b></li>
+          <li><b>Solution (Six Degrees of Wikipedia)</b></li>
           <li>
             <a target="_blank" href={`https://www.sixdegreesofwikipedia.com/?source=${encodeURIComponent(round.start)}&target=${encodeURIComponent(round.target)}`}>
-              Six Degree of Wikipedia
+              (From starting article)
+            </a>
+          </li>
+          <li>
+            <a target="_blank" href={`https://www.sixdegreesofwikipedia.com/?source=${encodeURIComponent(util.getCurrentArticle())}&target=${encodeURIComponent(round.target)}`}>
+              (From current article)
             </a>
           </li>
         </ul>

@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack --watch",
-    "dev-local": "WIKIGAME_SERVER_URL=http://localhost:9454 webpack --watch",
+    "dev": "GENERATE_SOURCE_MAP=true webpack --watch",
+    "dev-local": "GENERATE_SOURCE_MAP=true WIKIGAME_SERVER_URL=http://localhost:9454 webpack --watch",
     "build": "webpack --mode production",
     "build-local": "WIKIGAME_SERVER_URL=http://localhost:9454 webpack --mode production",
     "pack": "webpack --mode production && echo 'Creating zip and crx file...' && crx pack dist -o dist/wikigame-v$npm_package_version.crx * && cd dist && zip -x *.crx -r wikigame-v$npm_package_version.zip *",
@@ -30,10 +30,12 @@
     "webpack-cli": "^4.0.0"
   },
   "dependencies": {
+    "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.6.5",
     "ramda": "^0.27.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-select": "^3.1.0",
     "react-toastify": "^6.0.9",
     "regenerator-runtime": "^0.13.7",
     "socket.io-client": "^2.3.1"

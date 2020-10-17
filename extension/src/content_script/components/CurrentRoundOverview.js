@@ -17,7 +17,7 @@ function ArticleOverview(props) {
             </div>
           : null
       }
-      <span style={{wordBreak: 'break-all'}}><b>{article}</b></span>
+      <span style={{wordBreak: 'break-all'}}><b>{article.replace(/_/g, ' ')}</b></span>
     </div>
   );
 }
@@ -28,7 +28,14 @@ function Countdown(props) {
   return (
     <button
       id="wikigame-countdown"
-      style={timeLeft < 10 ? {backgroundColor: 'red'} : {}}
+      style={{
+        boxSizing: 'border-box',
+        color: 'white',
+        backgroundColor: timeLeft < 10 ? 'red' : 'black',
+        height: '32px',
+        fontSize: '1em',
+        width: '100%',
+      }}
       disabled
     >
       {Math.floor(timeLeft / 60)}:{(`00${timeLeft % 60}`).slice(-2)}
