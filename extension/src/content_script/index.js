@@ -122,6 +122,10 @@ function init() {
           render(message.data);
           break;
 
+        case 'set_room_id':
+          initData(message.data.username, message.data.roomId);
+          break;
+
         case 'room_change_prompt':
           const confirmMessage = `You are currently playing in room ${message.data.old}. You sure you want to join room ${message.data.new}? (You will be removed from the old room)`;
           sendResponse({ confirm: window.confirm(confirmMessage) });
@@ -164,10 +168,10 @@ function init() {
     }
   );
 
-  const initData = username => {
+  const initData = (username, roomId) => {
     chrome.runtime.sendMessage({
       type: 'init',
-      roomId: util.getRoomId(),
+      roomId: roomId || util.getRoomId(),
       username: username,
     }, data => {
       console.log('initData:', data);
