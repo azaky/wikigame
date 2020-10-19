@@ -9,22 +9,26 @@ This chrome extension consists of:
 
 ## Running & Developing Locally
 
+First, ensure that node version &ge; 12 is installed.
+
+To develop, run:
+
 ```
 npm install
 npm run dev
 ```
 
-To develop with local server, run this instead.
+To develop with local server, run this instead:
 
 ```
 npm run dev-local
 ```
 
-Now the extension will be generated to `dist/` folder, and updates are automatically watched.
+Now the extension will be generated to `dist/` folder, and file changes are automatically watched.
 
 To load the extension for the first time:
 
-- Go to [chrome://extensions](chrome://extensions).
+- Go to <a href="chrome://extensions">chrome://extensions</a>.
 - Ensure that **Developer mode is enabled** (toggle on the top-right).
 - Click **Load unpacked**, then choose **`dist/`** folder (`<git-root>/wikigame/extension/dist`).
 - Visit any article in Wikipedia, append `?roomId=1234` to the link (example: http://en.wikipedia.org/wiki/Wikiracing?roomId=1234)
@@ -33,7 +37,7 @@ If everything is loaded correctly, you will be prompted for the username, and th
 
 If you make some changes, even though the extension is automatically re-built, it should be reloaded manually from Chrome.
 
-- Go to [chrome://extensions](chrome://extensions).
+- Go to <a href="chrome://extensions">chrome://extensions</a>.
 - Click reload (you don't have to Load unpacked again after changes).
 
 ## Pre-commit hooks
