@@ -6,7 +6,7 @@ document.getElementById('startButton').addEventListener('click', function() {
     username,
   };
   if (data.username != '') {
-    let message = { type: 'set_room_id', data };
+    let message = { type: 'init_popup', data };
     chrome.runtime.sendMessage(message, function() {
       window.close();
     });

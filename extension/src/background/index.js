@@ -6,17 +6,22 @@ const serverUrl = process.env.WIKIGAME_SERVER_URL || 'https://wikigame-multiplay
 let active = false;
 let socket;
 let tabId;
-let portOpen = false;
+let portOpen = {};
 
 chrome.runtime.onConnect.addListener(port => {
   console.log('received port connection:', port.name);
-  if (port.name === `tabId:${tabId}`) {
-    console.log('port open');
-    portOpen = true;
-    port.onDisconnect.addListener(() => {
-      console.log('port closed');
-      portOpen = false;
-    });
+  try {
+    const portTabId = parseInt(port.name.replace(/^tabId\:/, ''), 10);
+    if (portTabId !== NaN) {
+      console.log('port open from tab', portTabId);
+      portOpen[portTabId] = true;
+      port.onDisconnect.addListener(() => {
+        console.log('port closed');
+        portOpen[portTabId] = false;
+      });
+    }
+  } catch (e) {
+    console.warn('error processing port:', e);
   }
 });
 
@@ -45,19 +50,26 @@ function reset(callback) {
   });
 }
 
-function sendMessage(type, data, callback, force) {
-  if (!portOpen) {
-    console.log('sendMessage is called when port is closed (possibly on reload)', type, data);
-    if (force) {
-      setTimeout(() => sendMessage(type, data, callback, force), 10);
-    } else if (callback) callback(null);
-  } else if (!tabId) {
+const messageBuffer = [];
+
+function sendMessage(type, data, callback) {
+  if (!tabId)  {
     console.error('sendMessage is called when tabId is not defined! data:', type, data);
     if (callback) callback(null);
+    return;
+  }
+
+  messageBuffer.push({type, data, callback});
+
+  if (!portOpen[tabId]) {
+    console.log('sendMessage is called when port is closed (possibly on reload)', type, data);
+    return;
   } else {
-    chrome.tabs.sendMessage(tabId, { type, data }, (response) => {
-      console.log('sendMessage response:', response);
-      if (callback) callback(response);
+    messageBuffer.splice(0).forEach(message => {
+      chrome.tabs.sendMessage(tabId, { type: message.type, data: message.data }, response => {
+        console.log('sendMessage response:', response);
+        if (message.callback) message.callback(response);
+      });
     });
   }
 }
@@ -161,9 +173,7 @@ function initSocketio(initData, realCallback) {
   socket.on('finished', (data) => {
     console.log('socket.on(finished):', data);
     updateData(data, updated => {
-      // finished event is critical
-      // make sure that this went through
-      sendMessage('finished', updated, null, true);
+      sendMessage('finished', updated, null);
     });
   });
 
@@ -181,6 +191,7 @@ function init(username, roomId, callback) {
       });
     } else {
       // prompt for username
+      console.log('sending username_prompt to tabId', tabId);
       sendMessage('username_prompt', null, (data) => {
         if (!data || !data.username) {
           callback(null);
@@ -199,12 +210,19 @@ chrome.runtime.onMessage.addListener(
   (message, sender, sendResponse) => {
     if (sender.tab && sender.tab.id) {
       console.log('Message from content_script (tabId =', sender.tab.id, '):', message);
-      // TODO: handle cases when tabs are changed (e.g. user opens multiple wiki tabs).
-      tabId = sender.tab.id;
     }
     
     if (message.type === 'init') {
       if (active && socket && socket.connected) {
+        // handle multiple tabs
+        if (tabId !== sender.tab.id) {
+          sendResponse({
+            success: false,
+            error: 'Multiple tabs',
+          });
+          return false;
+        }
+
         chrome.storage.local.get(null, (data) => {
           // when roomId is different, kick ourself out from the old room and join the new one
           if (message.roomId && message.roomId !== data.roomId) {
@@ -228,7 +246,18 @@ chrome.runtime.onMessage.addListener(
         if (!message.roomId && !message.username) {
           sendResponse(null);
         } else {
-          init(message.username, message.roomId, sendResponse);
+          // on a very rare case -- possibly only on development --
+          // when someone inits from two different tabs at the same time,
+          // race condition may occur
+          if (tabId) {
+            sendResponse({
+              success: false,
+              error: 'Multiple tabs',
+            });
+          } else {
+            tabId = sender.tab.id;
+            init(message.username, message.roomId, sendResponse);
+          }
         }
       }
       return true;
@@ -249,11 +278,31 @@ chrome.runtime.onMessage.addListener(
       return false;
     }
 
-    if (message.type === 'set_room_id') {
-      sendMessage(message.type, message.data);
-      sendResponse(null);
-      console.log("set_room_id", message);
-      return false;
+    if (message.type === 'init_popup') {
+      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        if (!active) {
+          chrome.tabs.sendMessage(tabs[0].id, {type: 'init', data: message.data});
+        }
+        // ignore popup when active for now
+        sendResponse(null);
+      });
+      return true;
+    }
+
+    if (message.type === 'change_tab') {
+      chrome.storage.local.get(['roomId', 'state', 'currentState'], data => {
+        // inform old tab that we are changing tab
+        sendMessage('change_tab', null, () => {
+          // set tabId
+          tabId = sender.tab.id;
+          sendResponse({
+            roomId: data.roomId,
+            lastArticle: data.state === 'playing' && data.currentState.path.slice(-1)[0],
+          });
+        });
+      });
+
+      return true;
     }
 
     if (!active || !socket || !socket.connected) {
@@ -328,7 +377,15 @@ chrome.runtime.onMessage.addListener(
       return true;
     } else if (message.type === 'leave') {
       reset(() => {
+        tabId = null;
         sendResponse({success: true});
+        // in case leave was fired from other tabs:
+        Object.keys(portOpen).forEach(portTabId => {
+          if (portOpen[portTabId] && portTabId !== sender.tab.id) {
+            console.log('sending leave to tab', portTabId);
+            chrome.tabs.sendMessage(parseInt(portTabId, 10), {type: 'leave'});
+          }
+        });
       });
     } else {
       console.warn('onMessage unknown message.type:', message);

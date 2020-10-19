@@ -56,6 +56,7 @@ function Root(props) {
 
 function initToast() {
   const toastEl = document.createElement('div');
+  toastEl.id = 'wikigame-toast';
   document.body.appendChild(toastEl);
   ReactDOM.render(
     <ToastContainer
@@ -103,12 +104,75 @@ function init() {
     document.querySelector("link[rel*='shortcut icon']").href = chrome.runtime.getURL('images/icon-32.png');
   }
 
+  function restoreFavicon() {
+    document.querySelector("link[rel*='shortcut icon']").href = '/static/favicon/wikipedia.ico';
+  }
+
+  function removeWholeContent() {
+    // remove everything but do not let ToastContainer get removed
+    [...document.body.children].forEach(element => {
+      if (element.id !== 'wikigame-toast') {
+        element.remove();
+      }
+    });
+  }
+
+  function changeTab() {
+    chrome.runtime.sendMessage({type: 'change_tab'}, reply => {
+      console.log('change_tab reply:', reply);
+      util.setRoomIdOnUrl(reply.roomId);
+      util.goto(reply.lastArticle || util.getCurrentArticle());
+    });
+  };
+
+  function handleLeaveGame() {
+    toast.dismiss();
+    toast('You successfully left the room. See you again!', {
+      position: toast.POSITION.TOP_CENTER,
+    });
+    setTimeout(() => {
+      // reload but remove roomId
+      window.location.href = util.getLink(util.getCurrentArticle());
+    }, 1000);
+  }
+
+  function leaveGame() {
+    chrome.runtime.sendMessage({type: 'leave'}, () => {
+      handleLeaveGame();
+    });
+  };
+
+  function handleMultipleTabs() {
+    removeWholeContent();
+    restoreFavicon();
+
+    const message = <div>
+      You are playing Wikigame in another tab!
+      <br/>
+      <a onClick={changeTab}>(play here)</a>
+      &nbsp;
+      <a title="back to browsing Wikipedia like usual" onClick={leaveGame}>(leave game)</a>
+    </div>;
+
+    toast(message, {
+      toastId: 'multiple_tabs',
+      closeOnClick: false,
+      closeButton: false,
+      position: toast.POSITION.TOP_CENTER,
+      autoClose: false,
+    });
+  }
+
   chrome.runtime.onMessage.addListener(
     (message, sender, sendResponse) => {
       console.log('got message from background:', message);
 
       switch (message.type) {
-        case 'username_prompt':
+        case 'init':
+          initData(message.data.username, message.data.roomId);
+          break;
+
+          case 'username_prompt':
           const username = window.prompt('Enter your username:');
           sendResponse({ username });
           return false;
@@ -126,10 +190,6 @@ function init() {
           render(message.data);
           break;
 
-        case 'set_room_id':
-          initData(message.data.username, message.data.roomId);
-          break;
-
         case 'room_change_prompt':
           const confirmMessage = `You are currently playing in room ${message.data.old}. You sure you want to join room ${message.data.new}? (You will be removed from the old room)`;
           sendResponse({ confirm: window.confirm(confirmMessage) });
@@ -137,6 +197,14 @@ function init() {
 
         case 'disconnected':
           onShouldReload();
+          break;
+
+        case 'change_tab':
+          handleMultipleTabs();
+          break;
+
+        case 'leave':
+          handleLeaveGame();
           break;
 
         case 'notification':
@@ -188,6 +256,9 @@ function init() {
               initData(newUsername);
             }, 0);
           }
+          return;
+        } else if (data.error.startsWith('Multiple tabs')) {
+          handleMultipleTabs();
           return;
         }
         toast.error(`Error on initializing wikigame: ${data.error}`);
