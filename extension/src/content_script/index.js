@@ -299,7 +299,7 @@ function init() {
       // click checks
       if (data.state === 'playing' && !data.currentState.finished) {
         const lastArticle = data.currentState.path.slice(-1)[0] || data.currentRound.start;
-  
+
         if (data.localState === 'clicking') {
           chrome.runtime.sendMessage({
             type: 'click',
@@ -332,22 +332,18 @@ function init() {
               if (resolved === lastArticle) {
                 render(data, true);
               } else {
-                // prevent infinite loop by introducing invalid state
-                if (data.localState === 'invalid') {
-                  console.error('We\'re in invalid state! Will stay on this article to prevent infinite redirects');
-                  chrome.storage.local.set({ localState: null });
-                } else {
-                  chrome.storage.local.set({ localState: 'invalid' }, () => {
-                    util.goto(lastArticle);
-                  });
-                }
+                chrome.storage.local.set({ localState: null }, () => {
+                  util.goto(lastArticle);
+                });
               }
             })
             .catch(err => {
               console.error('Error resolving title!', err);
-  
-              // keep rendering on this case
-              render(data, true);
+
+              // resort back to lastArticle
+              chrome.storage.local.set({ localState: null }, () => {
+                util.goto(lastArticle);
+              });
             });
         } else {
           render(data, true);

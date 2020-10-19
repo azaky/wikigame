@@ -55,55 +55,63 @@ export function InGamePanel(props) {
   useEffect(() => {
     if (currentState.finished) return;
 
-    const clickHandler = function (e) {
-      if (e.target.tagName !== 'A') return;
+    const createClickHandler = link => {
+      return e => {
+        if (!link) return;
 
-      const link = e.target.href;
-      if (!link) return;
+        const articleObj = util.getArticleFromUrl(link);
+        const { article } = articleObj;
 
-      const articleObj = util.getArticleFromUrl(link);
-      const { article } = articleObj;
-
-      // anchor links
-      if (article === util.getCurrentArticle()) {
-        console.log(`Anchor link, doesn't count as a click:`, link);
-        return;
-      }
-
-      e.preventDefault();
-
-      // non-wiki links
-      if (!article) {
-        toast.error(`You cannot go outside Wikipedia!`);
-        console.log('Ignoring invalid links:', link);
-        return;
-      }
-
-      // special links
-      if (util.isSpecialArticle(article)) {
-        toast.error(`It's a special Wikipedia link, you cannot go there!`);
-        console.log('Ignoring special links:', link);
-        return;
-      }
-
-      console.log('Navigating to:', article);
-
-      chrome.storage.local.get(['localState'], ({localState}) => {
-        if (localState === 'clicking') {
-          console.log(`Ignoring clicks, there's another ongoing clicking event`);
+        // anchor links
+        if (article === util.getCurrentArticle()) {
+          console.log(`Anchor link, doesn't count as a click:`, link);
           return;
         }
-        chrome.storage.local.set({localState: 'clicking'}, () => {
-          util.goto(article);
+
+        e.preventDefault();
+
+        // non-wiki links
+        if (!article) {
+          toast.error(`You cannot go outside Wikipedia!`);
+          console.log('Ignoring invalid links:', link);
+          return;
+        }
+
+        // special links
+        if (util.isSpecialArticle(article)) {
+          toast.error(`It's a special Wikipedia link, you cannot go there!`);
+          console.log('Ignoring special links:', link);
+          return;
+        }
+
+        console.log('Navigating to:', article);
+
+        chrome.storage.local.get(['localState'], ({localState}) => {
+          if (localState === 'clicking') {
+            console.log(`Ignoring clicks, there's another ongoing clicking event`);
+            return;
+          }
+          chrome.storage.local.set({localState: 'clicking'}, () => {
+            util.goto(article);
+          });
         });
-      });
+      };
     };
 
-    document.addEventListener('click', clickHandler);
+    const links = [...document.getElementsByTagName('A')];
+    const clickHandlers = links.map(link => createClickHandler(link.href));
+    links.forEach((link, i) => link.addEventListener('click', clickHandlers[i]));
+
+    // prevent clicks on newly created links
+    let globalClickHandler = e => {
+      if (e.target.tagName === 'A') e.preventDefault();
+    };
+    document.addEventListener('click', globalClickHandler);
 
     return () => {
-      if (clickHandler) {
-        document.removeEventListener('click', clickHandler);
+      links.forEach((link, i) => link.removeEventListener('click', clickHandlers[i]));
+      if (globalClickHandler) {
+        document.removeEventListener('click', globalClickHandler);
       }
     };
   }, [currentState.finished]);
