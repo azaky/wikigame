@@ -43,3 +43,19 @@ When developing, you can enable pre-commit hooks (which will build and pack the 
 ```
 npm run init-pre-commit
 ```
+
+## Build + packing into zip
+
+To build for production, use:
+
+```
+npm run build
+```
+
+We also provide packing script:
+
+```
+npm run pack
+```
+
+which will run `npm run build` and then generates zipped file in the format of `wikigame-$version.zip`.

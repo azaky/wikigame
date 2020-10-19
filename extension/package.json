@@ -9,9 +9,9 @@
     "dev-local": "GENERATE_SOURCE_MAP=true WIKIGAME_SERVER_URL=http://localhost:9454 webpack --watch",
     "build": "webpack --mode production",
     "build-local": "WIKIGAME_SERVER_URL=http://localhost:9454 webpack --mode production",
-    "pack": "webpack --mode production && echo 'Creating zip and crx file...' && crx pack dist -o dist/wikigame-v$npm_package_version.crx * && cd dist && zip -x *.crx -r wikigame-v$npm_package_version.zip *",
+    "pack": "webpack --mode production && echo 'Creating zip file...' && cd dist && zip -r wikigame-v$npm_package_version.zip *",
     "init-pre-commit": "echo '#!/bin/sh\necho \"Running pre-commit scripts...\"\ncd ./extension && npm run pre-commit' > `git rev-parse --show-toplevel`/.git/hooks/pre-commit",
-    "pre-commit": "npm run pack && cd .. && git add extension/dist/"
+    "pre-commit": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +23,6 @@
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.2.1",
-    "crx": "^5.0.1",
     "css-loader": "^5.0.0",
     "style-loader": "^2.0.0",
     "webpack": "^5.1.0",
