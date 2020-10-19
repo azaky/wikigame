@@ -6,6 +6,8 @@ import { toast } from 'react-toastify';
 export function LastRoundOverview(props) {
   const {round} = props;
 
+  const metrics = (round.rules && round.rules.metrics) || 'click';
+
   const onShowDetails = player => {
     const toastId = 'playerLastRoundDetails';
     if (toast.isActive(toastId)) {
@@ -47,8 +49,21 @@ export function LastRoundOverview(props) {
             <b>
               <a href={util.getLink(round.start)}>{round.start.replace(/_/g, ' ')}</a>
               {' to '}
-              <a href={util.getLink(round.target)}>{round.target}</a>
+              <a href={util.getLink(round.target)}>{round.target.replace(/_/g, ' ')}</a>
             </b>
+          </li>
+        </ul>
+      </div>
+      <div class="body vector-menu-content">
+        <ul>
+          <li>
+            <a
+              target="_blank"
+              href={`https://www.sixdegreesofwikipedia.com/?source=${encodeURIComponent(round.start)}&target=${encodeURIComponent(round.target)}`}
+              title="See solution on Six Degrees of Wikipedia"
+            >
+              <b>(See Solution)</b>
+            </a>
           </li>
         </ul>
       </div>
@@ -61,28 +76,22 @@ export function LastRoundOverview(props) {
                 <li>
                   {player.username}
                   {' '}
+                  {!player.finished ? '(not finished) ' : ''}
                   <a onClick={() => onShowDetails(player)}>
-                    ({player.clicks} {player.clicks > 1 ? 'clicks' : 'click'}, {player.finished ? `score = ${player.score}` : 'not finished'})
+                    (
+                      {
+                        metrics === 'click' || !player.finished
+                          ? (`${player.clicks} ${player.clicks > 1 ? 'clicks' : 'click'}`)
+                          : metrics === 'time'
+                            ? (`${player.timeTaken} ${player.timeTaken > 1 ? 'seconds' : 'second'}`)
+                            : (`${player.score} ${player.score > 1 ? 'points' : 'point'}`)
+                      }
+                    )
                   </a>
                 </li>
               );
             })
           }
-        </ul>
-      </div>
-      <div class="body vector-menu-content">
-        <ul>
-          <li><b>Solution (Six Degrees of Wikipedia)</b></li>
-          <li>
-            <a target="_blank" href={`https://www.sixdegreesofwikipedia.com/?source=${encodeURIComponent(round.start)}&target=${encodeURIComponent(round.target)}`}>
-              (From starting article)
-            </a>
-          </li>
-          <li>
-            <a target="_blank" href={`https://www.sixdegreesofwikipedia.com/?source=${encodeURIComponent(util.getCurrentArticle())}&target=${encodeURIComponent(round.target)}`}>
-              (From current article)
-            </a>
-          </li>
         </ul>
       </div>
     </nav>

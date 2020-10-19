@@ -31,7 +31,7 @@ const createRoom = (host, id) => {
     currentState: {},
     rules: {
       timeLimit: 120,
-      metrics: 'clicks',
+      metrics: 'time',
       allowCtrlf: true,
       allowDisambiguation: true,
       bannedArticles: [],
@@ -61,7 +61,7 @@ const generateCurrentRoundResult = (room) => {
 
 const calculateScore = (state, rules) => {
   const scoreClicks = 10 * (11 - Math.min(10, state.clicks));
-  const scoreTime = Math.ceil(100 * (1 - state.timeTaken / rules.timeLimit));
+  const scoreTime = 10 + Math.ceil(90 * (1 - state.timeTaken / rules.timeLimit));
   if (rules.metrics === 'clicks') {
     return scoreClicks;
   } if (rules.metrics === 'time') {
@@ -317,10 +317,11 @@ const socketHandler = async (socket) => {
     room.pastRounds.push({
       start: room.currentRound.start,
       target: room.currentRound.target,
+      rules: JSON.parse(JSON.stringify(room.rules)),
       result: room.currentRound.result.map((res) => ({
         ...res,
         path: room.currentState[res.username].path,
-      })),
+      })).sort((a, b) => b.score - a.score),
     });
     room.currentRound = {
       start: room.currentRound.start,

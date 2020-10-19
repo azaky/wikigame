@@ -43,3 +43,12 @@
 .Toastify__toast {
   padding: 10px;
 }
+.Toastify__toast--default {
+  color: black; /* default color hurts */
+}
+
+/* help toast */
+#help {
+  width: 400px;
+  cursor: default;
+}

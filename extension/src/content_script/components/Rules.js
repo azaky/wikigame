@@ -39,11 +39,33 @@ function ScoringMetrics(props) {
     setValue(props.value);
   }, [props.value]);
 
-  const metrics = ['clicks', 'time', 'combined'];
+  const metrics = ['time', 'clicks', 'combined'];
+
+  const showHelp = () => {
+    toast(<div>
+      <h3>Scoring Help</h3>
+      Your score will be 0 if you don't reach the target.<br/>
+      Otherwise, your score will be between 10 and 100 and will be calculated using the following formula based on the metrics you choose:<br/>
+      <br/>
+      <b>Time:</b> <code>score = 10 + 90 &times; timeLeft / timeLimit</code><br/>
+      It means that your score will be 100 when you finish in an instant, and linearly decrease to 10 as you take more time.<br/>
+      <br/>
+      <b>Click:</b> <code>score = 10 &times; (11 - min(10, clicks))</code><br/>
+      It means that your score will be 100 for 1 click, 90 for 2 clicks, etc. until 90 for 10+ clicks.<br/>
+      <br/>
+      <b>Combined:</b> <code>score = (score time + score click) / 2</code><br/>
+      You need to balance between number of clicks and time when using this metrics.
+    </div>, {
+      closeOnClick: false,
+      autoClose: false,
+      toastId: 'help',
+    });
+  };
 
   return (
     <div>
-      <label>Scoring Metrics</label>
+      <label>Scoring Metrics&nbsp;<a title="Show info about scoring" onClick={showHelp}>🛈</a></label>
+
       <select
         style={{textTransform:'capitalize'}}
         value={value}

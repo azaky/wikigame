@@ -15,6 +15,7 @@ function onShouldReload(message) {
   const defaultMessage = 'You are disconnected! Reload this page to reconnect!';
 
   const showToast = () => {
+    toast.dismiss();
     toast(() => (
       <div>{message || defaultMessage} <a onClick={reload}>(reload now)</a></div>
     ), {
@@ -321,7 +322,7 @@ function init() {
               if (reply.data && reply.data.finished) {
                 toast.success(`You reach the target! Your score is ${reply.data.score}`);
               }
-  
+
               render(data, true);
             }
           });
