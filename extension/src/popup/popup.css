@@ -1,22 +1,35 @@
+#root {
+  min-width: 250px;
+}
+
 html,
 body {
   display: flex;
   justify-content: center;
-  font-family: Roboto, Arial, sans-serif;
-  font-size: 8px;
-}
-form {
-  border: 5px solid #f1f1f1;
 }
 
-input[type='text'],
-input[type='password'] {
+.form-group {
+  margin-bottom: 10px;
+}
+
+.form-group > input {
   width: 100%;
   padding: 4px 2px;
   margin: 2px 0;
   display: inline-block;
   border: 1px solid #ccc;
   box-sizing: border-box;
+  min-height: 32px;
+  padding: 10px;
+}
+
+.form-group > input:focus {
+  outline: none;
+  border-color: rgb(38, 132, 255);
+  border-radius: 0px;
+  border-width: 1px;
+  border-style: solid;
+  box-shadow: rgb(38, 132, 255) 0px 0px 0px 1px;
 }
 
 .icon {
@@ -24,16 +37,18 @@ input[type='password'] {
   display: flex;
   justify-content: center;
   color: #4286f4;
+  padding: 10px;
 }
 
 button {
   background-color: #4286f4;
   color: white;
   padding: 3px 0;
-  margin: 4px 0;
   border: none;
   cursor: grab;
-  width: 48%;
+  width: 100%;
+  min-height: 32px;
+  cursor: pointer;
 }
 
 h1 {
@@ -44,10 +59,6 @@ button:hover {
   opacity: 0.8;
 }
 
-.formcontainer {
-  text-align: center;
-  margin: 8px 10px 4px;
-}
 .container {
   padding: 2px 0;
   text-align: left;
@@ -56,4 +67,8 @@ span.psw {
   float: right;
   padding-top: 0;
   padding-right: 15px;
+}
+
+a:hover {
+  text-decoration: underline;
 }

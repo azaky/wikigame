@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCurrentArticle, getLang } from '../util';
+import { getCurrentArticle } from '../util';
 import { getRandomPage, getAutocomplete } from '../wiki';
 import AsyncSelect from 'react-select/async';
 import { toast } from 'react-toastify';

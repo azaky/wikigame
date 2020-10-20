@@ -31,6 +31,7 @@ module.exports = {
   entry: {
     content_script: './src/content_script/index.js',
     background: './src/background/index.js',
+    popup: './src/popup/popup.js',
   },
   output: {
     filename: '[name].js',
@@ -51,8 +52,12 @@ module.exports = {
           to: 'images',
         },
         {
-          from: 'src/popup',
-          to: '.',
+          from: 'src/popup/popup.html',
+          to: 'popup.html',
+        },
+        {
+          from: 'src/popup/popup.css',
+          to: 'popup.css',
         },
         {
           from: 'src/content_script/ctrlf.js',

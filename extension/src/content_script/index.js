@@ -25,6 +25,9 @@ function removeHandleCtrlfOnInitialLoad() {
   console.log('ctrlf removed');
 }
 
+// hacks to pass lang to popup
+chrome.storage.local.set({ pageLang: window.location.hostname.split('.')[0] });
+
 function onShouldReload(message) {
   const reload = () => window.location.reload();
   const defaultMessage = 'You are disconnected! Reload this page to reconnect!';
@@ -116,8 +119,8 @@ function init() {
   const rootEl = document.getElementById('mw-panel');
   let reactEl;
   let rendered = false;
-  function render(data, initData = false) {
-    if (!data || (rendered && initData)) return;
+  function render(data, fromInitData = false) {
+    if (!data || (rendered && fromInitData)) return;
     if (!rendered) {
       // resize panel
       document.getElementById('content').style.marginLeft = '13em';
@@ -175,9 +178,7 @@ function init() {
   }
 
   function leaveGame() {
-    chrome.runtime.sendMessage({ type: 'leave' }, () => {
-      handleLeaveGame();
-    });
+    chrome.runtime.sendMessage({ type: 'leave' });
   }
 
   function handleMultipleTabs() {
@@ -207,10 +208,11 @@ function init() {
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('got message from background:', message);
+    console.log(JSON.stringify(message));
 
     switch (message.type) {
       case 'init':
-        initData(message.data.username, message.data.roomId);
+        initData(message.data);
         break;
 
       case 'username_prompt':
@@ -282,7 +284,7 @@ function init() {
     return false;
   });
 
-  const initData = (username, { roomId, lang }) => {
+  const initData = ({ username, roomId, lang }) => {
     if (!lang) lang = util.getLang();
 
     const initMessage = {
@@ -300,7 +302,7 @@ function init() {
           const newUsername = window.prompt(data.error);
           if (newUsername) {
             setTimeout(() => {
-              initData(newUsername);
+              initData({ username: newUsername, roomId, lang });
             }, 0);
           }
           return;
@@ -319,11 +321,16 @@ function init() {
 
       // check if language mismatched
       if (data.lang !== window.location.hostname.split('.')[0]) {
-        console.log('Language mismatched!');
-        toast.error('You cannot go to pages in other languages!');
-        setTimeout(() => {
-          util.goto(util.getCurrentArticle());
-        }, 1000);
+        // on initial, redirect to data.url instead
+        if (data.initial) {
+          window.location.href = data.url || util.getCurrentArticle();
+        } else {
+          console.log('Language mismatched!');
+          toast.error('You cannot go to pages in other languages!');
+          setTimeout(() => {
+            util.goto(util.getCurrentArticle());
+          }, 1000);
+        }
         return;
       }
 
@@ -428,7 +435,7 @@ function init() {
     });
   };
 
-  initData(null, util.getRoomIdAndLang());
+  initData(util.getRoomIdAndLang());
 }
 
 console.log('content_script is running!');

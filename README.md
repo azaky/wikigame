@@ -18,6 +18,7 @@ Install the latest version to your browser from [Chrome web store](https://chrom
 ## Features
 
 - Create custom room to play with your friends
+- Support [**all 313 languages**](https://en.wikipedia.org/wiki/List_of_Wikipedias#Detailed_list) of Wikipedia
 - Search articles with autocomplete, or pick completely random articles
 - Custom scoring metrics (time, clicks, or combined)
 - Custom rules

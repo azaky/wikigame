@@ -34,7 +34,6 @@ function reset(callback) {
   active = false;
   chrome.storage.local.set(
     {
-      username: null,
       roomId: null,
       url: null,
       host: null,
@@ -209,7 +208,7 @@ function init(username, roomId, lang, callback) {
   reset(() => {
     if (username) {
       chrome.storage.local.set({ username }, () => {
-        initSocketio({ roomId, username }, callback);
+        initSocketio({ roomId, username, lang }, callback);
       });
     } else {
       // prompt for username
@@ -229,14 +228,12 @@ function init(username, roomId, lang, callback) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (sender.tab && sender.tab.id) {
-    console.log(
-      'Message from content_script (tabId =',
-      sender.tab.id,
-      '):',
-      message
-    );
-  }
+  console.log(
+    'Message from content_script (tabId =',
+    sender && sender.tab && sender.tab.id,
+    '):',
+    message
+  );
 
   if (message.type === 'init') {
     if (active && socket && socket.connected) {
@@ -328,7 +325,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'init_popup') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (!active) {
+      console.log('tabs:', tabs);
+      if (!active && tabs.length > 0) {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'init',
           data: message.data,
@@ -434,10 +432,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     reset(() => {
       tabId = null;
       sendResponse({ success: true });
-      // in case leave was fired from other tabs:
       Object.keys(portOpen).forEach((portTabId) => {
-        if (portOpen[portTabId] && portTabId !== sender.tab.id) {
-          console.log('sending leave to tab', portTabId);
+        if (portOpen[portTabId]) {
           chrome.tabs.sendMessage(parseInt(portTabId, 10), { type: 'leave' });
         }
       });

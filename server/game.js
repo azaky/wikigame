@@ -10,7 +10,12 @@ const getRoomById = (id, lang) =>
   rooms.find((room) => room.roomId === id && room.lang === lang);
 
 // up to 5 digit room id
-const generateRoomId = () => `${Math.round(Math.random() * 100000)}`;
+const randomRoomIdDigits = 6;
+const generateRoomId = () =>
+  `${Math.round(Math.random() * Math.pow(10, randomRoomIdDigits))}`.padStart(
+    randomRoomIdDigits,
+    '0'
+  );
 
 const createRoom = (host, id, _lang) => {
   const lang = _lang || 'en';
@@ -23,9 +28,9 @@ const createRoom = (host, id, _lang) => {
   const room = {
     roomId,
     lang,
-    url: `https://${lang}.wikipedia.org/wiki/Wikipedia?roomId=${encodeURIComponent(
+    url: `https://${lang}.wikipedia.org/wiki/Main_Page?roomId=${encodeURIComponent(
       roomId
-    )}`,
+    )}&lang=${lang}`,
     host,
     state: 'lobby',
     players: [],

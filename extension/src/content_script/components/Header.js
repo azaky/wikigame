@@ -7,9 +7,14 @@ import {
   getLink,
   getLinkWithRoomId,
 } from '../util';
+import languages from '../../lang.json';
+import { useLang } from '../DataContext';
 
 export function Header(props) {
   const { roomId } = props;
+
+  const lang = useLang();
+  const humanizedLang = languages.find((lg) => lg.lang === lang).labelLocal;
 
   const onShareClick = () => {
     copy(getLinkWithRoomId('Main_Page'), {
@@ -25,13 +30,8 @@ export function Header(props) {
       'Are you sure you want to leave Wikigame?'
     );
     if (confirmed) {
-      chrome.runtime.sendMessage({ type: 'leave' }, () => {
-        toast('You successfully left the room. See you again!');
-        setTimeout(() => {
-          // reload but remove roomId
-          window.location.href = getLink(getCurrentArticle());
-        }, 1000);
-      });
+      // the response will be handled in message listener in ../index.js
+      chrome.runtime.sendMessage({ type: 'leave' });
     }
   };
 
@@ -45,16 +45,20 @@ export function Header(props) {
       </div>
       <h3>
         <span>
-          Room: <b>{roomId}</b>
-          &nbsp;
-          <a onClick={onShareClick}>(share)</a>
-          &nbsp;
-          <a onClick={onLeaveClick}>(leave)</a>
+          Room:&nbsp;<b>{roomId}</b>
         </span>
         <br />
         <span>
-          {/* TODO: get humanized name */}
-          Lang: <b>{getLang()}</b>
+          Language:&nbsp;
+          <b>
+            {humanizedLang} ({lang})
+          </b>
+        </span>
+        <br />
+        <span>
+          <a onClick={onShareClick}>(share)</a>
+          &nbsp;
+          <a onClick={onLeaveClick}>(leave)</a>
         </span>
       </h3>
     </nav>
