@@ -14,7 +14,9 @@ export function Header(props) {
   const { roomId } = props;
 
   const lang = useLang();
-  const humanizedLang = languages.find((lg) => lg.lang === lang).labelLocal;
+  const langObj = languages.find((lg) => lg.lang === lang);
+  const humanizedLang = langObj.labelLocal;
+  const englishLang = langObj.label;
 
   const onShareClick = () => {
     copy(getLinkWithRoomId('Main_Page'), {
@@ -50,7 +52,7 @@ export function Header(props) {
         <br />
         <span>
           Language:&nbsp;
-          <b>
+          <b title={englishLang}>
             {humanizedLang} ({lang})
           </b>
         </span>
