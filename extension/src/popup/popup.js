@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Select from 'react-select';
+import copy from 'copy-to-clipboard';
 
 import languages from '../lang.json';
 
@@ -150,11 +151,27 @@ function Form(props) {
 }
 
 function Info(props) {
-  const { username, roomId, lang } = props;
+  const { username, roomId, lang, url } = props;
+
+  const [copying, setCopying] = useState(false);
 
   const leave = () => {
     chrome.runtime.sendMessage({ type: 'leave' }, () => {
       window.close();
+    });
+  };
+
+  const copyRoomUrl = () => {
+    copy(url, {
+      format: 'text/plain',
+      onCopy: () => {
+        if (!copying) {
+          setCopying(true);
+          setTimeout(() => {
+            setCopying(false);
+          }, 2000);
+        }
+      },
     });
   };
 
@@ -167,6 +184,13 @@ function Info(props) {
         You are currently playing in room <strong>{roomId}</strong> (language:{' '}
         <strong>{languages.find((lg) => lg.lang === lang).label}</strong>)
       </p>
+      <button
+        type="button"
+        onClick={copyRoomUrl}
+        style={{ marginBottom: '10px' }}
+      >
+        <strong>{copying ? 'Room Link Copied!' : 'Copy Room Link'}</strong>
+      </button>
       <button type="button" onClick={leave}>
         <strong>Leave Room</strong>
       </button>
@@ -179,7 +203,7 @@ const documentReadyInterval = setInterval(() => {
     clearInterval(documentReadyInterval);
 
     chrome.storage.local.get(
-      ['pageLang', 'state', 'roomId', 'lang', 'username'],
+      ['pageLang', 'state', 'roomId', 'lang', 'username', 'url'],
       (data) => {
         if (data.state) {
           ReactDOM.render(
