@@ -4,6 +4,7 @@ const cors = require('cors');
 const socketio = require('socket.io');
 const game = require('./game');
 const languages = require('./lang.json');
+const package = require('./package.json');
 
 const app = express();
 app.use(cors());
@@ -13,10 +14,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Hello from Wikigame' });
-});
-app.get('/heroku', (req, res) => {
-  res.json({ message: 'Hello from Heroku' });
+  res.json({ message: 'Hello from Wikigame', version: package.version });
 });
 
 app.use('/game', game.handler);
