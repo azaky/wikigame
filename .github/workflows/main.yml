@@ -13,5 +13,5 @@ jobs:
       - uses: akhileshns/heroku-deploy@v3.4.6 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "wikigame-multiplayer" #Must be unique in Heroku
-          heroku_email: "ahmadzaky003@gmail.com"
+          heroku_app_name: 'wikigame-multiplayer' #Must be unique in Heroku
+          heroku_email: 'ahmadzaky003@gmail.com'

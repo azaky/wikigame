@@ -1,13 +1,19 @@
 export function getRandomPage() {
-  return window.fetch('https://en.wikipedia.org/api/rest_v1/page/random/title')
-    .then(res => res.json())
-    .then(data => data.items && data.items.length && data.items[0].title);
+  return window
+    .fetch('https://en.wikipedia.org/api/rest_v1/page/random/title')
+    .then((res) => res.json())
+    .then((data) => data.items && data.items.length && data.items[0].title);
 }
 
 export function resolveTitle(title) {
-  return window.fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`)
-    .then(res => res.json())
-    .then(data => data.titles && data.titles.canonical);
+  return window
+    .fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
+        title
+      )}`
+    )
+    .then((res) => res.json())
+    .then((data) => data.titles && data.titles.canonical);
 }
 
 export function getAutocomplete(keyword) {
@@ -23,11 +29,12 @@ export function getAutocomplete(keyword) {
     search: keyword,
     limit: 5,
   };
-  Object.keys(queryParams).forEach(key =>
+  Object.keys(queryParams).forEach((key) =>
     url.searchParams.append(key, queryParams[key])
   );
 
-  return window.fetch(url)
-    .then(res => res.json())
-    .then(data => data[1]);
+  return window
+    .fetch(url)
+    .then((res) => res.json())
+    .then((data) => data[1]);
 }

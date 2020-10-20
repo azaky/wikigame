@@ -1,4 +1,4 @@
-document.getElementById('startButton').addEventListener('click', function() {
+document.getElementById('startButton').addEventListener('click', function () {
   var roomId = document.getElementById('roomId').value;
   var username = document.getElementById('username').value;
   var data = {
@@ -7,7 +7,7 @@ document.getElementById('startButton').addEventListener('click', function() {
   };
   if (data.username != '') {
     let message = { type: 'init_popup', data };
-    chrome.runtime.sendMessage(message, function() {
+    chrome.runtime.sendMessage(message, function () {
       window.close();
     });
   }

@@ -4,7 +4,8 @@ const util = require('./util');
 
 const rooms = [];
 
-const existsRoomById = (id) => rooms.findIndex((room) => room.roomId === id) !== -1;
+const existsRoomById = (id) =>
+  rooms.findIndex((room) => room.roomId === id) !== -1;
 const getRoomById = (id) => rooms.find((room) => room.roomId === id);
 
 // up to 5 digit room id
@@ -19,7 +20,9 @@ const createRoom = (host, id) => {
   }
   const room = {
     roomId,
-    url: `https://en.wikipedia.org/wiki/Main_Page?roomId=${encodeURIComponent(roomId)}`,
+    url: `https://en.wikipedia.org/wiki/Main_Page?roomId=${encodeURIComponent(
+      roomId
+    )}`,
     host,
     state: 'lobby',
     players: [],
@@ -61,15 +64,20 @@ const generateCurrentRoundResult = (room) => {
 
 const calculateScore = (state, rules) => {
   const scoreClicks = 10 * (11 - Math.min(10, state.clicks));
-  const scoreTime = 10 + Math.ceil(90 * (1 - state.timeTaken / rules.timeLimit));
+  const scoreTime =
+    10 + Math.ceil(90 * (1 - state.timeTaken / rules.timeLimit));
   if (rules.metrics === 'clicks') {
     return scoreClicks;
-  } if (rules.metrics === 'time') {
+  }
+  if (rules.metrics === 'time') {
     return scoreTime;
-  } if (rules.metrics === 'combined') {
+  }
+  if (rules.metrics === 'combined') {
     return Math.ceil((scoreClicks + scoreTime) / 2);
   }
-  console.warn(`Invalid scoring metrics: ${rules.metrics}, will fallback to clicks`);
+  console.warn(
+    `Invalid scoring metrics: ${rules.metrics}, will fallback to clicks`
+  );
   return scoreClicks;
 };
 
@@ -104,9 +112,15 @@ const calculateLeaderboard = (room) => {
 const validateArticle = async (title) => {
   try {
     if (!title) return { found: false };
-    const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+    const response = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
+        title
+      )}`
+    );
     const body = await response.json();
-    if (body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') {
+    if (
+      body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found'
+    ) {
       return { found: false };
     }
     return {
@@ -122,9 +136,11 @@ const validateArticle = async (title) => {
   }
 };
 
-const validateArticles = async (titles) => Promise.all(titles.map(validateArticle));
+const validateArticles = async (titles) =>
+  Promise.all(titles.map(validateArticle));
 
-const getElapsedTime = (start) => Math.ceil((new Date().getTime() - start) / 1000);
+const getElapsedTime = (start) =>
+  Math.ceil((new Date().getTime() - start) / 1000);
 
 const socketHandler = async (socket) => {
   console.log('a user connected!');
@@ -157,7 +173,7 @@ const socketHandler = async (socket) => {
   // push to current leaderboard if currently a game is active
   if (room.state === 'playing') {
     room.currentRound.result = room.currentRound.result.filter(
-      (result) => result.username !== username,
+      (result) => result.username !== username
     );
     room.currentRound.result.push({
       username,
@@ -215,7 +231,9 @@ const socketHandler = async (socket) => {
   // update rules etc.
   socket.on('update', async (data, ack) => {
     if (room.host !== username) {
-      console.log(`[room=${room.roomId}] [${username}] is not host and attempted to perform update, ignoring`);
+      console.log(
+        `[room=${room.roomId}] [${username}] is not host and attempted to perform update, ignoring`
+      );
       ack({
         success: false,
         message: 'You must be a host to perform update',
@@ -223,7 +241,9 @@ const socketHandler = async (socket) => {
       return;
     }
     if (room.currentRound.started) {
-      console.log(`[room=${room.roomId}] [${username}] attempted to perform update when round already started, ignoring`);
+      console.log(
+        `[room=${room.roomId}] [${username}] attempted to perform update when round already started, ignoring`
+      );
       ack({
         success: false,
         message: 'Cannot update a round that has started',
@@ -235,7 +255,9 @@ const socketHandler = async (socket) => {
 
     if (data.host) {
       if (!room.players.includes(data.host)) {
-        console.log(`[room=${room.roomId}] [${username}] attempted to transfer host to nonexistent (or perhaps offline) player, ignoring`);
+        console.log(
+          `[room=${room.roomId}] [${username}] attempted to transfer host to nonexistent (or perhaps offline) player, ignoring`
+        );
         ack({
           success: false,
           message: 'Cannot only transfer host to online players',
@@ -280,13 +302,17 @@ const socketHandler = async (socket) => {
     }
     if (data.rules && data.rules.bannedArticles) {
       const validated = await validateArticles(data.rules.bannedArticles);
-      data.rules.bannedArticles = validated.filter((v) => v.found).map((v) => v.title);
+      data.rules.bannedArticles = validated
+        .filter((v) => v.found)
+        .map((v) => v.title);
     }
 
     // we've been through a lot. other events may happen while we're resolving everything
     // do not forget to recheck whether the round has started or not
     if (room.currentRound.started) {
-      console.log(`[room=${room.roomId}] [${username}] attempted to perform update when round already started, ignoring`);
+      console.log(
+        `[room=${room.roomId}] [${username}] attempted to perform update when round already started, ignoring`
+      );
       ack({
         success: false,
         message: 'Cannot update a round that has started',
@@ -318,10 +344,12 @@ const socketHandler = async (socket) => {
       start: room.currentRound.start,
       target: room.currentRound.target,
       rules: JSON.parse(JSON.stringify(room.rules)),
-      result: room.currentRound.result.map((res) => ({
-        ...res,
-        path: room.currentState[res.username].path,
-      })).sort((a, b) => b.score - a.score),
+      result: room.currentRound.result
+        .map((res) => ({
+          ...res,
+          path: room.currentState[res.username].path,
+        }))
+        .sort((a, b) => b.score - a.score),
     });
     room.currentRound = {
       start: room.currentRound.start,
@@ -343,13 +371,17 @@ const socketHandler = async (socket) => {
   // start game
   socket.on('start', (_, ack) => {
     if (room.host !== username) {
-      console.log(`[room=${room.roomId}] [${username}] is not host and attempted to perform start, ignoring`);
+      console.log(
+        `[room=${room.roomId}] [${username}] is not host and attempted to perform start, ignoring`
+      );
       return;
     }
     console.log(`[room=${room.roomId}] [${username}] starts round!`);
 
     if (room.currentRound.started) {
-      console.log(`[room=${room.roomId}] [${username}] attempted to perform start, but round is already started, ignoring`);
+      console.log(
+        `[room=${room.roomId}] [${username}] attempted to perform start, but round is already started, ignoring`
+      );
       return;
     }
 
@@ -408,9 +440,15 @@ const socketHandler = async (socket) => {
       const elapsed = getElapsedTime(room.currentRound.startTimestamp);
       room.currentRound.timeLeft = room.rules.timeLimit - elapsed;
       if (room.currentRound.timeLeft > 0) {
-        console.log(`[room=${room.roomId}] ticker: timeLeft=${room.currentRound.timeLeft}`);
-        socket.to(room.roomId).emit('update', { currentRound: { timeLeft: room.currentRound.timeLeft } });
-        socket.emit('update', { currentRound: { timeLeft: room.currentRound.timeLeft } });
+        console.log(
+          `[room=${room.roomId}] ticker: timeLeft=${room.currentRound.timeLeft}`
+        );
+        socket.to(room.roomId).emit('update', {
+          currentRound: { timeLeft: room.currentRound.timeLeft },
+        });
+        socket.emit('update', {
+          currentRound: { timeLeft: room.currentRound.timeLeft },
+        });
       } else {
         clearInterval(ticker);
         // on finish is handled by countdown
@@ -433,7 +471,9 @@ const socketHandler = async (socket) => {
   });
 
   socket.on('click', async (data, ack) => {
-    console.log(`[room=${room.roomId}] [${username}] is clicking ${data.article}`);
+    console.log(
+      `[room=${room.roomId}] [${username}] is clicking ${data.article}`
+    );
 
     if (room.state !== 'playing' || room.currentState[username].finished) {
       ack({ success: false });
@@ -449,12 +489,21 @@ const socketHandler = async (socket) => {
     const article = validated.title;
 
     if (room.rules.bannedArticles.includes(article)) {
-      ack({ success: false, message: `${article} is banned! You can't go there!` });
+      ack({
+        success: false,
+        message: `${article} is banned! You can't go there!`,
+      });
       return;
     }
 
-    if (!room.rules.allowDisambiguation && validated.type === 'disambiguation') {
-      ack({ success: false, message: `${article} is a disambiguation page! You can't go there!` });
+    if (
+      !room.rules.allowDisambiguation &&
+      validated.type === 'disambiguation'
+    ) {
+      ack({
+        success: false,
+        message: `${article} is a disambiguation page! You can't go there!`,
+      });
       return;
     }
 
@@ -469,8 +518,13 @@ const socketHandler = async (socket) => {
     // win condition checks
     if (article === room.currentRound.target) {
       room.currentState[username].finished = true;
-      room.currentState[username].timeTaken = getElapsedTime(room.currentRound.startTimestamp);
-      room.currentState[username].score = calculateScore(room.currentState[username], room.rules);
+      room.currentState[username].timeTaken = getElapsedTime(
+        room.currentRound.startTimestamp
+      );
+      room.currentState[username].score = calculateScore(
+        room.currentState[username],
+        room.rules
+      );
     }
 
     generateCurrentRoundResult(room);
@@ -521,7 +575,9 @@ const socketHandler = async (socket) => {
       room.host = room.players[0];
     }
 
-    socket.to(room.roomId).emit('update', { host: room.host, players: room.players });
+    socket
+      .to(room.roomId)
+      .emit('update', { host: room.host, players: room.players });
     socket.to(room.roomId).emit('notification', {
       message: `${username} disconnected from the room`,
     });

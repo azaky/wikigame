@@ -40,14 +40,6 @@ If you make some changes, even though the extension is automatically re-built, i
 - Go to <a href="chrome://extensions">chrome://extensions</a>.
 - Click reload (you don't have to Load unpacked again after changes).
 
-## Pre-commit hooks
-
-When developing, you can enable pre-commit hooks (which will build and pack the extension to a zip on every commit) by:
-
-```
-npm run init-pre-commit
-```
-
 ## Build + packing into zip
 
 To build for production, use:

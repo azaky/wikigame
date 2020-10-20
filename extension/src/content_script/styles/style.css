@@ -12,7 +12,7 @@
 #wikigame-wrapper {
   direction: rtl;
 }
-#wikigame-wrapper>div {
+#wikigame-wrapper > div {
   direction: ltr;
 }
 
@@ -25,11 +25,11 @@
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8; 
+  background: #a8a8a8;
 }
 
-#wikigame-wrapper input[type=text],
-#wikigame-wrapper input[type=number],
+#wikigame-wrapper input[type='text'],
+#wikigame-wrapper input[type='number'],
 #wikigame-wrapper select {
   width: 100%;
   box-sizing: border-box;

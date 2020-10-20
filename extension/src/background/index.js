@@ -1,14 +1,16 @@
 import io from 'socket.io-client';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 
-const serverUrl = process.env.WIKIGAME_SERVER_URL || 'https://wikigame-multiplayer.herokuapp.com/';
+const serverUrl =
+  process.env.WIKIGAME_SERVER_URL ||
+  'https://wikigame-multiplayer.herokuapp.com/';
 
 let active = false;
 let socket;
 let tabId;
 let portOpen = {};
 
-chrome.runtime.onConnect.addListener(port => {
+chrome.runtime.onConnect.addListener((port) => {
   console.log('received port connection:', port.name);
   try {
     const portTabId = parseInt(port.name.replace(/^tabId\:/, ''), 10);
@@ -30,52 +32,67 @@ function reset(callback) {
     socket.close();
   }
   active = false;
-  chrome.storage.local.set({
-    username: null,
-    roomId: null,
-    url: null,
-    host: null,
-    state: null,
-    localState: null,
-    players: null,
-    currentRound: null,
-    currentState: null,
-    rules: null,
-    leaderboard: null,
-    lastRound: null,
-    pastRounds: null,
-  }, () => {
-    console.log('State is reset!');
-    if (callback) callback();
-  });
+  chrome.storage.local.set(
+    {
+      username: null,
+      roomId: null,
+      url: null,
+      host: null,
+      state: null,
+      localState: null,
+      players: null,
+      currentRound: null,
+      currentState: null,
+      rules: null,
+      leaderboard: null,
+      lastRound: null,
+      pastRounds: null,
+    },
+    () => {
+      console.log('State is reset!');
+      if (callback) callback();
+    }
+  );
 }
 
 const messageBuffer = [];
 
 function sendMessage(type, data, callback) {
-  if (!tabId)  {
-    console.error('sendMessage is called when tabId is not defined! data:', type, data);
+  if (!tabId) {
+    console.error(
+      'sendMessage is called when tabId is not defined! data:',
+      type,
+      data
+    );
     if (callback) callback(null);
     return;
   }
 
-  messageBuffer.push({type, data, callback});
+  messageBuffer.push({ type, data, callback });
 
   if (!portOpen[tabId]) {
-    console.log('sendMessage is called when port is closed (possibly on reload)', type, data);
+    console.log(
+      'sendMessage is called when port is closed (possibly on reload)',
+      type,
+      data
+    );
     return;
   } else {
-    messageBuffer.splice(0).forEach(message => {
-      chrome.tabs.sendMessage(tabId, { type: message.type, data: message.data }, response => {
-        console.log('sendMessage response:', response);
-        if (message.callback) message.callback(response);
-      });
+    messageBuffer.splice(0).forEach((message) => {
+      chrome.tabs.sendMessage(
+        tabId,
+        { type: message.type, data: message.data },
+        (response) => {
+          console.log('sendMessage response:', response);
+          if (message.callback) message.callback(response);
+        }
+      );
     });
   }
 }
 
 function sendNotification(type, message, callback) {
-  sendMessage('notification', {type, message}, callback);
+  sendMessage('notification', { type, message }, callback);
 }
 
 let updateDataLock = false;
@@ -83,7 +100,7 @@ function updateData(data, callback) {
   // prevent race condition
   if (!updateDataLock) {
     updateDataLock = true;
-    chrome.storage.local.get(null, localData => {
+    chrome.storage.local.get(null, (localData) => {
       const updated = mergeDeepRight(localData, data);
       chrome.storage.local.set(updated, () => {
         updateDataLock = false;
@@ -113,7 +130,9 @@ function initSocketio(initData, realCallback) {
   }
 
   if (socket && socket.connected) {
-    console.warn('initSocketio called when existing socket connection still active, will close the existing one');
+    console.warn(
+      'initSocketio called when existing socket connection still active, will close the existing one'
+    );
     socket.close();
   }
   const reconnectionAttempts = 1;
@@ -144,8 +163,8 @@ function initSocketio(initData, realCallback) {
     active = true;
     console.log('socket.on(init):', data);
     chrome.storage.local.set(data, () => {
-      chrome.storage.local.get(null, initData => {
-        callback(Object.assign({}, initData, {initial: true}));
+      chrome.storage.local.get(null, (initData) => {
+        callback(Object.assign({}, initData, { initial: true }));
       });
     });
   });
@@ -158,21 +177,21 @@ function initSocketio(initData, realCallback) {
 
   socket.on('update', (data) => {
     console.log('socket.on(update):', data);
-    updateData(data, updated => {
+    updateData(data, (updated) => {
       sendMessage('update', updated);
     });
   });
 
   socket.on('start', (data) => {
     console.log('socket.on(start):', data);
-    updateData(data, updated => {
+    updateData(data, (updated) => {
       sendMessage('start', updated);
     });
   });
 
   socket.on('finished', (data) => {
     console.log('socket.on(finished):', data);
-    updateData(data, updated => {
+    updateData(data, (updated) => {
       sendMessage('finished', updated, null);
     });
   });
@@ -197,7 +216,7 @@ function init(username, roomId, callback) {
           callback(null);
           return;
         }
-  
+
         chrome.storage.local.set({ username: data.username }, () => {
           initSocketio({ roomId, username: data.username }, callback);
         });
@@ -206,27 +225,34 @@ function init(username, roomId, callback) {
   });
 }
 
-chrome.runtime.onMessage.addListener(
-  (message, sender, sendResponse) => {
-    if (sender.tab && sender.tab.id) {
-      console.log('Message from content_script (tabId =', sender.tab.id, '):', message);
-    }
-    
-    if (message.type === 'init') {
-      if (active && socket && socket.connected) {
-        // handle multiple tabs
-        if (tabId !== sender.tab.id) {
-          sendResponse({
-            success: false,
-            error: 'Multiple tabs',
-          });
-          return false;
-        }
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (sender.tab && sender.tab.id) {
+    console.log(
+      'Message from content_script (tabId =',
+      sender.tab.id,
+      '):',
+      message
+    );
+  }
 
-        chrome.storage.local.get(null, (data) => {
-          // when roomId is different, kick ourself out from the old room and join the new one
-          if (message.roomId && message.roomId !== data.roomId) {
-            sendMessage('room_change_prompt', { old: data.roomId, new: message.roomId }, (changeRoomData) => {
+  if (message.type === 'init') {
+    if (active && socket && socket.connected) {
+      // handle multiple tabs
+      if (tabId !== sender.tab.id) {
+        sendResponse({
+          success: false,
+          error: 'Multiple tabs',
+        });
+        return false;
+      }
+
+      chrome.storage.local.get(null, (data) => {
+        // when roomId is different, kick ourself out from the old room and join the new one
+        if (message.roomId && message.roomId !== data.roomId) {
+          sendMessage(
+            'room_change_prompt',
+            { old: data.roomId, new: message.roomId },
+            (changeRoomData) => {
               if (changeRoomData && changeRoomData.confirm) {
                 active = false;
                 socket.close();
@@ -234,167 +260,174 @@ chrome.runtime.onMessage.addListener(
               } else {
                 sendResponse(null);
               }
-            });
-          } else {
-            // a session is active: return current context
-            sendResponse(data);
-          }
-        });
-      } else {
-        // if both roomId and username is not defined, then it means that the user
-        // does not intentionally start a new game. so we're ignoring that case
-        if (!message.roomId && !message.username) {
-          sendResponse(null);
+            }
+          );
         } else {
-          // on a very rare case -- possibly only on development --
-          // when someone inits from two different tabs at the same time,
-          // race condition may occur
-          if (tabId) {
-            sendResponse({
-              success: false,
-              error: 'Multiple tabs',
-            });
-          } else {
-            tabId = sender.tab.id;
-            init(message.username, message.roomId, sendResponse);
-          }
+          // a session is active: return current context
+          sendResponse(data);
         }
-      }
-      return true;
-    }
-
-    if (message.type === 'init_port') {
-      sendResponse({ tabId: sender.tab.id });
-      return false;
-    }
-
-    if (message.type === 'ping') {
-      if (active && socket && socket.connected) {
-        sendResponse({ status: true });
-      } else {
-        active = false;
-        sendResponse({ status: false });
-      }
-      return false;
-    }
-
-    if (message.type === 'init_popup') {
-      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        if (!active) {
-          chrome.tabs.sendMessage(tabs[0].id, {type: 'init', data: message.data});
-        }
-        // ignore popup when active for now
-        sendResponse(null);
-      });
-      return true;
-    }
-
-    if (message.type === 'change_tab') {
-      chrome.storage.local.get(['roomId', 'state', 'currentState'], data => {
-        // inform old tab that we are changing tab
-        sendMessage('change_tab', null, () => {
-          // set tabId
-          tabId = sender.tab.id;
-          sendResponse({
-            roomId: data.roomId,
-            lastArticle: data.state === 'playing' && data.currentState.path.slice(-1)[0],
-          });
-        });
-      });
-
-      return true;
-    }
-
-    if (!active || !socket || !socket.connected) {
-      console.warn('onMessage called when not active, ignoring. message:', message);
-
-      // let reply when message is click
-      if (message.type === 'click') {
-        sendResponse({ success: false });
-      } else {
-        sendResponse(null);
-      }
-      return false;
-    }
-
-    if (message.type === 'update') {
-      console.log('update:', message.data);
-
-      socket.emit('update', message.data, (ack) => {
-        if (!ack || !ack.success) {
-          if (ack.message) {
-            sendNotification('error', ack.message);
-            
-            // we call update to reset any obsolete fields
-            updateData({}, updated => {
-              sendMessage('update', updated);
-              // For now, this is only for resetting loading state in ArticlePicker
-              sendResponse({error: ack.message});
-            });
-          }
-        } else if (ack.data) {
-          updateData(ack.data, updated => {
-            sendMessage('update', updated);
-            sendResponse(null);
-          });
-        } else {
-          sendResponse(null);
-        }
-      });
-      return true;
-    } else if (message.type === 'start') {
-      console.log('start!');
-
-      socket.emit('start', {}, ack => {
-        if (!ack || !ack.success) {
-          if (ack.message) {
-            sendNotification('error', ack.message);
-          }
-        } else if (ack.data) {
-          updateData(ack.data, updated => {
-            sendMessage('start', updated);
-          });
-        }
-      });
-    } else if (message.type === 'click') {
-      console.log('click!');
-
-      socket.emit('click', message.data, (ack) => {
-        // We need to reset localState *via updateData* to prevent
-        // racing condition (and ultimately, deadlocks).
-        const toUpdate = {localState: null};
-        if (ack.data) {
-          Object.assign(toUpdate, {currentState: ack.data});
-        }
-        updateData(toUpdate, updated => {
-          // and we need to include updated data here as well
-          // since update listener in content script currently
-          // has not been active yet.
-          sendResponse(Object.assign(ack, {updatedData: updated}));
-        });
-      });
-
-      return true;
-    } else if (message.type === 'leave') {
-      reset(() => {
-        tabId = null;
-        sendResponse({success: true});
-        // in case leave was fired from other tabs:
-        Object.keys(portOpen).forEach(portTabId => {
-          if (portOpen[portTabId] && portTabId !== sender.tab.id) {
-            console.log('sending leave to tab', portTabId);
-            chrome.tabs.sendMessage(parseInt(portTabId, 10), {type: 'leave'});
-          }
-        });
       });
     } else {
-      console.warn('onMessage unknown message.type:', message);
+      // if both roomId and username is not defined, then it means that the user
+      // does not intentionally start a new game. so we're ignoring that case
+      if (!message.roomId && !message.username) {
+        sendResponse(null);
+      } else {
+        // on a very rare case -- possibly only on development --
+        // when someone inits from two different tabs at the same time,
+        // race condition may occur
+        if (tabId) {
+          sendResponse({
+            success: false,
+            error: 'Multiple tabs',
+          });
+        } else {
+          tabId = sender.tab.id;
+          init(message.username, message.roomId, sendResponse);
+        }
+      }
     }
+    return true;
+  }
 
-    sendResponse(null);
+  if (message.type === 'init_port') {
+    sendResponse({ tabId: sender.tab.id });
     return false;
-  },
-);
+  }
+
+  if (message.type === 'ping') {
+    if (active && socket && socket.connected) {
+      sendResponse({ status: true });
+    } else {
+      active = false;
+      sendResponse({ status: false });
+    }
+    return false;
+  }
+
+  if (message.type === 'init_popup') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!active) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: 'init',
+          data: message.data,
+        });
+      }
+      // ignore popup when active for now
+      sendResponse(null);
+    });
+    return true;
+  }
+
+  if (message.type === 'change_tab') {
+    chrome.storage.local.get(['roomId', 'state', 'currentState'], (data) => {
+      // inform old tab that we are changing tab
+      sendMessage('change_tab', null, () => {
+        // set tabId
+        tabId = sender.tab.id;
+        sendResponse({
+          roomId: data.roomId,
+          lastArticle:
+            data.state === 'playing' && data.currentState.path.slice(-1)[0],
+        });
+      });
+    });
+
+    return true;
+  }
+
+  if (!active || !socket || !socket.connected) {
+    console.warn(
+      'onMessage called when not active, ignoring. message:',
+      message
+    );
+
+    // let reply when message is click
+    if (message.type === 'click') {
+      sendResponse({ success: false });
+    } else {
+      sendResponse(null);
+    }
+    return false;
+  }
+
+  if (message.type === 'update') {
+    console.log('update:', message.data);
+
+    socket.emit('update', message.data, (ack) => {
+      if (!ack || !ack.success) {
+        if (ack.message) {
+          sendNotification('error', ack.message);
+
+          // we call update to reset any obsolete fields
+          updateData({}, (updated) => {
+            sendMessage('update', updated);
+            // For now, this is only for resetting loading state in ArticlePicker
+            sendResponse({ error: ack.message });
+          });
+        }
+      } else if (ack.data) {
+        updateData(ack.data, (updated) => {
+          sendMessage('update', updated);
+          sendResponse(null);
+        });
+      } else {
+        sendResponse(null);
+      }
+    });
+    return true;
+  } else if (message.type === 'start') {
+    console.log('start!');
+
+    socket.emit('start', {}, (ack) => {
+      if (!ack || !ack.success) {
+        if (ack.message) {
+          sendNotification('error', ack.message);
+        }
+      } else if (ack.data) {
+        updateData(ack.data, (updated) => {
+          sendMessage('start', updated);
+        });
+      }
+    });
+  } else if (message.type === 'click') {
+    console.log('click!');
+
+    socket.emit('click', message.data, (ack) => {
+      // We need to reset localState *via updateData* to prevent
+      // racing condition (and ultimately, deadlocks).
+      const toUpdate = { localState: null };
+      if (ack.data) {
+        Object.assign(toUpdate, { currentState: ack.data });
+      }
+      updateData(toUpdate, (updated) => {
+        // and we need to include updated data here as well
+        // since update listener in content script currently
+        // has not been active yet.
+        sendResponse(Object.assign(ack, { updatedData: updated }));
+      });
+    });
+
+    return true;
+  } else if (message.type === 'leave') {
+    reset(() => {
+      tabId = null;
+      sendResponse({ success: true });
+      // in case leave was fired from other tabs:
+      Object.keys(portOpen).forEach((portTabId) => {
+        if (portOpen[portTabId] && portTabId !== sender.tab.id) {
+          console.log('sending leave to tab', portTabId);
+          chrome.tabs.sendMessage(parseInt(portTabId, 10), { type: 'leave' });
+        }
+      });
+    });
+  } else {
+    console.warn('onMessage unknown message.type:', message);
+  }
+
+  sendResponse(null);
+  return false;
+});
 
 chrome.pageAction.onClicked.addListener(() => {
   console.log('Page action clicked!');
@@ -409,16 +442,22 @@ chrome.pageAction.onClicked.addListener(() => {
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  console.log(`storage change: ${JSON.stringify(changes)} for ${JSON.stringify(areaName)}`);
+  console.log(
+    `storage change: ${JSON.stringify(changes)} for ${JSON.stringify(areaName)}`
+  );
 });
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
-    chrome.declarativeContent.onPageChanged.addRules([{
-      conditions: [new chrome.declarativeContent.PageStateMatcher({
-        pageUrl: { hostEquals: 'en.wikipedia.org' },
-      })],
-      actions: [new chrome.declarativeContent.ShowPageAction()],
-    }]);
+    chrome.declarativeContent.onPageChanged.addRules([
+      {
+        conditions: [
+          new chrome.declarativeContent.PageStateMatcher({
+            pageUrl: { hostEquals: 'en.wikipedia.org' },
+          }),
+        ],
+        actions: [new chrome.declarativeContent.ShowPageAction()],
+      },
+    ]);
   });
 });

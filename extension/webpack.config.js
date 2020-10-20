@@ -24,10 +24,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [
-          { loader: 'style-loader' },
-          { loader: 'css-loader' },
-        ],
+        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
       },
     ],
   },
@@ -45,7 +42,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new EnvironmentPlugin({
-      WIKIGAME_SERVER_URL: ''
+      WIKIGAME_SERVER_URL: '',
     }),
     new CopyPlugin({
       patterns: [
@@ -70,5 +67,6 @@ module.exports = {
       ],
     }),
   ],
-  devtool: process.env.GENERATE_SOURCE_MAP === 'true' ? 'inline-source-map' : false,
+  devtool:
+    process.env.GENERATE_SOURCE_MAP === 'true' ? 'inline-source-map' : false,
 };

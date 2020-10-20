@@ -19,7 +19,9 @@ export function getArticleFromUrl(link) {
   }
   if (url.pathname.startsWith('/wiki')) {
     return {
-      article: decodeURIComponent(url.pathname.substr(url.pathname.lastIndexOf('/') + 1)),
+      article: decodeURIComponent(
+        url.pathname.substr(url.pathname.lastIndexOf('/') + 1)
+      ),
       hash: url.hash,
     };
   }
@@ -50,15 +52,19 @@ export function getCurrentArticle() {
 }
 
 export function isSpecialArticle(article) {
-  return typeof article === 'string' && (
-    article.startsWith('Special:')
-    || article.startsWith('Help:')
-    || article.startsWith('Wikipedia:')
-    || article.startsWith('Talk:')
-    || article.startsWith('Main_Page')
-    || article.startsWith('File:'));
+  return (
+    typeof article === 'string' &&
+    (article.startsWith('Special:') ||
+      article.startsWith('Help:') ||
+      article.startsWith('Wikipedia:') ||
+      article.startsWith('Talk:') ||
+      article.startsWith('Main_Page') ||
+      article.startsWith('File:'))
+  );
 }
 
 export function getLinkWithRoomId(article, roomId = getRoomId()) {
-  return `https://en.wikipedia.org/wiki/${encodeURIComponent(article)}?roomId=${encodeURIComponent(roomId)}`;
+  return `https://en.wikipedia.org/wiki/${encodeURIComponent(
+    article
+  )}?roomId=${encodeURIComponent(roomId)}`;
 }

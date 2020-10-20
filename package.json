@@ -1,6 +1,21 @@
 {
   "scripts": {
     "heroku-prebuild": "cd server && npm install",
-    "start": "cd server && npm start"
+    "start": "cd server && npm start",
+    "pack-extension": "cd `git rev-parse --show-toplevel`/extension && npm run pack && :"
+  },
+  "devDependencies": {
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.2",
+    "prettier": "2.1.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown",
+    "extension/**/*": "npm run pack-extension"
   }
 }

@@ -1,57 +1,59 @@
-html, body {
-    display: flex;
-    justify-content: center;
-    font-family: Roboto, Arial, sans-serif;
-    font-size: 8px;
+html,
+body {
+  display: flex;
+  justify-content: center;
+  font-family: Roboto, Arial, sans-serif;
+  font-size: 8px;
 }
 form {
-    border: 5px solid #f1f1f1;
+  border: 5px solid #f1f1f1;
 }
 
-input[type=text], input[type=password] {
-    width: 100%;
-    padding: 4px 2px;
-    margin: 2px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+input[type='text'],
+input[type='password'] {
+  width: 100%;
+  padding: 4px 2px;
+  margin: 2px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .icon {
-    font-size: 110px;
-    display: flex;
-    justify-content: center;
-    color: #4286f4;
+  font-size: 110px;
+  display: flex;
+  justify-content: center;
+  color: #4286f4;
 }
 
 button {
-    background-color: #4286f4;
-    color: white;
-    padding: 3px 0;
-    margin: 4px 0;
-    border: none;
-    cursor: grab;
-    width: 48%;
+  background-color: #4286f4;
+  color: white;
+  padding: 3px 0;
+  margin: 4px 0;
+  border: none;
+  cursor: grab;
+  width: 48%;
 }
 
 h1 {
-    text-align:center;
-    font-size:10;
+  text-align: center;
+  font-size: 10;
 }
 button:hover {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 .formcontainer {
-    text-align: center;
-    margin: 8px 10px 4px;
+  text-align: center;
+  margin: 8px 10px 4px;
 }
 .container {
-    padding: 2px 0;
-    text-align:left;
+  padding: 2px 0;
+  text-align: left;
 }
 span.psw {
-    float: right;
-    padding-top: 0;
-    padding-right: 15px;
+  float: right;
+  padding-top: 0;
+  padding-right: 15px;
 }

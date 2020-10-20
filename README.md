@@ -21,16 +21,23 @@ Install the latest version to your browser from [Chrome web store](https://chrom
 - Search articles with autocomplete, or pick completely random articles
 - Custom scoring metrics (time, clicks, or combined)
 - Custom rules
-    - Ban some articles
-    - Disable Ctrl+F
-    - Disable [disambiguation pages](https://en.wikipedia.org/wiki/Category%3ADisambiguation_pages)
-    - ... and more to come!
+  - Ban some articles
+  - Disable Ctrl+F
+  - Disable [disambiguation pages](https://en.wikipedia.org/wiki/Category%3ADisambiguation_pages)
+  - ... and more to come!
 
 ## Issues and Feature Requests
 
 If you encounter issues or want something to be implemented in Wikigame, please [open an issue](https://github.com/azaky/wikigame/issues/new).
 
 ## Developing and Contributing
+
+First, you should setup git hooks on the top level directory with the following command:
+
+```
+# on the repository root directory
+npm install
+```
 
 This repository consists of two main components: [the extension](https://github.com/azaky/wikigame/tree/master/extension) and [the server](https://github.com/azaky/wikigame/tree/master/server). Take a look at each directory for specific guides to developing each components.
 

@@ -1,0 +1,12 @@
+# root
+.vscode/
+node_modules/
+examples/
+server-go/
+
+# extension
+extension/node_modules/
+extension/dist/
+
+# server
+server/node_modules/

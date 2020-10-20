@@ -1,20 +1,39 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { Wrapper, Header, Leaderboard, LastRoundOverview, NextRoundArticlePicker, Rules } from './components';
+import {
+  Wrapper,
+  Header,
+  Leaderboard,
+  LastRoundOverview,
+  NextRoundArticlePicker,
+  Rules,
+} from './components';
 
 export function LobbyPanel(props) {
-  const {data} = props;
-  const {currentRound, rules, leaderboard, lastRound, host, username, players, roomId } = data;
+  const { data } = props;
+  const {
+    currentRound,
+    rules,
+    leaderboard,
+    lastRound,
+    host,
+    username,
+    players,
+    roomId,
+  } = data;
   const isHost = host === username;
 
   const onUpdate = (toUpdate, callback) => {
     if (!isHost) return;
-    chrome.runtime.sendMessage({
-      type: 'update',
-      data: toUpdate,
-    }, reply => {
-      if (callback) callback(reply);
-    });
+    chrome.runtime.sendMessage(
+      {
+        type: 'update',
+        data: toUpdate,
+      },
+      (reply) => {
+        if (callback) callback(reply);
+      }
+    );
   };
 
   const onStartArticleChange = (title, callback) => {
@@ -48,8 +67,12 @@ export function LobbyPanel(props) {
       if (callback) callback();
       return;
     }
-    if (window.confirm(`You're about to transfer host to ${newHost}. Are you sure?`)) {
-      onUpdate({host: newHost}, callback);
+    if (
+      window.confirm(
+        `You're about to transfer host to ${newHost}. Are you sure?`
+      )
+    ) {
+      onUpdate({ host: newHost }, callback);
     }
   };
 
@@ -58,17 +81,15 @@ export function LobbyPanel(props) {
   return (
     <Wrapper>
       <Header username={username} roomId={roomId} />
-      {
-        (leaderboard && leaderboard.length)
-          ? <Leaderboard
-              leaderboard={leaderboard}
-              host={host}
-              username={username}
-              players={players}
-              onTransferHost={onTransferHost}
-            />
-          : null
-      }
+      {leaderboard && leaderboard.length ? (
+        <Leaderboard
+          leaderboard={leaderboard}
+          host={host}
+          username={username}
+          players={players}
+          onTransferHost={onTransferHost}
+        />
+      ) : null}
       <NextRoundArticlePicker
         round={currentRound}
         disabled={!isHost}
@@ -76,18 +97,8 @@ export function LobbyPanel(props) {
         onTargetArticleChange={onTargetArticleChange}
         onStartRound={onStartRound}
       />
-      {
-        lastRound
-          ? <LastRoundOverview
-              round={lastRound}
-            />
-          : null
-      }
-      <Rules
-        rules={rules}
-        disabled={!isHost}
-        onRulesChange={onRulesChange}
-      />
+      {lastRound ? <LastRoundOverview round={lastRound} /> : null}
+      <Rules rules={rules} disabled={!isHost} onRulesChange={onRulesChange} />
     </Wrapper>
   );
 }

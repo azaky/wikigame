@@ -3,14 +3,9 @@
   "name": "Multiplayer Wikigame",
   "version": "0.0.1",
   "description": "Play multiplayer Wikiracing online!",
-  "permissions": [
-    "declarativeContent",
-    "storage"
-  ],
+  "permissions": ["declarativeContent", "storage"],
   "background": {
-    "scripts": [
-      "background.js"
-    ],
+    "scripts": ["background.js"],
     "persistent": false
   },
   "page_action": {
@@ -26,9 +21,7 @@
         "https://en.wikipedia.org/wiki/*",
         "https://en.wikipedia.org/w/*"
       ],
-      "js": [
-        "content_script.js"
-      ],
+      "js": ["content_script.js"],
       "run_at": "document_end"
     },
     {
@@ -36,16 +29,11 @@
         "https://en.wikipedia.org/wiki/*",
         "https://en.wikipedia.org/w/*"
       ],
-      "js": [
-        "ctrlf.js"
-      ],
+      "js": ["ctrlf.js"],
       "run_at": "document_start"
     }
   ],
-  "web_accessible_resources": [
-    "images/header.png",
-    "images/icon-32.png"
-  ],
+  "web_accessible_resources": ["images/header.png", "images/icon-32.png"],
   "icons": {
     "128": "images/icon-128.png",
     "32": "images/icon-32.png"

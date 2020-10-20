@@ -4,8 +4,8 @@ import { Wrapper, Header, CurrentRoundOverview, Rules } from './components';
 import * as util from './util';
 
 export function InGamePanel(props) {
-  const {data} = props;
-  const {currentState, currentRound, rules, username, roomId} = data;
+  const { data } = props;
+  const { currentState, currentRound, rules, username, roomId } = data;
 
   // enforce rules
   useEffect(() => {
@@ -17,7 +17,7 @@ export function InGamePanel(props) {
       'ca-edit', // Edit
       'ca-history', // View History
     ];
-    hiddenElements.forEach(id => {
+    hiddenElements.forEach((id) => {
       const el = document.getElementById(id);
       if (el) {
         el.style.display = 'none';
@@ -27,18 +27,18 @@ export function InGamePanel(props) {
     // ctrl+f
     let handleCtrlf;
     if (typeof rules.allowCtrlf === 'boolean' && !rules.allowCtrlf) {
-      handleCtrlf = e => {
+      handleCtrlf = (e) => {
         if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
           e.preventDefault();
-          toast.error('Oops, Ctrl+F is not allowed!', {toastId: 'ctrlf'});
+          toast.error('Oops, Ctrl+F is not allowed!', { toastId: 'ctrlf' });
         }
-      }
+      };
       window.addEventListener('keydown', handleCtrlf);
     }
 
     return () => {
       // restore hidden elements
-      hiddenElements.forEach(id => {
+      hiddenElements.forEach((id) => {
         const el = document.getElementById(id);
         if (el) {
           el.style.display = 'block';
@@ -55,8 +55,8 @@ export function InGamePanel(props) {
   useEffect(() => {
     if (currentState.finished) return;
 
-    const createClickHandler = link => {
-      return e => {
+    const createClickHandler = (link) => {
+      return (e) => {
         if (!link) return;
 
         const articleObj = util.getArticleFromUrl(link);
@@ -86,12 +86,14 @@ export function InGamePanel(props) {
 
         console.log('Navigating to:', article);
 
-        chrome.storage.local.get(['localState'], ({localState}) => {
+        chrome.storage.local.get(['localState'], ({ localState }) => {
           if (localState === 'clicking') {
-            console.log(`Ignoring clicks, there's another ongoing clicking event`);
+            console.log(
+              `Ignoring clicks, there's another ongoing clicking event`
+            );
             return;
           }
-          chrome.storage.local.set({localState: 'clicking'}, () => {
+          chrome.storage.local.set({ localState: 'clicking' }, () => {
             util.goto(article);
           });
         });
@@ -99,17 +101,21 @@ export function InGamePanel(props) {
     };
 
     const links = [...document.getElementsByTagName('A')];
-    const clickHandlers = links.map(link => createClickHandler(link.href));
-    links.forEach((link, i) => link.addEventListener('click', clickHandlers[i]));
+    const clickHandlers = links.map((link) => createClickHandler(link.href));
+    links.forEach((link, i) =>
+      link.addEventListener('click', clickHandlers[i])
+    );
 
     // prevent clicks on newly created links
-    let globalClickHandler = e => {
+    let globalClickHandler = (e) => {
       if (e.target.tagName === 'A') e.preventDefault();
     };
     document.addEventListener('click', globalClickHandler);
 
     return () => {
-      links.forEach((link, i) => link.removeEventListener('click', clickHandlers[i]));
+      links.forEach((link, i) =>
+        link.removeEventListener('click', clickHandlers[i])
+      );
       if (globalClickHandler) {
         document.removeEventListener('click', globalClickHandler);
       }
@@ -119,15 +125,8 @@ export function InGamePanel(props) {
   return (
     <Wrapper>
       <Header username={username} roomId={roomId} />
-      <CurrentRoundOverview
-        round={currentRound}
-        currentState={currentState}
-      />
-      <Rules
-        rules={rules}
-        disabled={true}
-        roundStarted={true}
-      />
+      <CurrentRoundOverview round={currentRound} currentState={currentState} />
+      <Rules rules={rules} disabled={true} roundStarted={true} />
     </Wrapper>
   );
 }
