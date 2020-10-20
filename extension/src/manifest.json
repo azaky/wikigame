@@ -30,6 +30,16 @@
         "content_script.js"
       ],
       "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://en.wikipedia.org/wiki/*",
+        "https://en.wikipedia.org/w/*"
+      ],
+      "js": [
+        "ctrlf.js"
+      ],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [

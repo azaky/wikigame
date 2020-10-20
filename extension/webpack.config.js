@@ -58,6 +58,10 @@ module.exports = {
           to: '.',
         },
         {
+          from: 'src/content_script/ctrlf.js',
+          to: '.',
+        },
+        {
           from: './src/manifest.json',
           transform(content, path) {
             return tagManifestVersion(content);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -9,6 +9,20 @@ import { InGamePanel } from './InGamePanel.js';
 
 import 'react-toastify/dist/ReactToastify.css';
 import './styles/style.css';
+
+// prevent people from clicking ctrl+f before the page loads
+// disable ctrl+f on initial load, then remove the listener when render is called
+function handleCtrlfOnInitialLoad(e) {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+    e.preventDefault();
+  }
+}
+window.addEventListener('keydown', handleCtrlfOnInitialLoad);
+console.log('ctrlf injected');
+function removeHandleCtrlfOnInitialLoad() {
+  window.removeEventListener('keydown', handleCtrlfOnInitialLoad);
+  console.log('ctrlf removed');
+}
 
 function onShouldReload(message) {
   const reload = () => window.location.reload();
@@ -39,6 +53,10 @@ function onShouldReload(message) {
 
 function Root(props) {
   const {data} = props;
+
+  useEffect(() => {
+    removeHandleCtrlfOnInitialLoad();
+  }, []);
 
   switch (data.state) {
     case 'lobby':
@@ -250,6 +268,7 @@ function init() {
       console.log('initData:', data);
 
       if (data && data.error) {
+        removeHandleCtrlfOnInitialLoad();
         if (data.error.startsWith('Duplicated username')) {
           const newUsername = window.prompt(data.error);
           if (newUsername) {
@@ -266,7 +285,10 @@ function init() {
         return;
       }
 
-      if (!data || !data.roomId) return;
+      if (!data || !data.roomId) {
+        removeHandleCtrlfOnInitialLoad();
+        return;
+      }
 
       changeFavicon();
       if (data.initial) {
