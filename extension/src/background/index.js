@@ -128,6 +128,9 @@ function initSocketio(initData, realCallback) {
   if (initData.roomId) {
     query += `&roomId=${encodeURIComponent(initData.roomId)}`;
   }
+  if (initData.lang) {
+    query += `&lang=${encodeURIComponent(initData.lang)}`;
+  }
 
   if (socket && socket.connected) {
     console.warn(
@@ -202,7 +205,7 @@ function initSocketio(initData, realCallback) {
   });
 }
 
-function init(username, roomId, callback) {
+function init(username, roomId, lang, callback) {
   reset(() => {
     if (username) {
       chrome.storage.local.set({ username }, () => {
@@ -218,7 +221,7 @@ function init(username, roomId, callback) {
         }
 
         chrome.storage.local.set({ username: data.username }, () => {
-          initSocketio({ roomId, username: data.username }, callback);
+          initSocketio({ roomId, lang, username: data.username }, callback);
         });
       });
     }
@@ -248,15 +251,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       chrome.storage.local.get(null, (data) => {
         // when roomId is different, kick ourself out from the old room and join the new one
-        if (message.roomId && message.roomId !== data.roomId) {
+        if (
+          (message.roomId && message.roomId !== data.roomId) ||
+          (message.lang || 'en') !== data.lang
+        ) {
           sendMessage(
             'room_change_prompt',
-            { old: data.roomId, new: message.roomId },
+            {
+              old: data.roomId,
+              new: message.roomId,
+              oldLang: data.lang || 'en',
+              newLang: message.lang || 'en',
+            },
             (changeRoomData) => {
               if (changeRoomData && changeRoomData.confirm) {
                 active = false;
                 socket.close();
-                init(data.username, message.roomId, sendResponse);
+                init(
+                  data.username,
+                  message.roomId,
+                  message.lang || 'en',
+                  sendResponse
+                );
               } else {
                 sendResponse(null);
               }
@@ -283,7 +299,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           });
         } else {
           tabId = sender.tab.id;
-          init(message.username, message.roomId, sendResponse);
+          init(
+            message.username,
+            message.roomId,
+            message.lang || 'en',
+            sendResponse
+          );
         }
       }
     }
@@ -453,7 +474,7 @@ chrome.runtime.onInstalled.addListener(() => {
       {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { hostEquals: 'en.wikipedia.org' },
+            pageUrl: { hostSuffix: 'wikipedia.org' },
           }),
         ],
         actions: [new chrome.declarativeContent.ShowPageAction()],

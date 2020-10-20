@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { getCurrentArticle } from '../util';
+import { getCurrentArticle, getLang } from '../util';
 import { getRandomPage, getAutocomplete } from '../wiki';
 import AsyncSelect from 'react-select/async';
 import { toast } from 'react-toastify';
+import { useLang } from '../DataContext';
 
 export function ArticlePicker(props) {
   const { onChange, disabled, placeholder } = props;
   const [loading, setLoading] = useState(false);
+  const lang = useLang();
 
   useEffect(() => {
     setLoading(false);
@@ -37,6 +39,15 @@ export function ArticlePicker(props) {
   const onChangeToCurrent = () => {
     if (disabled) return;
 
+    // check article language, just in case
+    const currentArticleLang = window.location.hostname.split('.')[0];
+    if (lang !== currentArticleLang) {
+      toast.error(
+        `Current article language (${currentArticleLang}) differs from game lang (${lang})!`
+      );
+      return;
+    }
+
     setLoading(true);
     onChange(getCurrentArticle(), () => {
       setLoading(false);
@@ -47,7 +58,7 @@ export function ArticlePicker(props) {
     if (disabled) return;
 
     setLoading(true);
-    getRandomPage()
+    getRandomPage(lang)
       .then((title) => {
         onChange(title, () => {
           setLoading(false);

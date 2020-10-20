@@ -2,9 +2,10 @@ import React, { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Wrapper, Header, CurrentRoundOverview, Rules } from './components';
 import * as util from './util';
+import { useData } from './DataContext';
 
-export function InGamePanel(props) {
-  const { data } = props;
+export function InGamePanel() {
+  const data = useData();
   const { currentState, currentRound, rules, username, roomId } = data;
 
   // enforce rules

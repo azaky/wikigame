@@ -1,20 +1,37 @@
-export function getLink(article) {
-  return `https://en.wikipedia.org/wiki/${encodeURIComponent(article)}`;
-}
-
 export function getRoomId() {
   return new URLSearchParams(window.location.search).get('roomId');
 }
 
-export function setRoomIdOnUrl(roomId) {
+export function getLang() {
+  return encodeURIComponent(
+    new URLSearchParams(window.location.search).get('lang') ||
+      window.location.hostname.split('.')[0]
+  );
+}
+
+export function getRoomIdAndLang() {
+  return {
+    roomId: getRoomId(),
+    lang: getLang(),
+  };
+}
+
+export function setRoomIdOnUrl(roomId, lang) {
   const url = new URL(window.location.href);
   url.searchParams.set('roomId', roomId);
+  url.searchParams.set('lang', lang || getLang());
   window.history.pushState({}, document.title, url.pathname + url.search);
+}
+
+export function getLink(article) {
+  return `https://${getLang()}.wikipedia.org/wiki/${encodeURIComponent(
+    article
+  )}`;
 }
 
 export function getArticleFromUrl(link) {
   const url = new URL(link);
-  if (url.hostname !== 'en.wikipedia.org') {
+  if (!url.hostname.endsWith('.wikipedia.org')) {
     return {};
   }
   if (url.pathname.startsWith('/wiki')) {
@@ -34,14 +51,15 @@ export function getArticleFromUrl(link) {
   return {};
 }
 
-export function goto(article) {
+export function goto(article, lang) {
   const url = new URL(getLink(article));
 
   // preserve roomId
-  const currentUrl = new URL(window.location.href);
-  const roomId = currentUrl.searchParams.get('roomId');
+  const roomId = getRoomId();
+  lang = lang || getLang();
   if (roomId) {
     url.searchParams.set('roomId', roomId);
+    url.searchParams.set('lang', lang);
   }
 
   window.location.href = url.href;
@@ -52,6 +70,7 @@ export function getCurrentArticle() {
 }
 
 export function isSpecialArticle(article) {
+  // TODO: these prefixes differ in all languages ....
   return (
     typeof article === 'string' &&
     (article.startsWith('Special:') ||
@@ -63,8 +82,13 @@ export function isSpecialArticle(article) {
   );
 }
 
-export function getLinkWithRoomId(article, roomId = getRoomId()) {
-  return `https://en.wikipedia.org/wiki/${encodeURIComponent(
+export function getLinkWithRoomId(article, roomId, lang) {
+  if (!roomId) {
+    const roomIdLang = getRoomIdAndLang();
+    roomId = roomIdLang.roomId;
+    lang = roomIdLang.lang;
+  }
+  return `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(
     article
-  )}?roomId=${encodeURIComponent(roomId)}`;
+  )}?roomId=${encodeURIComponent(roomId)}&lang=${lang}`;
 }

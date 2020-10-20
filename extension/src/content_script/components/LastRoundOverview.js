@@ -65,21 +65,23 @@ export function LastRoundOverview(props) {
           </li>
         </ul>
       </div>
-      <div class="body vector-menu-content">
-        <ul>
-          <li>
-            <a
-              target="_blank"
-              href={`https://www.sixdegreesofwikipedia.com/?source=${encodeURIComponent(
-                round.start
-              )}&target=${encodeURIComponent(round.target)}`}
-              title="See solution on Six Degrees of Wikipedia"
-            >
-              <b>(See Solution)</b>
-            </a>
-          </li>
-        </ul>
-      </div>
+      {util.getLang() === 'en' ? (
+        <div class="body vector-menu-content">
+          <ul>
+            <li>
+              <a
+                target="_blank"
+                href={`https://www.sixdegreesofwikipedia.com/?source=${encodeURIComponent(
+                  round.start
+                )}&target=${encodeURIComponent(round.target)}`}
+                title="See solution on Six Degrees of Wikipedia"
+              >
+                <b>(See Solution)</b>
+              </a>
+            </li>
+          </ul>
+        </div>
+      ) : null}
       <div class="body vector-menu-content">
         <ul>
           <li>

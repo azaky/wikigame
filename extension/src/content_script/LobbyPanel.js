@@ -8,9 +8,10 @@ import {
   NextRoundArticlePicker,
   Rules,
 } from './components';
+import { useData } from './DataContext';
 
-export function LobbyPanel(props) {
-  const { data } = props;
+export function LobbyPanel() {
+  const data = useData();
   const {
     currentRound,
     rules,

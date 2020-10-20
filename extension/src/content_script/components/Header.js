@@ -1,7 +1,12 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import copy from 'copy-to-clipboard';
-import { getCurrentArticle, getLink, getLinkWithRoomId } from '../util';
+import {
+  getCurrentArticle,
+  getLang,
+  getLink,
+  getLinkWithRoomId,
+} from '../util';
 
 export function Header(props) {
   const { roomId } = props;
@@ -45,6 +50,11 @@ export function Header(props) {
           <a onClick={onShareClick}>(share)</a>
           &nbsp;
           <a onClick={onLeaveClick}>(leave)</a>
+        </span>
+        <br />
+        <span>
+          {/* TODO: get humanized name */}
+          Lang: <b>{getLang()}</b>
         </span>
       </h3>
     </nav>

@@ -18,16 +18,16 @@
   "content_scripts": [
     {
       "matches": [
-        "https://en.wikipedia.org/wiki/*",
-        "https://en.wikipedia.org/w/*"
+        "https://*.wikipedia.org/wiki/*",
+        "https://*.wikipedia.org/w/*"
       ],
       "js": ["content_script.js"],
       "run_at": "document_end"
     },
     {
       "matches": [
-        "https://en.wikipedia.org/wiki/*",
-        "https://en.wikipedia.org/w/*"
+        "https://*.wikipedia.org/wiki/*",
+        "https://*.wikipedia.org/w/*"
       ],
       "js": ["ctrlf.js"],
       "run_at": "document_start"

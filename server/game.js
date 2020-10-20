@@ -4,23 +4,26 @@ const util = require('./util');
 
 const rooms = [];
 
-const existsRoomById = (id) =>
-  rooms.findIndex((room) => room.roomId === id) !== -1;
-const getRoomById = (id) => rooms.find((room) => room.roomId === id);
+const existsRoomById = (id, lang) =>
+  rooms.findIndex((room) => room.roomId === id && room.lang === lang) !== -1;
+const getRoomById = (id, lang) =>
+  rooms.find((room) => room.roomId === id && room.lang === lang);
 
 // up to 5 digit room id
 const generateRoomId = () => `${Math.round(Math.random() * 100000)}`;
 
-const createRoom = (host, id) => {
+const createRoom = (host, id, _lang) => {
+  const lang = _lang || 'en';
   let roomId = id;
   if (!roomId) {
     do {
       roomId = generateRoomId();
-    } while (existsRoomById(roomId));
+    } while (existsRoomById(roomId, lang));
   }
   const room = {
     roomId,
-    url: `https://en.wikipedia.org/wiki/Main_Page?roomId=${encodeURIComponent(
+    lang,
+    url: `https://${lang}.wikipedia.org/wiki/Wikipedia?roomId=${encodeURIComponent(
       roomId
     )}`,
     host,
@@ -95,7 +98,36 @@ const calculateLeaderboard = (room) => {
   return room.leaderboard;
 };
 
-/*
+const getElapsedTime = (start) =>
+  Math.ceil((new Date().getTime() - start) / 1000);
+
+const socketHandler = async (socket) => {
+  console.log('a user connected!');
+  console.log(socket.handshake.query);
+  const { username, roomId } = socket.handshake.query;
+
+  const lang = socket.handshake.query.lang || 'en';
+
+  let room;
+  if (!roomId || !existsRoomById(roomId, lang)) {
+    room = createRoom(username, roomId, lang);
+  } else {
+    room = getRoomById(roomId, lang);
+  }
+
+  // check if there's a duplicate username
+  if (room.players.find((p) => p === username)) {
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] duplicated username: ${username}`
+    );
+    socket.emit('init_error', {
+      message: `Duplicated username ${username} found, pick another one!`,
+    });
+    socket.disconnect(true);
+    return;
+  }
+
+  /*
    on valid articles, this return:
 
    {
@@ -108,61 +140,36 @@ const calculateLeaderboard = (room) => {
 
    on invalid articles, this returns { found: false }
 */
-// TODO: cache this for God's sake
-const validateArticle = async (title) => {
-  try {
-    if (!title) return { found: false };
-    const response = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
-        title
-      )}`
-    );
-    const body = await response.json();
-    if (
-      body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found'
-    ) {
+  // TODO: cache this for God's sake
+  const validateArticle = async (title) => {
+    try {
+      if (!title) return { found: false };
+      const response = await fetch(
+        `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
+          title
+        )}`
+      );
+      const body = await response.json();
+      if (
+        body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found'
+      ) {
+        return { found: false };
+      }
+      return {
+        found: true,
+        type: body.type,
+        title: body.titles.canonical,
+        normalizedTitle: body.titles.normalized,
+        thumbnail: (body.thumbnail && body.thumbnail.source) || '',
+      };
+    } catch (e) {
+      console.error(`Error validating article [lang=${lang}][${title}]:`, e);
       return { found: false };
     }
-    return {
-      found: true,
-      type: body.type,
-      title: body.titles.canonical,
-      normalizedTitle: body.titles.normalized,
-      thumbnail: (body.thumbnail && body.thumbnail.source) || '',
-    };
-  } catch (e) {
-    console.error(`Error validating article [${title}]:`, e);
-    return { found: false };
-  }
-};
+  };
 
-const validateArticles = async (titles) =>
-  Promise.all(titles.map(validateArticle));
-
-const getElapsedTime = (start) =>
-  Math.ceil((new Date().getTime() - start) / 1000);
-
-const socketHandler = async (socket) => {
-  console.log('a user connected!');
-  console.log(socket.handshake.query);
-  const { username, roomId } = socket.handshake.query;
-
-  let room;
-  if (!roomId || !existsRoomById(roomId)) {
-    room = createRoom(username, roomId);
-  } else {
-    room = getRoomById(roomId);
-  }
-
-  // check if there's a duplicate username
-  if (room.players.find((p) => p === username)) {
-    console.log(`[room=${room.roomId}] duplicated username: ${username}`);
-    socket.emit('init_error', {
-      message: `Duplicated username ${username} found, pick another one!`,
-    });
-    socket.disconnect(true);
-    return;
-  }
+  const validateArticles = async (titles) =>
+    Promise.all(titles.map(validateArticle));
 
   // special case of orphaned room, set self as host
   if (!room.players.length) {
@@ -202,11 +209,14 @@ const socketHandler = async (socket) => {
       console.error(`Error joining room ${room.roomId}:`, err);
       return;
     }
-    console.log(`[room=${room.roomId}] [${username}] joined room!`);
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] [${username}] joined room!`
+    );
   });
 
   socket.emit('init', {
     roomId: room.roomId,
+    lang: room.lang,
     url: room.url,
     host: room.host,
     state: room.state,
@@ -232,7 +242,7 @@ const socketHandler = async (socket) => {
   socket.on('update', async (data, ack) => {
     if (room.host !== username) {
       console.log(
-        `[room=${room.roomId}] [${username}] is not host and attempted to perform update, ignoring`
+        `[room=${room.roomId},lang=${room.lang}] [${username}] is not host and attempted to perform update, ignoring`
       );
       ack({
         success: false,
@@ -242,7 +252,7 @@ const socketHandler = async (socket) => {
     }
     if (room.currentRound.started) {
       console.log(
-        `[room=${room.roomId}] [${username}] attempted to perform update when round already started, ignoring`
+        `[room=${room.roomId},lang=${room.lang}] [${username}] attempted to perform update when round already started, ignoring`
       );
       ack({
         success: false,
@@ -251,12 +261,15 @@ const socketHandler = async (socket) => {
       return;
     }
 
-    console.log(`[room=${room.roomId}] [${username}] updates data:`, data);
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] [${username}] updates data:`,
+      data
+    );
 
     if (data.host) {
       if (!room.players.includes(data.host)) {
         console.log(
-          `[room=${room.roomId}] [${username}] attempted to transfer host to nonexistent (or perhaps offline) player, ignoring`
+          `[room=${room.roomId},lang=${room.lang}] [${username}] attempted to transfer host to nonexistent (or perhaps offline) player, ignoring`
         );
         ack({
           success: false,
@@ -311,7 +324,7 @@ const socketHandler = async (socket) => {
     // do not forget to recheck whether the round has started or not
     if (room.currentRound.started) {
       console.log(
-        `[room=${room.roomId}] [${username}] attempted to perform update when round already started, ignoring`
+        `[room=${room.roomId},lang=${room.lang}] [${username}] attempted to perform update when round already started, ignoring`
       );
       ack({
         success: false,
@@ -336,7 +349,9 @@ const socketHandler = async (socket) => {
     clearTimeout(countdown);
     clearInterval(ticker);
 
-    console.log(`[room=${room.roomId}] [${username}] round finished!`);
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] [${username}] round finished!`
+    );
 
     room.state = 'lobby';
     calculateLeaderboard(room);
@@ -372,15 +387,17 @@ const socketHandler = async (socket) => {
   socket.on('start', (_, ack) => {
     if (room.host !== username) {
       console.log(
-        `[room=${room.roomId}] [${username}] is not host and attempted to perform start, ignoring`
+        `[room=${room.roomId},lang=${room.lang}] [${username}] is not host and attempted to perform start, ignoring`
       );
       return;
     }
-    console.log(`[room=${room.roomId}] [${username}] starts round!`);
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] [${username}] starts round!`
+    );
 
     if (room.currentRound.started) {
       console.log(
-        `[room=${room.roomId}] [${username}] attempted to perform start, but round is already started, ignoring`
+        `[room=${room.roomId},lang=${room.lang}] [${username}] attempted to perform start, but round is already started, ignoring`
       );
       return;
     }
@@ -441,7 +458,7 @@ const socketHandler = async (socket) => {
       room.currentRound.timeLeft = room.rules.timeLimit - elapsed;
       if (room.currentRound.timeLeft > 0) {
         console.log(
-          `[room=${room.roomId}] ticker: timeLeft=${room.currentRound.timeLeft}`
+          `[room=${room.roomId},lang=${room.lang}] ticker: timeLeft=${room.currentRound.timeLeft}`
         );
         socket.to(room.roomId).emit('update', {
           currentRound: { timeLeft: room.currentRound.timeLeft },
@@ -472,7 +489,7 @@ const socketHandler = async (socket) => {
 
   socket.on('click', async (data, ack) => {
     console.log(
-      `[room=${room.roomId}] [${username}] is clicking ${data.article}`
+      `[room=${room.roomId},lang=${room.lang}] [${username}] is clicking ${data.article}`
     );
 
     if (room.state !== 'playing' || room.currentState[username].finished) {
@@ -557,7 +574,9 @@ const socketHandler = async (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log(`[room=${room.roomId}] [${username}] disconnected!`);
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] [${username}] disconnected!`
+    );
 
     room.players = room.players.filter((p) => p !== username);
 
@@ -600,9 +619,9 @@ const handler = () => {
     }));
     res.json({ data });
   });
-  router.get('/_/:roomId', (req, res) => {
-    const { roomId } = req.params;
-    const game = getRoomById(roomId);
+  router.get('/_/:lang/:roomId', (req, res) => {
+    const { lang, roomId } = req.params;
+    const game = getRoomById(roomId, lang);
     if (!game) {
       res.status(404);
       res.json({ error: `Room ${roomId} is not found` });

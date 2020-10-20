@@ -6,6 +6,7 @@ import * as util from './util';
 import * as wiki from './wiki';
 import { LobbyPanel } from './LobbyPanel';
 import { InGamePanel } from './InGamePanel.js';
+import DataContext from './DataContext';
 
 import 'react-toastify/dist/ReactToastify.css';
 import './styles/style.css';
@@ -65,10 +66,18 @@ function Root(props) {
 
   switch (data.state) {
     case 'lobby':
-      return <LobbyPanel data={data} />;
+      return (
+        <DataContext.Provider value={data}>
+          <LobbyPanel />;
+        </DataContext.Provider>
+      );
 
     case 'playing':
-      return <InGamePanel data={data} />;
+      return (
+        <DataContext.Provider value={data}>
+          <InGamePanel />;
+        </DataContext.Provider>
+      );
 
     default:
       onShouldReload(`There's a problem loading Wikigame. Please reload`);
@@ -273,142 +282,153 @@ function init() {
     return false;
   });
 
-  const initData = (username, roomId) => {
-    chrome.runtime.sendMessage(
-      {
-        type: 'init',
-        roomId: roomId,
-        username: username,
-      },
-      (data) => {
-        console.log('initData:', data);
+  const initData = (username, { roomId, lang }) => {
+    if (!lang) lang = util.getLang();
 
-        if (data && data.error) {
-          removeHandleCtrlfOnInitialLoad();
-          if (data.error.startsWith('Duplicated username')) {
-            const newUsername = window.prompt(data.error);
-            if (newUsername) {
-              setTimeout(() => {
-                initData(newUsername);
-              }, 0);
-            }
-            return;
-          } else if (data.error.startsWith('Multiple tabs')) {
-            handleMultipleTabs();
-            return;
+    const initMessage = {
+      type: 'init',
+      roomId,
+      lang,
+      username,
+    };
+    chrome.runtime.sendMessage(initMessage, (data) => {
+      console.log('initData:', data);
+
+      if (data && data.error) {
+        removeHandleCtrlfOnInitialLoad();
+        if (data.error.startsWith('Duplicated username')) {
+          const newUsername = window.prompt(data.error);
+          if (newUsername) {
+            setTimeout(() => {
+              initData(newUsername);
+            }, 0);
           }
-          toast.error(`Error on initializing wikigame: ${data.error}`);
+          return;
+        } else if (data.error.startsWith('Multiple tabs')) {
+          handleMultipleTabs();
           return;
         }
+        toast.error(`Error on initializing wikigame: ${data.error}`);
+        return;
+      }
 
-        if (!data || !data.roomId) {
-          removeHandleCtrlfOnInitialLoad();
-          return;
+      if (!data || !data.roomId) {
+        removeHandleCtrlfOnInitialLoad();
+        return;
+      }
+
+      // check if language mismatched
+      if (data.lang !== window.location.hostname.split('.')[0]) {
+        console.log('Language mismatched!');
+        toast.error('You cannot go to pages in other languages!');
+        setTimeout(() => {
+          util.goto(util.getCurrentArticle());
+        }, 1000);
+        return;
+      }
+
+      changeFavicon();
+      if (data.initial) {
+        toast(
+          () => (
+            <div>
+              Welcome to Wikigame, <b>{data.username}</b>!
+            </div>
+          ),
+          {
+            toastId: 'welcome',
+            position: toast.POSITION.BOTTOM_LEFT,
+          }
+        );
+        // animate resize only when joining for the first time
+        enablePanelTransitionAnimation();
+      }
+
+      // this (supposedly) resolves inactive background page
+      const pingInterval = setInterval(() => {
+        try {
+          chrome.runtime.sendMessage({ type: 'ping' }, (reply) => {
+            if (!reply || !reply.status) {
+              clearInterval(pingInterval);
+              onShouldReload();
+            }
+          });
+        } catch (e) {
+          clearInterval(pingInterval);
+          console.log('ping error:', e);
+          onShouldReload();
         }
+      }, 1000);
 
-        changeFavicon();
-        if (data.initial) {
-          toast(
-            () => (
-              <div>
-                Welcome to Wikigame, <b>{data.username}</b>!
-              </div>
-            ),
+      util.setRoomIdOnUrl(data.roomId);
+      const currentArticle = util.getCurrentArticle();
+
+      // click checks
+      if (data.state === 'playing' && !data.currentState.finished) {
+        const lastArticle =
+          data.currentState.path.slice(-1)[0] || data.currentRound.start;
+
+        if (data.localState === 'clicking') {
+          chrome.runtime.sendMessage(
             {
-              toastId: 'welcome',
-              position: toast.POSITION.BOTTOM_LEFT,
+              type: 'click',
+              data: { article: currentArticle },
+            },
+            (reply) => {
+              if (!reply || !reply.success) {
+                if (reply.message) {
+                  toast.error(reply.message);
+                  // Wait 1s so the user is aware of the error
+                  // Think of it as additional penalty for going to an invalid link
+                  setTimeout(() => {
+                    util.goto(lastArticle);
+                  }, 1000);
+                } else {
+                  util.goto(lastArticle);
+                }
+              } else {
+                // win condition checks
+                if (reply.data && reply.data.finished) {
+                  toast.success(
+                    `You reach the target! Your score is ${reply.data.score}`
+                  );
+                }
+
+                render(data, true);
+              }
             }
           );
-          // animate resize only when joining for the first time
-          enablePanelTransitionAnimation();
-        }
-
-        // this (supposedly) resolves inactive background page
-        const pingInterval = setInterval(() => {
-          try {
-            chrome.runtime.sendMessage({ type: 'ping' }, (reply) => {
-              if (!reply || !reply.status) {
-                clearInterval(pingInterval);
-                onShouldReload();
-              }
-            });
-          } catch (e) {
-            clearInterval(pingInterval);
-            console.log('ping error:', e);
-            onShouldReload();
-          }
-        }, 1000);
-
-        util.setRoomIdOnUrl(data.roomId);
-        const currentArticle = util.getCurrentArticle();
-
-        // click checks
-        if (data.state === 'playing' && !data.currentState.finished) {
-          const lastArticle =
-            data.currentState.path.slice(-1)[0] || data.currentRound.start;
-
-          if (data.localState === 'clicking') {
-            chrome.runtime.sendMessage(
-              {
-                type: 'click',
-                data: { article: currentArticle },
-              },
-              (reply) => {
-                if (!reply || !reply.success) {
-                  if (reply.message) {
-                    toast.error(reply.message);
-                    // Wait 1s so the user is aware of the error
-                    // Think of it as additional penalty for going to an invalid link
-                    setTimeout(() => {
-                      util.goto(lastArticle);
-                    }, 1000);
-                  } else {
-                    util.goto(lastArticle);
-                  }
-                } else {
-                  // win condition checks
-                  if (reply.data && reply.data.finished) {
-                    toast.success(
-                      `You reach the target! Your score is ${reply.data.score}`
-                    );
-                  }
-
-                  render(data, true);
-                }
-              }
-            );
-          } else if (lastArticle !== currentArticle) {
-            // resolve redirects for one more time
-            wiki
-              .resolveTitle(currentArticle)
-              .then((resolved) => {
-                if (resolved === lastArticle) {
-                  render(data, true);
-                } else {
-                  chrome.storage.local.set({ localState: null }, () => {
-                    util.goto(lastArticle);
-                  });
-                }
-              })
-              .catch((err) => {
-                console.error('Error resolving title!', err);
-
-                // resort back to lastArticle
+        } else if (lastArticle !== currentArticle) {
+          // resolve redirects for one more time
+          wiki
+            .resolveTitle(currentArticle)
+            .then((resolved) => {
+              if (resolved === lastArticle) {
+                render(data, true);
+              } else {
                 chrome.storage.local.set({ localState: null }, () => {
                   util.goto(lastArticle);
                 });
+              }
+            })
+            .catch((err) => {
+              console.error('Error resolving title!', err);
+
+              // resort back to lastArticle
+              chrome.storage.local.set({ localState: null }, () => {
+                util.goto(lastArticle);
               });
-          } else {
-            render(data, true);
-          }
+            });
         } else {
           render(data, true);
         }
+      } else {
+        render(data, true);
       }
-    );
+    });
   };
 
-  initData(null, util.getRoomId());
+  initData(null, util.getRoomIdAndLang());
 }
 
 console.log('content_script is running!');
