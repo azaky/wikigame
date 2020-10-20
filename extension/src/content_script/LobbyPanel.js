@@ -77,6 +77,19 @@ export function LobbyPanel() {
     }
   };
 
+  const onSwapArticles = (callback) => {
+    console.log('onSwapArticles');
+    onUpdate(
+      {
+        currentRound: {
+          start: currentRound.target,
+          target: currentRound.start,
+        },
+      },
+      callback
+    );
+  };
+
   console.log('LobbyPanel!', data);
 
   return (
@@ -96,6 +109,7 @@ export function LobbyPanel() {
         disabled={!isHost}
         onStartArticleChange={onStartArticleChange}
         onTargetArticleChange={onTargetArticleChange}
+        onSwapArticles={onSwapArticles}
         onStartRound={onStartRound}
       />
       {lastRound ? <LastRoundOverview round={lastRound} /> : null}

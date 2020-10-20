@@ -8,6 +8,7 @@ export function NextRoundArticlePicker(props) {
     disabled,
     onStartArticleChange,
     onTargetArticleChange,
+    onSwapArticles,
     onStartRound,
   } = props;
 
@@ -48,13 +49,21 @@ export function NextRoundArticlePicker(props) {
             &nbsp;(view)
           </a>
         ) : null}
-        <div style={{ paddingBottom: '10px' }}>
+        <div>
           <ArticlePicker
             value={round.target}
             onChange={onTargetArticleChange}
             disabled={disabled}
           />
         </div>
+        {round.start || round.target ? (
+          <div style={{ marginTop: '5px' }}>
+            <a onClick={() => onSwapArticles()} style={{ fontSize: '0.75em' }}>
+              (swap start/target articles)
+            </a>
+            <br />
+          </div>
+        ) : null}
         {!disabled ? (
           <button
             id="wikigame-start"
@@ -67,6 +76,7 @@ export function NextRoundArticlePicker(props) {
               height: '32px',
               fontSize: '1em',
               width: '100%',
+              marginTop: '10px',
             }}
           >
             Start

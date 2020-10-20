@@ -49,11 +49,16 @@ function onShouldReload(message) {
 
   // do not show toast if we voluntarily left the game
   if (chrome && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(['state'], ({ state }) => {
-      if (!state) return;
+    try {
+      chrome.storage.local.get(['state'], ({ state }) => {
+        if (!state) return;
 
+        showToast();
+      });
+    } catch (e) {
+      console.log('get state in onShouldReload error:', e);
       showToast();
-    });
+    }
   } else {
     // possibly we're in the middle of reloading/updating the extension
     showToast();
@@ -71,14 +76,14 @@ function Root(props) {
     case 'lobby':
       return (
         <DataContext.Provider value={data}>
-          <LobbyPanel />;
+          <LobbyPanel />
         </DataContext.Provider>
       );
 
     case 'playing':
       return (
         <DataContext.Provider value={data}>
-          <InGamePanel />;
+          <InGamePanel />
         </DataContext.Provider>
       );
 
