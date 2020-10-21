@@ -1,8 +1,10 @@
 const fetch = require('node-fetch');
 const express = require('express');
 const util = require('./util');
+const persistence = require('./persistence');
 
 const rooms = [];
+const activeConnections = {}; // roomId -> [players]
 
 const existsRoomById = (id) =>
   rooms.findIndex((room) => room.roomId === id) !== -1;
@@ -10,11 +12,10 @@ const getRoomById = (id) => rooms.find((room) => room.roomId === id);
 
 // up to 5 digit room id
 const randomRoomIdDigits = 6;
-const generateRoomId = () =>
-  `${Math.round(Math.random() * Math.pow(10, randomRoomIdDigits))}`.padStart(
-    randomRoomIdDigits,
-    '0'
-  );
+const generateRoomId = () => {
+  const id = Math.round(Math.random() * Math.pow(10, randomRoomIdDigits));
+  return `${id}`.padStart(randomRoomIdDigits, '0');
+};
 
 const createRoom = (host, id, _lang) => {
   const lang = _lang || 'en';
@@ -120,6 +121,14 @@ const socketHandler = async (socket) => {
     room = getRoomById(roomId);
   }
 
+  // allow claim connection if there's no active connection under the name
+  if (!activeConnections[room.roomId]) {
+    activeConnections[room.roomId] = [];
+  }
+  if (!activeConnections[room.roomId].includes(username)) {
+    room.players = room.players.filter((p) => p !== username);
+  }
+
   // check if there's a duplicate username
   if (room.players.find((p) => p === username)) {
     console.log(
@@ -131,6 +140,8 @@ const socketHandler = async (socket) => {
     socket.disconnect(true);
     return;
   }
+
+  activeConnections[room.roomId].push(username);
 
   /*
    on valid articles, this return:
@@ -708,6 +719,9 @@ const socketHandler = async (socket) => {
     );
 
     room.players = room.players.filter((p) => p !== username);
+    activeConnections[room.roomId] = activeConnections[room.roomId].filter(
+      (p) => p !== username
+    );
 
     // disband room when there's no player
     if (!room.players.length) {
@@ -735,8 +749,15 @@ const socketHandler = async (socket) => {
 const handler = () => {
   const router = express.Router();
 
-  // currently these endpoints are enabled for debugging purposes.
-  // TODO: add some sort of auth if this endpoint stays.
+  router.use('/_', (req, res, next) => {
+    console.log(req.headers);
+    if (req.headers.authorization !== process.env.SECRET) {
+      res.status(403);
+      res.send({ error: `You are not authorized to perform this command` });
+    } else {
+      next();
+    }
+  });
   router.get('/_/', (req, res) => {
     res.json({ data: rooms });
   });
@@ -748,9 +769,9 @@ const handler = () => {
     }));
     res.json({ data });
   });
-  router.get('/_/:lang/:roomId', (req, res) => {
-    const { lang, roomId } = req.params;
-    const game = getRoomById(roomId, lang);
+  router.get('/_/:roomId', (req, res) => {
+    const { roomId } = req.params;
+    const game = getRoomById(roomId);
     if (!game) {
       res.status(404);
       res.json({ error: `Room ${roomId} is not found` });
@@ -758,11 +779,117 @@ const handler = () => {
       res.json({ data: game });
     }
   });
+  router.post('/_/:roomId', (req, res) => {
+    const body = req.body;
+    const { roomId } = req.params;
+    const room = getRoomById(roomId);
+    if (!room) {
+      res.status(404);
+      res.json({ error: `Room ${roomId} is not found` });
+    } else {
+      util.mergeDeep(room, body);
+      res.json({ data: room });
+    }
+  });
+  router.delete('/_/:roomId', (req, res) => {
+    const { roomId } = req.params;
+    if (!existsRoomById(roomId)) {
+      res.status(404);
+      res.json({ error: `Room ${roomId} is not found` });
+    } else {
+      const index = rooms.findIndex((room) => room.roomId === roomId);
+      if (index !== -1) {
+        rooms.splice(index, 1);
+      }
+      res.json({ message: `room ${roomId} successfully deleted` });
+    }
+  });
 
   return router;
 };
 
+const init = (io) => {
+  // load data on startup and save on exit
+  persistence.init().then(async (ok) => {
+    if (ok) {
+      console.log('loading data from persistence ...');
+      const data = await persistence.load();
+      rooms.push(...data);
+      console.log('loading data done!');
+
+      // rerun ticker for rooms in progress
+      rooms.forEach((room) => {
+        if (room.state === 'playing') {
+          const onFinished = () => {
+            if (room.state !== 'playing') return;
+            console.log(
+              `[room=${room.roomId},lang=${room.lang}] round finished!`
+            );
+
+            room.state = 'lobby';
+            calculateLeaderboard(room);
+            room.pastRounds.push({
+              start: room.currentRound.start,
+              target: room.currentRound.target,
+              rules: JSON.parse(JSON.stringify(room.rules)),
+              result: room.currentRound.result
+                .map((res) => ({
+                  ...res,
+                  path: room.currentState[res.username].path,
+                }))
+                .sort((a, b) => b.score - a.score),
+            });
+            room.currentRound = {
+              start: room.currentRound.start,
+              target: room.currentRound.target,
+              started: false,
+            };
+            room.currentState = {};
+
+            const finishedState = {
+              state: room.state,
+              currentRound: room.currentRound,
+              leaderboard: room.leaderboard,
+              lastRound: room.pastRounds.slice(-1)[0],
+            };
+            io.sockets.to(room.roomId).emit('finished', finishedState);
+          };
+
+          const ticker = setInterval(() => {
+            const elapsed = getElapsedTime(room.currentRound.startTimestamp);
+            room.currentRound.timeLeft = room.rules.timeLimit - elapsed;
+            if (room.currentRound.timeLeft > 0) {
+              console.log(
+                `[room=${room.roomId},lang=${room.lang}] ticker: timeLeft=${room.currentRound.timeLeft}`
+              );
+              io.sockets.to(room.roomId).emit('update', {
+                currentRound: { timeLeft: room.currentRound.timeLeft },
+              });
+            } else {
+              clearInterval(ticker);
+              onFinished();
+            }
+          }, 1000);
+        }
+      });
+
+      ['SIGTERM', 'SIGINT'].forEach((signal) => {
+        process.on(signal, async function () {
+          console.log(`${signal} received, storing data ...`);
+          try {
+            await persistence.store(rooms);
+            console.log('storing data done!');
+          } finally {
+            process.exit(0);
+          }
+        });
+      });
+    }
+  });
+};
+
 module.exports = {
+  init,
   socketHandler,
   handler: handler(),
 };

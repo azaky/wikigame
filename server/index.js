@@ -36,6 +36,8 @@ io.use((socket, next) => {
 
 io.on('connection', game.socketHandler);
 
+game.init(io);
+
 const port = process.env.PORT || 9454;
 server.listen(port, () => {
   console.log(`Wikigame server listening on port ${port}`);
