@@ -6,17 +6,21 @@ import copy from 'copy-to-clipboard';
 import languages from '../lang.json';
 
 function Form(props) {
+  console.log('Form root');
   const [username, setUsername] = useState(props.username);
   const [roomId, setRoomId] = useState('');
   const [lang, setLang] = useState(props.pageLang);
   const [showRoomId, setShowRoomId] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+
   const usernameRef = useRef(null);
   const roomIdRef = useRef(null);
 
   const languagesOptions = languages
-    .map(({ lang, label }) => ({
-      label,
+    .map(({ lang, label, labelLocal }) => ({
+      label: `${label} - ${labelLocal}`,
       value: lang,
     }))
     .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
@@ -30,15 +34,24 @@ function Form(props) {
     }
   }, [showRoomId]);
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
     console.log('onSubmit', username, roomId, lang);
     if (username !== '') {
+      setLoading(true);
       chrome.runtime.sendMessage(
         {
           type: 'init_popup',
           data: { username, roomId, lang },
         },
-        () => window.close()
+        ({ success, error }) => {
+          setLoading(false);
+          if (!success) {
+            setErrorMessage(error);
+          } else {
+            window.close();
+          }
+        }
       );
     }
   };
@@ -144,8 +157,9 @@ function Form(props) {
         {showRoomId ? 'Do not create custom room' : 'Create custom room'}
       </a>
       <button type="submit" style={{ marginTop: '10px' }}>
-        <strong>Play Now!</strong>
+        <strong>{loading ? 'Loading...' : 'Play Now!'}</strong>
       </button>
+      {errorMessage ? <label>{errorMessage}</label> : null}
     </form>
   );
 }

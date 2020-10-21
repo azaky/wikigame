@@ -7,6 +7,7 @@ import * as wiki from './wiki';
 import { LobbyPanel } from './LobbyPanel';
 import { InGamePanel } from './InGamePanel.js';
 import DataContext from './DataContext';
+import { isOnInstalled, onInstalled, onInstalledPlay } from './welcome';
 
 import 'react-toastify/dist/ReactToastify.css';
 import './styles/style.css';
@@ -63,158 +64,6 @@ function onShouldReload(message) {
     // possibly we're in the middle of reloading/updating the extension
     showToast();
   }
-}
-
-function isOnInstalled() {
-  return new URLSearchParams(window.location.search).get('welcome') === 'true';
-}
-
-function onInstalled() {
-  const play = () => {
-    chrome.runtime.sendMessage(
-      {
-        type: 'init_popup',
-        data: {
-          username: 'username',
-          roomId: '',
-          lang: 'en',
-        },
-      },
-      () => {
-        toast.dismiss('welcomeInstall');
-      }
-    );
-  };
-
-  toast(
-    () => (
-      <div style={{ fontSize: '1.2em' }}>
-        <img
-          src={chrome.runtime.getURL('images/header.png')}
-          style={{ width: '100%' }}
-        />
-        <h3>Welcome to Wikigame!</h3>
-        <p>Thanks for installing Multiplayer Wikigame extension!</p>
-        <p>
-          Wikigame is an extension to play Wikiracing online directly on
-          Wikipedia pages. You can read more about Wikiracing on this article.
-        </p>
-        <p>
-          Click <strong>Play Now!</strong> below to start playing!
-        </p>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingTop: '10px',
-            paddingBottom: '10px',
-          }}
-        >
-          <button
-            onClick={play}
-            style={{
-              backgroundColor: '#4286f4',
-              color: 'white',
-              padding: '3px',
-              border: 'none',
-              cursor: 'pointer',
-              width: '50%',
-              minHeight: '32px',
-            }}
-          >
-            Play Now!
-          </button>
-        </div>
-        <p>
-          You can also start playing whenever you are on any Wikipedia pages by
-          clicking the extension icon{' '}
-          <img src={chrome.runtime.getURL('images/icon-32.png')}></img> (tips:
-          pin the extension for easier access!)
-        </p>
-      </div>
-    ),
-    {
-      autoClose: false,
-      closeOnClick: false,
-      position: toast.POSITION.TOP_RIGHT,
-      toastId: 'welcomeInstall',
-      style: {
-        cursor: 'default',
-      },
-    }
-  );
-}
-
-function onInstalledPlay() {
-  const showToast = () => {
-    toast(
-      () => (
-        <div style={{ fontSize: '1.2em' }}>
-          <p>Nice!</p>
-          <p>
-            Your goal is to get to{' '}
-            <a href="https://en.wikipedia.org/wiki/Japan">Japan</a> from{' '}
-            <a href="https://en.wikipedia.org/wiki/Wikiracing">Wikiracing</a>
-          </p>
-          <p>
-            Click <strong>Start</strong> button on the left to start whenever
-            you're ready. Or you can always pick your own start/target articles,
-            or even change the rules.
-          </p>
-          <p>Happy Playing!</p>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingTop: '10px',
-              paddingBottom: '10px',
-            }}
-          >
-            <button
-              onClick={() => toast.dismiss('welcomeInstallPlay')}
-              style={{
-                backgroundColor: '#4286f4',
-                color: 'white',
-                padding: '3px',
-                border: 'none',
-                cursor: 'pointer',
-                width: '50%',
-                minHeight: '32px',
-              }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      ),
-      {
-        autoClose: false,
-        closeOnClick: false,
-        position: toast.POSITION.TOP_RIGHT,
-        toastId: 'welcomeInstallPlay',
-        style: {
-          cursor: 'default',
-        },
-      }
-    );
-  };
-
-  chrome.runtime.sendMessage(
-    {
-      type: 'update',
-      data: {
-        currentRound: {
-          start: 'Wikiracing',
-          target: 'Japan',
-        },
-      },
-    },
-    () => {
-      showToast();
-    }
-  );
 }
 
 function Root(props) {
@@ -369,7 +218,7 @@ function init() {
 
     switch (message.type) {
       case 'init':
-        initData(message.data);
+        onInitData(message.data);
         break;
 
       case 'username_prompt':
@@ -441,6 +290,152 @@ function init() {
     return false;
   });
 
+  const onInitData = (data) => {
+    console.log('initData:', data);
+
+    if (data && data.error) {
+      removeHandleCtrlfOnInitialLoad();
+      if (data.error.startsWith('Duplicated username')) {
+        const newUsername = window.prompt(data.error);
+        if (newUsername) {
+          setTimeout(() => {
+            initData({ username: newUsername, roomId, lang });
+          }, 0);
+        }
+        return;
+      } else if (data.error.startsWith('Multiple tabs')) {
+        handleMultipleTabs();
+        return;
+      }
+      toast.error(`Error on initializing wikigame: ${data.error}`);
+      return;
+    }
+
+    if (!data || !data.roomId) {
+      removeHandleCtrlfOnInitialLoad();
+      return;
+    }
+
+    // check if language mismatched
+    if (data.lang !== window.location.hostname.split('.')[0]) {
+      // on initial, redirect to data.url instead
+      if (data.initial) {
+        window.location.href = data.url || util.getCurrentArticle();
+      } else {
+        console.log('Language mismatched!');
+        toast.error('You cannot go to pages in other languages!');
+        setTimeout(() => {
+          util.goto(util.getCurrentArticle());
+        }, 1000);
+      }
+      return;
+    }
+
+    changeFavicon();
+    if (data.initial) {
+      toast(
+        () => (
+          <div>
+            Welcome to Wikigame, <b>{data.username}</b>!
+          </div>
+        ),
+        {
+          toastId: 'welcome',
+          position: toast.POSITION.BOTTOM_LEFT,
+        }
+      );
+      // animate resize only when joining for the first time
+      enablePanelTransitionAnimation();
+
+      // show additional help on install
+      if (isOnInstalled()) {
+        onInstalledPlay();
+      }
+    }
+
+    // this (supposedly) resolves inactive background page
+    const pingInterval = setInterval(() => {
+      try {
+        chrome.runtime.sendMessage({ type: 'ping' }, (reply) => {
+          if (!reply || !reply.status) {
+            clearInterval(pingInterval);
+            onShouldReload();
+          }
+        });
+      } catch (e) {
+        clearInterval(pingInterval);
+        console.log('ping error:', e);
+        onShouldReload();
+      }
+    }, 1000);
+
+    util.setRoomIdOnUrl(data.roomId);
+    const currentArticle = util.getCurrentArticle();
+
+    // click checks
+    if (data.state === 'playing' && !data.currentState.finished) {
+      const lastArticle =
+        data.currentState.path.slice(-1)[0] || data.currentRound.start;
+
+      if (data.localState === 'clicking') {
+        chrome.runtime.sendMessage(
+          {
+            type: 'click',
+            data: { article: currentArticle },
+          },
+          (reply) => {
+            if (!reply || !reply.success) {
+              if (reply.message) {
+                toast.error(reply.message);
+                // Wait 1s so the user is aware of the error
+                // Think of it as additional penalty for going to an invalid link
+                setTimeout(() => {
+                  util.goto(lastArticle);
+                }, 1000);
+              } else {
+                util.goto(lastArticle);
+              }
+            } else {
+              // win condition checks
+              if (reply.data && reply.data.finished) {
+                toast.success(
+                  `You reach the target! Your score is ${reply.data.score}`
+                );
+              }
+
+              render(data, true);
+            }
+          }
+        );
+      } else if (lastArticle !== currentArticle) {
+        // resolve redirects for one more time
+        wiki
+          .resolveTitle(currentArticle)
+          .then((resolved) => {
+            if (resolved === lastArticle) {
+              render(data, true);
+            } else {
+              chrome.storage.local.set({ localState: null }, () => {
+                util.goto(lastArticle);
+              });
+            }
+          })
+          .catch((err) => {
+            console.error('Error resolving title!', err);
+
+            // resort back to lastArticle
+            chrome.storage.local.set({ localState: null }, () => {
+              util.goto(lastArticle);
+            });
+          });
+      } else {
+        render(data, true);
+      }
+    } else {
+      render(data, true);
+    }
+  };
+
   const initData = ({ username, roomId, lang }) => {
     if (!lang) lang = util.getLang();
 
@@ -450,151 +445,7 @@ function init() {
       lang,
       username,
     };
-    chrome.runtime.sendMessage(initMessage, (data) => {
-      console.log('initData:', data);
-
-      if (data && data.error) {
-        removeHandleCtrlfOnInitialLoad();
-        if (data.error.startsWith('Duplicated username')) {
-          const newUsername = window.prompt(data.error);
-          if (newUsername) {
-            setTimeout(() => {
-              initData({ username: newUsername, roomId, lang });
-            }, 0);
-          }
-          return;
-        } else if (data.error.startsWith('Multiple tabs')) {
-          handleMultipleTabs();
-          return;
-        }
-        toast.error(`Error on initializing wikigame: ${data.error}`);
-        return;
-      }
-
-      if (!data || !data.roomId) {
-        removeHandleCtrlfOnInitialLoad();
-        return;
-      }
-
-      // check if language mismatched
-      if (data.lang !== window.location.hostname.split('.')[0]) {
-        // on initial, redirect to data.url instead
-        if (data.initial) {
-          window.location.href = data.url || util.getCurrentArticle();
-        } else {
-          console.log('Language mismatched!');
-          toast.error('You cannot go to pages in other languages!');
-          setTimeout(() => {
-            util.goto(util.getCurrentArticle());
-          }, 1000);
-        }
-        return;
-      }
-
-      changeFavicon();
-      if (data.initial) {
-        toast(
-          () => (
-            <div>
-              Welcome to Wikigame, <b>{data.username}</b>!
-            </div>
-          ),
-          {
-            toastId: 'welcome',
-            position: toast.POSITION.BOTTOM_LEFT,
-          }
-        );
-        // animate resize only when joining for the first time
-        enablePanelTransitionAnimation();
-
-        // show additional help on install
-        if (isOnInstalled()) {
-          onInstalledPlay();
-        }
-      }
-
-      // this (supposedly) resolves inactive background page
-      const pingInterval = setInterval(() => {
-        try {
-          chrome.runtime.sendMessage({ type: 'ping' }, (reply) => {
-            if (!reply || !reply.status) {
-              clearInterval(pingInterval);
-              onShouldReload();
-            }
-          });
-        } catch (e) {
-          clearInterval(pingInterval);
-          console.log('ping error:', e);
-          onShouldReload();
-        }
-      }, 1000);
-
-      util.setRoomIdOnUrl(data.roomId);
-      const currentArticle = util.getCurrentArticle();
-
-      // click checks
-      if (data.state === 'playing' && !data.currentState.finished) {
-        const lastArticle =
-          data.currentState.path.slice(-1)[0] || data.currentRound.start;
-
-        if (data.localState === 'clicking') {
-          chrome.runtime.sendMessage(
-            {
-              type: 'click',
-              data: { article: currentArticle },
-            },
-            (reply) => {
-              if (!reply || !reply.success) {
-                if (reply.message) {
-                  toast.error(reply.message);
-                  // Wait 1s so the user is aware of the error
-                  // Think of it as additional penalty for going to an invalid link
-                  setTimeout(() => {
-                    util.goto(lastArticle);
-                  }, 1000);
-                } else {
-                  util.goto(lastArticle);
-                }
-              } else {
-                // win condition checks
-                if (reply.data && reply.data.finished) {
-                  toast.success(
-                    `You reach the target! Your score is ${reply.data.score}`
-                  );
-                }
-
-                render(data, true);
-              }
-            }
-          );
-        } else if (lastArticle !== currentArticle) {
-          // resolve redirects for one more time
-          wiki
-            .resolveTitle(currentArticle)
-            .then((resolved) => {
-              if (resolved === lastArticle) {
-                render(data, true);
-              } else {
-                chrome.storage.local.set({ localState: null }, () => {
-                  util.goto(lastArticle);
-                });
-              }
-            })
-            .catch((err) => {
-              console.error('Error resolving title!', err);
-
-              // resort back to lastArticle
-              chrome.storage.local.set({ localState: null }, () => {
-                util.goto(lastArticle);
-              });
-            });
-        } else {
-          render(data, true);
-        }
-      } else {
-        render(data, true);
-      }
-    });
+    chrome.runtime.sendMessage(initMessage, onInitData);
   };
 
   if (isOnInstalled()) {

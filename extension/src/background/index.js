@@ -123,6 +123,10 @@ function initSocketio(initData, realCallback) {
     realCallback(...args);
   };
 
+  const onError = (message) => {
+    callback({ success: false, error: message });
+  };
+
   let query = `username=${encodeURIComponent(initData.username)}`;
   if (initData.roomId) {
     query += `&roomId=${encodeURIComponent(initData.roomId)}`;
@@ -156,7 +160,7 @@ function initSocketio(initData, realCallback) {
       active = false;
       sendMessage('disconnected');
     } else {
-      callback({ success: false, error: 'Failed to connect to the server' });
+      onError('Failed to connect to the server');
     }
   });
 
@@ -174,7 +178,7 @@ function initSocketio(initData, realCallback) {
   socket.on('init_error', (data) => {
     console.log('socket.on(init_error):', data);
     socket.close();
-    callback({ error: data.message });
+    onError(data.message);
   });
 
   socket.on('update', (data) => {
@@ -324,17 +328,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'init_popup') {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      console.log('tabs:', tabs);
-      if (!active && tabs.length > 0) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: 'init',
-          data: message.data,
-        });
-      }
-      // ignore popup when active for now
-      sendResponse(null);
-    });
+    if (active && socket && socket.connected) {
+      // on init popup, do not do anything
+      console.log('active || !username');
+      sendResponse({ success: false, error: 'A game is currently active!' });
+    } else if (!message.data.username) {
+      // on init popup, do not do anything
+      console.log('active || !username');
+      sendResponse({ success: false, error: 'Username cannot be empty!' });
+    } else {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length > 0) {
+          console.log('success kok == 0');
+          tabId = tabs[0].id;
+          init(
+            message.data.username,
+            message.data.roomId,
+            message.data.lang || 'en',
+            (initData) => {
+              sendResponse({ success: true });
+              sendMessage('init', initData);
+            }
+          );
+        } else {
+          console.log('tabs.length == 0');
+          sendResponse({
+            success: false,
+            error:
+              'The tab was not focused! Please focus on the tab and try again',
+          });
+        }
+      });
+    }
     return true;
   }
 
@@ -446,18 +471,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return false;
 });
 
-chrome.pageAction.onClicked.addListener(() => {
-  console.log('Page action clicked!');
-
-  // currently page action clicks serves as reset button
-  // TODO: create popup page
-  reset(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.reload(tabs[0].id);
-    });
-  });
-});
-
 chrome.storage.onChanged.addListener((changes, areaName) => {
   console.log(
     `storage change: ${JSON.stringify(changes)} for ${JSON.stringify(areaName)}`
@@ -470,7 +483,7 @@ chrome.runtime.onInstalled.addListener((installObject) => {
       {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { hostSuffix: 'wikipedia.org' },
+            pageUrl: { hostSuffix: '.wikipedia.org' },
           }),
         ],
         actions: [new chrome.declarativeContent.ShowPageAction()],
@@ -479,12 +492,12 @@ chrome.runtime.onInstalled.addListener((installObject) => {
   });
 
   console.log(installObject);
-  // if (installObject.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-  chrome.tabs.create(
-    { url: 'https://en.wikipedia.org/wiki/Wikiracing?welcome=true' },
-    function (tab) {
-      console.log('New tab launched');
-    }
-  );
-  // }
+  reset(() => {
+    chrome.tabs.create(
+      { url: 'https://en.wikipedia.org/wiki/Wikiracing?welcome=true' },
+      () => {
+        console.log('Welcome tab launched');
+      }
+    );
+  });
 });
