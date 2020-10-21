@@ -252,17 +252,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       chrome.storage.local.get(null, (data) => {
         // when roomId is different, kick ourself out from the old room and join the new one
-        if (
-          (message.roomId && message.roomId !== data.roomId) ||
-          (message.lang || 'en') !== data.lang
-        ) {
+        if (message.roomId && message.roomId !== data.roomId) {
           sendMessage(
             'room_change_prompt',
             {
               old: data.roomId,
               new: message.roomId,
-              oldLang: data.lang || 'en',
-              newLang: message.lang || 'en',
             },
             (changeRoomData) => {
               if (changeRoomData && changeRoomData.confirm) {
@@ -463,6 +458,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       });
     });
+  } else if (message.type === 'change_lang') {
+    socket.emit('change_lang', message.data, (ack) => {
+      if (!ack || !ack.success) {
+        sendResponse({
+          success: false,
+          message: ack.message,
+        });
+      } else {
+        sendResponse({ success: true, data: ack.data });
+      }
+    });
+
+    return true;
   } else {
     console.warn('onMessage unknown message.type:', message);
   }

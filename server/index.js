@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const socketio = require('socket.io');
 const game = require('./game');
-const languages = require('./lang.json');
+const util = require('./util');
 const package = require('./package.json');
 
 const app = express();
@@ -26,7 +26,7 @@ io.use((socket, next) => {
     return next(new Error('username is required'));
   }
   if (socket.handshake.query.lang) {
-    if (!languages.find((lang) => lang.lang === socket.handshake.query.lang)) {
+    if (!util.isLanguageValid(socket.handshake.query.lang)) {
       console.log('invalid lang:', socket.handshake.query.lang);
       return next(new Error('invalid language'));
     }

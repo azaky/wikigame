@@ -1,3 +1,9 @@
+const languages = require('./lang.json');
+
+function isLanguageValid(lang) {
+  return languages.findIndex((lg) => lg.lang === lang) !== -1;
+}
+
 /**
  * Simple object check.
  * @param item
@@ -33,4 +39,5 @@ function mergeDeep(target, ...sources) {
 module.exports = {
   isObject,
   mergeDeep,
+  isLanguageValid,
 };

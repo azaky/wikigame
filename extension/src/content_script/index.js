@@ -227,7 +227,13 @@ function init() {
         return false;
 
       case 'update':
-        render(message.data);
+        util.setRoomIdOnUrl(message.data.roomId, message.data.lang);
+        if (message.data.lang !== window.location.hostname.split('.')[0]) {
+          // on language changed
+          util.goto(util.getCurrentArticle());
+        } else {
+          render(message.data);
+        }
         break;
 
       case 'start':
@@ -313,6 +319,12 @@ function init() {
 
     if (!data || !data.roomId) {
       removeHandleCtrlfOnInitialLoad();
+
+      if (isOnInstalled()) {
+        onInstalled();
+        return;
+      }
+
       return;
     }
 
@@ -369,7 +381,7 @@ function init() {
       }
     }, 1000);
 
-    util.setRoomIdOnUrl(data.roomId);
+    util.setRoomIdOnUrl(data.roomId, data.lang);
     const currentArticle = util.getCurrentArticle();
 
     // click checks
@@ -447,11 +459,6 @@ function init() {
     };
     chrome.runtime.sendMessage(initMessage, onInitData);
   };
-
-  if (isOnInstalled()) {
-    onInstalled();
-    return;
-  }
 
   initData(util.getRoomIdAndLang());
 }

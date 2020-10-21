@@ -4,10 +4,9 @@ const util = require('./util');
 
 const rooms = [];
 
-const existsRoomById = (id, lang) =>
-  rooms.findIndex((room) => room.roomId === id && room.lang === lang) !== -1;
-const getRoomById = (id, lang) =>
-  rooms.find((room) => room.roomId === id && room.lang === lang);
+const existsRoomById = (id) =>
+  rooms.findIndex((room) => room.roomId === id) !== -1;
+const getRoomById = (id) => rooms.find((room) => room.roomId === id);
 
 // up to 5 digit room id
 const randomRoomIdDigits = 6;
@@ -23,7 +22,7 @@ const createRoom = (host, id, _lang) => {
   if (!roomId) {
     do {
       roomId = generateRoomId();
-    } while (existsRoomById(roomId, lang));
+    } while (existsRoomById(roomId));
   }
   const room = {
     roomId,
@@ -117,7 +116,7 @@ const socketHandler = async (socket) => {
   if (!roomId || !existsRoomById(roomId, lang)) {
     room = createRoom(username, roomId, lang);
   } else {
-    room = getRoomById(roomId, lang);
+    room = getRoomById(roomId);
   }
 
   // check if there's a duplicate username
@@ -338,12 +337,79 @@ const socketHandler = async (socket) => {
       return;
     }
 
-    // TODO: perform validation to data
     util.mergeDeep(room, data);
 
     // broadcast changes, and only the changes (not the whole data)
     ack({ success: true, data });
     socket.to(room.roomId).emit('update', data);
+  });
+
+  // change language mid game
+  socket.on('change_lang', (data, ack) => {
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] [${username}] change language:`,
+      data
+    );
+
+    if (room.host !== username) {
+      console.log(
+        `[room=${room.roomId},lang=${room.lang}] [${username}] is not host and attempted to perform update, ignoring`
+      );
+      ack({
+        success: false,
+        message: 'You must be a host to perform update',
+      });
+      return;
+    }
+    if (room.currentRound.started) {
+      console.log(
+        `[room=${room.roomId},lang=${room.lang}] [${username}] attempted to perform update when round already started, ignoring`
+      );
+      ack({
+        success: false,
+        message: 'Cannot update a round that has started',
+      });
+      return;
+    }
+
+    if (!data || !data.lang || !util.isLanguageValid(data.lang)) {
+      ack({ success: false, message: 'Invalid language' });
+      return;
+    }
+
+    if (room.lang === data.lang) {
+      ack({
+        success: false,
+        message: `language is the same as current language`,
+      });
+      return;
+    }
+
+    // we need to reset not only the language, but also the start/target articles
+    room.url = `https://${
+      data.lang
+    }.wikipedia.org/wiki/Main_Page?roomId=${encodeURIComponent(
+      room.roomId
+    )}&lang=${data.lang}`;
+    room.lang = data.lang;
+    room.currentRound.start = '';
+    room.currentRound.startThumbnail = '';
+    room.currentRound.target = '';
+    room.currentRound.targetThumbnail = '';
+    room.rules.bannedArticles = [];
+
+    // broadcast changes, and only the changes (not the whole data)
+    const updateData = {
+      url: room.url,
+      lang: room.lang,
+      currentRound: room.currentRound,
+      rules: {
+        bannedArticles: room.rules.bannedArticles,
+      },
+    };
+    ack({ success: true, data: { lang: data.lang } });
+    socket.emit('update', updateData);
+    socket.to(room.roomId).emit('update', updateData);
   });
 
   let ticker;

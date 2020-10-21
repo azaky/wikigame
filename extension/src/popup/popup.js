@@ -5,6 +5,73 @@ import copy from 'copy-to-clipboard';
 
 import languages from '../lang.json';
 
+function LanguagePicker(props) {
+  const { lang, onChange } = props;
+
+  const languagesOptions = languages
+    .map(({ lang, label, labelLocal }) => ({
+      label: `${label} - ${labelLocal}`,
+      value: lang,
+    }))
+    .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+
+  return (
+    <div>
+      <Select
+        id="lang"
+        cacheOptions
+        options={languagesOptions}
+        onChange={({ value }) => onChange(value)}
+        isClearable={true}
+        value={languagesOptions.find((opt) => lang === opt.value)}
+        placeholder="Pick a language ..."
+        styles={{
+          container: (provided) => ({
+            ...provided,
+            minHeight: '1px',
+            // fontSize: '0.8em',
+          }),
+          control: (provided) => ({
+            ...provided,
+            minHeight: '1px',
+            borderRadius: 0,
+            cursor: 'text',
+            padding: 0,
+          }),
+          input: (provided) => ({
+            ...provided,
+            minHeight: '1px',
+          }),
+          clearIndicator: (provided) => ({
+            ...provided,
+            paddingTop: 0,
+            paddingBottom: 0,
+            minHeight: '1px',
+            cursor: 'pointer',
+          }),
+          valueContainer: (provided) => ({
+            ...provided,
+            minHeight: '1px',
+            height: '32px',
+            paddingTop: '0',
+            paddingBottom: '0',
+          }),
+          singleValue: (provided) => ({
+            ...provided,
+            minHeight: '1px',
+            paddingBottom: '0px',
+          }),
+        }}
+      />
+      <label>
+        (articles count:{' '}
+        {languages.find((lg) => lg.lang === lang).articleCount.toLocaleString()}
+        )
+      </label>
+    </div>
+  );
+}
+
 function Form(props) {
   console.log('Form root');
   const [username, setUsername] = useState(props.username);
@@ -17,13 +84,6 @@ function Form(props) {
 
   const usernameRef = useRef(null);
   const roomIdRef = useRef(null);
-
-  const languagesOptions = languages
-    .map(({ lang, label, labelLocal }) => ({
-      label: `${label} - ${labelLocal}`,
-      value: lang,
-    }))
-    .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
 
   useEffect(() => {
     usernameRef.current.focus();
@@ -56,11 +116,6 @@ function Form(props) {
     }
   };
 
-  const onChangeLang = ({ value }) => {
-    console.log('setLang', value);
-    setLang(value);
-  };
-
   return (
     <form onSubmit={onSubmit}>
       <div class="form-group">
@@ -81,59 +136,7 @@ function Form(props) {
         <label for="lang">
           <strong>Language</strong>
         </label>
-        <Select
-          id="lang"
-          cacheOptions
-          options={languagesOptions}
-          onChange={onChangeLang}
-          isClearable={true}
-          value={languagesOptions.find((opt) => lang === opt.value)}
-          placeholder="Pick a language ..."
-          styles={{
-            container: (provided) => ({
-              ...provided,
-              minHeight: '1px',
-              // fontSize: '0.8em',
-            }),
-            control: (provided) => ({
-              ...provided,
-              minHeight: '1px',
-              borderRadius: 0,
-              cursor: 'text',
-              padding: 0,
-            }),
-            input: (provided) => ({
-              ...provided,
-              minHeight: '1px',
-            }),
-            clearIndicator: (provided) => ({
-              ...provided,
-              paddingTop: 0,
-              paddingBottom: 0,
-              minHeight: '1px',
-              cursor: 'pointer',
-            }),
-            valueContainer: (provided) => ({
-              ...provided,
-              minHeight: '1px',
-              height: '32px',
-              paddingTop: '0',
-              paddingBottom: '0',
-            }),
-            singleValue: (provided) => ({
-              ...provided,
-              minHeight: '1px',
-              paddingBottom: '0px',
-            }),
-          }}
-        />
-        <label>
-          (articles count:{' '}
-          {languages
-            .find((lg) => lg.lang === lang)
-            .articleCount.toLocaleString()}
-          )
-        </label>
+        <LanguagePicker lang={lang} onChange={setLang} />
       </div>
       {showRoomId ? (
         <div class="form-group">
@@ -150,10 +153,7 @@ function Form(props) {
           />
         </div>
       ) : null}
-      <a
-        onClick={() => setShowRoomId(!showRoomId)}
-        style={{ cursor: 'pointer' }}
-      >
+      <a onClick={() => setShowRoomId(!showRoomId)}>
         {showRoomId ? 'Do not create custom room' : 'Create custom room'}
       </a>
       <button type="submit" style={{ marginTop: '10px' }}>
@@ -165,9 +165,11 @@ function Form(props) {
 }
 
 function Info(props) {
-  const { username, roomId, lang, url } = props;
+  const { host, username, lang, roomId, url, state } = props;
 
   const [copying, setCopying] = useState(false);
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const [newLang, setNewLang] = useState(props.lang);
 
   const leave = () => {
     chrome.runtime.sendMessage({ type: 'leave' }, () => {
@@ -189,15 +191,45 @@ function Info(props) {
     });
   };
 
+  const onChangeLang = () => {
+    if (host !== username || newLang === lang) return;
+
+    chrome.runtime.sendMessage(
+      { type: 'change_lang', data: { lang: newLang } },
+      () => {
+        setShowLanguagePicker(false);
+        setTimeout(() => init(), 1000);
+      }
+    );
+  };
+
   return (
     <div>
       <p>
         Hello, <strong>{username}</strong>!
       </p>
       <p>
-        You are currently playing in room <strong>{roomId}</strong> (language:{' '}
-        <strong>{languages.find((lg) => lg.lang === lang).label}</strong>)
+        You are currently playing in room <strong>{roomId}</strong> in language{' '}
+        <strong>{languages.find((lg) => lg.lang === lang).label}</strong>
+        &nbsp;
+        {host === username && state === 'lobby' ? (
+          <a onClick={() => setShowLanguagePicker(true)}>(change)</a>
+        ) : null}
       </p>
+      {showLanguagePicker ? (
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ marginBottom: '10px' }}>
+            <LanguagePicker lang={newLang} onChange={(l) => setNewLang(l)} />
+          </div>
+          <button
+            type="button"
+            onClick={onChangeLang}
+            disabled={newLang === lang}
+          >
+            <strong>Change Language</strong>
+          </button>
+        </div>
+      ) : null}
       <button
         type="button"
         onClick={copyRoomUrl}
@@ -212,25 +244,30 @@ function Info(props) {
   );
 }
 
+function init() {
+  chrome.storage.local.get(
+    ['pageLang', 'state', 'roomId', 'lang', 'username', 'host', 'url'],
+    (data) => {
+      console.log('init', data);
+      if (data.state) {
+        ReactDOM.render(
+          <Info {...data} />,
+          document.getElementById('container')
+        );
+      } else {
+        ReactDOM.render(
+          <Form {...data} />,
+          document.getElementById('container')
+        );
+      }
+    }
+  );
+}
+
 const documentReadyInterval = setInterval(() => {
   if (document.readyState === 'complete') {
     clearInterval(documentReadyInterval);
 
-    chrome.storage.local.get(
-      ['pageLang', 'state', 'roomId', 'lang', 'username', 'url'],
-      (data) => {
-        if (data.state) {
-          ReactDOM.render(
-            <Info {...data} />,
-            document.getElementById('container')
-          );
-        } else {
-          ReactDOM.render(
-            <Form {...data} />,
-            document.getElementById('container')
-          );
-        }
-      }
-    );
+    init();
   }
 }, 10);
