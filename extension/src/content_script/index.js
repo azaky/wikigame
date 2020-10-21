@@ -66,6 +66,11 @@ function onShouldReload(message) {
   }
 }
 
+function onReconnected() {
+  toast.dismiss('reload');
+  toast.info('You are reconnected! Welcome back!');
+}
+
 function Root(props) {
   const { data } = props;
 
@@ -229,6 +234,7 @@ function init() {
       case 'update':
         // on language changed
         if (message.data.lang !== window.location.hostname.split('.')[0]) {
+          util.setRoomIdOnUrl(message.data.roomId, message.data.lang);
           util.goto(util.getCurrentArticle());
         } else {
           render(message.data);
@@ -251,6 +257,10 @@ function init() {
 
       case 'disconnected':
         onShouldReload();
+        break;
+
+      case 'reconnected':
+        onReconnected();
         break;
 
       case 'change_tab':

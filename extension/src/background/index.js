@@ -152,7 +152,6 @@ function initSocketio(initData, realCallback) {
   });
   socket.on('disconnect', () => {
     console.log('socket.io disconnected!');
-    // TODO: send warning that indicates flaky connection
   });
   socket.on('reconnect_failed', () => {
     console.log('reconnection failed after', reconnectionAttempts, 'attempts');
@@ -163,11 +162,22 @@ function initSocketio(initData, realCallback) {
       onError('Failed to connect to the server');
     }
   });
+  socket.on('reconnect', () => {
+    active = true;
+    sendMessage('reconnected');
+  });
 
   // one time room data on init
   socket.on('init', (data) => {
     active = true;
     console.log('socket.on(init):', data);
+
+    // update query params on reconnect
+    let reconnectQuery = `username=${encodeURIComponent(initData.username)}`;
+    reconnectQuery += `&roomId=${encodeURIComponent(data.roomId)}`;
+    reconnectQuery += `&lang=${encodeURIComponent(data.lang)}`;
+    socket.io.opts.query = reconnectQuery;
+
     chrome.storage.local.set(data, () => {
       chrome.storage.local.get(null, (initData) => {
         callback(Object.assign({}, initData, { initial: true }));
