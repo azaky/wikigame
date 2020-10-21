@@ -45,7 +45,6 @@ button {
   color: white;
   padding: 3px 0;
   border: none;
-  cursor: grab;
   width: 100%;
   min-height: 32px;
   cursor: pointer;

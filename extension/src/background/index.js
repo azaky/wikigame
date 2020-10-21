@@ -464,7 +464,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   );
 });
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((installObject) => {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
     chrome.declarativeContent.onPageChanged.addRules([
       {
@@ -477,4 +477,14 @@ chrome.runtime.onInstalled.addListener(() => {
       },
     ]);
   });
+
+  console.log(installObject);
+  // if (installObject.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+  chrome.tabs.create(
+    { url: 'https://en.wikipedia.org/wiki/Wikiracing?welcome=true' },
+    function (tab) {
+      console.log('New tab launched');
+    }
+  );
+  // }
 });
