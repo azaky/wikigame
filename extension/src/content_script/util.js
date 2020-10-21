@@ -20,7 +20,7 @@ export function setRoomIdOnUrl(roomId, lang) {
   const url = new URL(window.location.href);
   url.searchParams.set('roomId', roomId);
   url.searchParams.set('lang', lang || getLang());
-  window.history.pushState({}, document.title, url.pathname + url.search);
+  window.history.replaceState({}, document.title, url.pathname + url.search);
 }
 
 export function getLink(article) {

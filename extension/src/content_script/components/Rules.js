@@ -42,6 +42,7 @@ function ScoringMetrics(props) {
   const metrics = ['time', 'clicks', 'combined'];
 
   const showHelp = () => {
+    toast.dismiss('help');
     toast(
       <div>
         <h3>Scoring Help</h3>
@@ -103,7 +104,7 @@ function ScoringMetrics(props) {
 }
 
 function CheckBox(props) {
-  const { label, disabled, onChange } = props;
+  const { label, disabled, onChange, onShowInfo } = props;
 
   const [checked, setChecked] = useState(props.checked);
 
@@ -125,6 +126,14 @@ function CheckBox(props) {
         />
         {label}
       </label>
+      {onShowInfo ? (
+        <>
+          &nbsp;
+          <a title={`Show info about "${label}"`} onClick={onShowInfo}>
+            🛈
+          </a>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -235,12 +244,39 @@ export function Rules(props) {
     onRulesChange({ allowDisambiguation: !!allow });
   };
 
+  const onAllowBack = (allow) => {
+    if (disabled || roundStarted) return;
+    onRulesChange({ allowBack: !!allow });
+  };
+
   const onBannedArticlesChange = (bannedArticles, callback) => {
     if (disabled || roundStarted) {
       if (callback) return callback();
       return;
     }
     onRulesChange({ bannedArticles: bannedArticles }, callback);
+  };
+
+  const onShowBackInfo = () => {
+    toast.dismiss('help');
+    toast(
+      <div>
+        <h3>Rules on Back</h3>
+        If you allow back, then you are allowed to go to the last article.
+        However, each time you go back,{' '}
+        <strong>the click cost increases</strong>.
+        <br />
+        <br />
+        For example, first time you go back, it adds 1 click (just like when you
+        click on links normally). But on the second time, it adds you 2 clicks,
+        on the third time it adds you 3 clicks, and so on.
+      </div>,
+      {
+        closeOnClick: false,
+        autoClose: false,
+        toastId: 'help',
+      }
+    );
   };
 
   return (
@@ -269,6 +305,13 @@ export function Rules(props) {
           checked={rules.allowCtrlf}
           onChange={onAllowCtrlfChange}
           disabled={disabled}
+        />
+        <CheckBox
+          label="Allow back"
+          checked={rules.allowBack}
+          onChange={onAllowBack}
+          disabled={disabled}
+          onShowInfo={onShowBackInfo}
         />
         <CheckBox
           label="Allow disambiguation page"

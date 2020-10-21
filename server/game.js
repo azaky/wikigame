@@ -44,6 +44,7 @@ const createRoom = (host, id, _lang) => {
       metrics: 'time',
       allowCtrlf: true,
       allowDisambiguation: true,
+      allowBack: true,
       bannedArticles: [],
     },
     leaderboard: [
@@ -513,7 +514,9 @@ const socketHandler = async (socket) => {
     room.currentState = {};
     const currentState = {
       path: [room.currentRound.start],
+      stack: [room.currentRound.start],
       clicks: 0,
+      backs: 0,
       finished: false,
       timeTaken: 0,
       score: 0,
@@ -600,6 +603,7 @@ const socketHandler = async (socket) => {
     // However, there's no harm in more precaution (other than the slight advantage to users)
     if (room.currentState[username].path.slice(-1)[0] !== article) {
       room.currentState[username].path.push(article);
+      room.currentState[username].stack.push(article);
       room.currentState[username].clicks++;
     }
 
@@ -642,6 +646,60 @@ const socketHandler = async (socket) => {
     if (allWin) {
       onFinished();
     }
+  });
+
+  socket.on('navigate', async (data, ack) => {
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] [${username}] is navigating to ${data.article}`
+    );
+
+    if (room.state !== 'playing' || room.currentState[username].finished) {
+      ack({ success: false });
+      return;
+    }
+
+    // resolve article, including redirects etc.
+    const validated = await validateArticle(data.article);
+    if (!validated.found) {
+      ack({ success: false });
+      return;
+    }
+    const article = validated.title;
+
+    // equals last article, it's a valid move
+    if (article === room.currentState[username].path.slice(-1)[0]) {
+      ack({ success: true });
+      return;
+    }
+
+    // check if back is allowed
+    const stack = room.currentState[username].stack;
+    if (
+      room.rules.allowBack &&
+      stack.length >= 2 &&
+      article === stack.slice(-2)[0]
+    ) {
+      room.currentState[username].backs++;
+      room.currentState[username].path.push(article);
+      room.currentState[username].stack.pop();
+      room.currentState[username].clicks += room.currentState[username].backs;
+
+      ack({
+        success: true,
+        data: room.currentState[username],
+      });
+
+      // don't forget to broadcast changes
+      generateCurrentRoundResult(room);
+      socket
+        .to(room.roomId)
+        .emit('update', { currentRound: room.currentRound });
+      socket.emit('update', { currentRound: room.currentRound });
+
+      return;
+    }
+
+    ack({ success: false });
   });
 
   socket.on('disconnect', () => {

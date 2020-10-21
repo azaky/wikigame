@@ -471,6 +471,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
 
     return true;
+  } else if (message.type === 'navigate') {
+    socket.emit('navigate', message.data, (ack) => {
+      if (!ack || !ack.success) {
+        sendResponse({
+          success: false,
+          message: ack.message,
+        });
+      } else {
+        if (ack.data) {
+          updateData({ currentState: ack.data });
+        }
+        sendResponse({ success: true });
+      }
+    });
+
+    return true;
   } else {
     console.warn('onMessage unknown message.type:', message);
   }

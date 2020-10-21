@@ -227,9 +227,8 @@ function init() {
         return false;
 
       case 'update':
-        util.setRoomIdOnUrl(message.data.roomId, message.data.lang);
+        // on language changed
         if (message.data.lang !== window.location.hostname.split('.')[0]) {
-          // on language changed
           util.goto(util.getCurrentArticle());
         } else {
           render(message.data);
@@ -420,26 +419,45 @@ function init() {
           }
         );
       } else if (lastArticle !== currentArticle) {
-        // resolve redirects for one more time
-        wiki
-          .resolveTitle(currentArticle)
-          .then((resolved) => {
-            if (resolved === lastArticle) {
+        // when in doubt, ask server are we allowed to go here?
+        chrome.runtime.sendMessage(
+          {
+            type: 'navigate',
+            data: { article: currentArticle },
+          },
+          (response) => {
+            if (response && response.success) {
               render(data, true);
             } else {
-              chrome.storage.local.set({ localState: null }, () => {
-                util.goto(lastArticle);
-              });
+              toast.error(
+                'Oops, you cannot go here! Did you try to cheat? Sending you back to last article...'
+              );
+              setTimeout(() => {
+                chrome.storage.local.set({ localState: null }, () => {
+                  util.goto(lastArticle);
+                });
+              }, 1000);
             }
-          })
-          .catch((err) => {
-            console.error('Error resolving title!', err);
+          }
+        );
 
-            // resort back to lastArticle
-            chrome.storage.local.set({ localState: null }, () => {
-              util.goto(lastArticle);
-            });
-          });
+        // // resolve redirects for one more time
+        // wiki
+        //   .resolveTitle(currentArticle)
+        //   .then((resolved) => {
+        //     if (resolved === lastArticle) {
+        //       render(data, true);
+        //     } else {
+        //     }
+        //   })
+        //   .catch((err) => {
+        //     console.error('Error resolving title!', err);
+
+        //     // resort back to lastArticle
+        //     chrome.storage.local.set({ localState: null }, () => {
+        //       util.goto(lastArticle);
+        //     });
+        //   });
       } else {
         render(data, true);
       }
