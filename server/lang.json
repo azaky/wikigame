@@ -1758,53 +1758,9 @@
     "articleCount": 118
   },
   {
-    "lang": "ng",
-    "label": "Ndonga",
-    "labelLocal": "Oshiwambo",
-    "articleCount": 8
-  },
-  {
-    "lang": "cho",
-    "label": "Choctaw",
-    "labelLocal": "Choctaw",
-    "articleCount": 6
-  },
-  {
     "lang": "kj",
     "label": "Kuanyama",
     "labelLocal": "Kwanyama",
     "articleCount": 4
-  },
-  {
-    "lang": "mh",
-    "label": "Marshallese",
-    "labelLocal": "Ebon",
-    "articleCount": 4
-  },
-  {
-    "lang": "ho",
-    "label": "Hiri Motu",
-    "labelLocal": "Hiri Motu",
-    "articleCount": 3
-  },
-  { "lang": "ii", "label": "Nuosu", "labelLocal": "ꆇꉙ", "articleCount": 3 },
-  {
-    "lang": "aa",
-    "label": "Afar",
-    "labelLocal": "Qafár af",
-    "articleCount": 1
-  },
-  {
-    "lang": "mus",
-    "label": "Muscogee",
-    "labelLocal": "Mvskoke",
-    "articleCount": 1
-  },
-  {
-    "lang": "hz",
-    "label": "Herero",
-    "labelLocal": "Otsiherero",
-    "articleCount": 0
-  },
-  { "lang": "kr", "label": "Kanuri", "labelLocal": "Kanuri", "articleCount": 0 }
+  }
 ]
