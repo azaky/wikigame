@@ -55,9 +55,15 @@ const createRoom = (host, id, _lang) => {
       },
     ],
     pastRounds: [],
+    created: new Date().getTime() / 1000,
+    updated: new Date().getTime() / 1000,
   };
   rooms.push(room);
   return room;
+};
+
+const updateUpdated = (room) => {
+  room.updated = new Date().getTime() / 1000;
 };
 
 const generateCurrentRoundResult = (room) => {
@@ -112,11 +118,9 @@ const socketHandler = async (socket) => {
   console.log(socket.handshake.query);
   const { username, roomId } = socket.handshake.query;
 
-  const lang = socket.handshake.query.lang || 'en';
-
   let room;
-  if (!roomId || !existsRoomById(roomId, lang)) {
-    room = createRoom(username, roomId, lang);
+  if (!roomId || !existsRoomById(roomId)) {
+    room = createRoom(username, roomId, socket.handshake.query.lang || 'en');
   } else {
     room = getRoomById(roomId);
   }
@@ -161,9 +165,9 @@ const socketHandler = async (socket) => {
     try {
       if (!title) return { found: false };
       const response = await fetch(
-        `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
-          title
-        )}`
+        `https://${
+          room.lang
+        }.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
       );
       const body = await response.json();
       if (
@@ -179,7 +183,10 @@ const socketHandler = async (socket) => {
         thumbnail: (body.thumbnail && body.thumbnail.source) || '',
       };
     } catch (e) {
-      console.error(`Error validating article [lang=${lang}][${title}]:`, e);
+      console.error(
+        `Error validating article [lang=${room.lang}][${title}]:`,
+        e
+      );
       return { found: false };
     }
   };
@@ -354,6 +361,7 @@ const socketHandler = async (socket) => {
     // broadcast changes, and only the changes (not the whole data)
     ack({ success: true, data });
     socket.to(room.roomId).emit('update', data);
+    updateUpdated(room);
   });
 
   // change language mid game
@@ -422,6 +430,7 @@ const socketHandler = async (socket) => {
     ack({ success: true, data: { lang: data.lang } });
     socket.emit('update', updateData);
     socket.to(room.roomId).emit('update', updateData);
+    updateUpdated(room);
   });
 
   let ticker;
@@ -464,6 +473,7 @@ const socketHandler = async (socket) => {
     };
     socket.to(room.roomId).emit('finished', finishedState);
     socket.emit('finished', finishedState);
+    updateUpdated(room);
   };
 
   // start game
@@ -570,6 +580,7 @@ const socketHandler = async (socket) => {
 
     ack({ success: true, data: startData });
     socket.to(room.roomId).emit('start', startData);
+    updateUpdated(room);
   });
 
   socket.on('click', async (data, ack) => {
@@ -639,6 +650,7 @@ const socketHandler = async (socket) => {
 
     socket.to(room.roomId).emit('update', { currentRound: room.currentRound });
     socket.emit('update', { currentRound: room.currentRound });
+    updateUpdated(room);
 
     // notify other users when we've finished
     if (room.currentState[username].finished) {
@@ -706,6 +718,7 @@ const socketHandler = async (socket) => {
         .to(room.roomId)
         .emit('update', { currentRound: room.currentRound });
       socket.emit('update', { currentRound: room.currentRound });
+      updateUpdated(room);
 
       return;
     }
@@ -743,6 +756,7 @@ const socketHandler = async (socket) => {
     socket.to(room.roomId).emit('notification', {
       message: `${username} disconnected from the room`,
     });
+    updateUpdated(room);
   });
 };
 
@@ -807,6 +821,29 @@ const handler = () => {
 
   return router;
 };
+
+const gc = setInterval(() => {
+  // garbage-collect rooms that's been idle for > 30 mins
+  let toDelete = [];
+  rooms.forEach((room) => {
+    if (new Date().getTime() / 1000 - room.updated > 30 * 60) {
+      toDelete.push(room.roomId);
+    }
+  });
+  if (toDelete.length) {
+    console.log(
+      `[garbage-collect] will delete the following rooms: ${JSON.stringify(
+        toDelete
+      )}`
+    );
+    for (const roomId of toDelete) {
+      const index = rooms.findIndex((room) => room.roomId === roomId);
+      if (index !== -1) {
+        rooms.splice(index, 1);
+      }
+    }
+  }
+}, 60000);
 
 const init = (io) => {
   // load data on startup and save on exit
@@ -875,6 +912,7 @@ const init = (io) => {
 
       ['SIGTERM', 'SIGINT'].forEach((signal) => {
         process.on(signal, async function () {
+          clearInterval(gc);
           console.log(`${signal} received, storing data ...`);
           try {
             await persistence.store(rooms);
