@@ -1,13 +1,15 @@
 ![header](https://user-images.githubusercontent.com/5902356/96493914-d0484880-126f-11eb-9c2a-9f739b92686f.png)
 
 <p>
-  <a href="https://chrome.google.com/webstore/detail/multiplayer-wikigame/hlgnjjenjinpaiilhmjpejjjphieejdb" alt="Download from Chrome Web Store" title="Download from Chrome Web Store">
+  <a href="https://chrome.google.com/webstore/detail/multiplayer-wikigame/hlgnjjenjinpaiilhmjpejjjphieejdb" alt="Install from Chrome Web Store" title="Install from Chrome Web Store">
     <img src="https://img.shields.io/chrome-web-store/v/hlgnjjenjinpaiilhmjpejjjphieejdb?style=flat-square" /></a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/wikigame/" alt="Install from Mozilla add-ons" title="Install from Mozilla add-ons">
+    <img src="https://img.shields.io/amo/v/wikigame?style=flat-square" /></a>
 </p>
 
 Wikigame is a Chrome extension to play [Wikiracing](https://en.wikipedia.org/wiki/Wikiracing) directly on the Wikipedia pages!
 
-Install the latest version to your browser from [Chrome web store](https://chrome.google.com/webstore/detail/multiplayer-wikigame/hlgnjjenjinpaiilhmjpejjjphieejdb). This extension works on any Chromium-based browsers, and tested well on the latest versions of [Google Chrome](https://www.google.com/chrome/), [Brave](https://brave.com/), [Opera](https://www.opera.com/), [Microsoft Edge](https://www.microsoft.com/en-us/edge). (Firefox extension is on the way!)
+Install the latest version to your browser from [Chrome web store](https://chrome.google.com/webstore/detail/multiplayer-wikigame/hlgnjjenjinpaiilhmjpejjjphieejdb) or [Mozilla add-ons](https://addons.mozilla.org/en-US/firefox/addon/wikigame/). This extension works on the latest versions of [Google Chrome](https://www.google.com/chrome/), [Brave](https://brave.com/), [Opera](https://www.opera.com/), [Microsoft Edge](https://www.microsoft.com/en-us/edge), and [Firefox](https://www.mozilla.org/firefox/).
 
 ![demo](https://user-images.githubusercontent.com/5902356/96494181-3208b280-1270-11eb-800f-82cf99ee5174.gif)
 
