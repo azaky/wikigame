@@ -8,8 +8,9 @@
     "dev": "GENERATE_SOURCE_MAP=true webpack --watch",
     "dev-local": "GENERATE_SOURCE_MAP=true WIKIGAME_SERVER_URL=http://localhost:9454 webpack --watch",
     "build": "webpack --mode production",
-    "build-local": "WIKIGAME_SERVER_URL=http://localhost:9454 webpack --mode production",
-    "pack": "webpack --mode production && echo 'Creating zip file...' && cd dist && zip -r wikigame-v$npm_package_version.zip *"
+    "build-ff": "FIREFOX=true webpack --mode production",
+    "pack": "webpack --mode production && echo 'Creating zip file...' && cd dist && zip -r wikigame-v$npm_package_version.zip *",
+    "pack-ff": "FIREFOX=true webpack --mode production && echo 'Creating zip file...' && cd dist-ff && zip -r wikigame-ff-v$npm_package_version.zip *"
   },
   "keywords": [],
   "author": "",

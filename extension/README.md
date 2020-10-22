@@ -68,6 +68,20 @@ npm run pack
 
 which will run `npm run build` and then generates zipped file in the format of `wikigame-$version.zip`.
 
+## Building for Firefox
+
+To build for Firefox, run the following:
+
+```
+# to build
+npm run build-ff
+
+# to build + zip
+npm run pack-ff
+```
+
+In the code, you may perform check `if (process.env.FIREFOX) {...}` if a certain part of the code runs only on Firefox. Likewise, `if (!process.env.FIREFOX) {...}` can be used if the code runs only on Chrome.
+
 ## Versioning
 
 We follow [semver](https://semver.org/) for versioning. On each build, `version` attribute in `manifest.json` gets rewritten by `version` from `package.json`, so don't change `version` attribute in `manifest.json`. We suggest to make separate commit for bumping version (like [this](https://github.com/azaky/wikigame/commit/cdfc3c553780cc72ce624f012c8232acfa0bd494)).

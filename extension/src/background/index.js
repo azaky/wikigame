@@ -540,19 +540,32 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   );
 });
 
-chrome.runtime.onInstalled.addListener((installObject) => {
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
-    chrome.declarativeContent.onPageChanged.addRules([
-      {
-        conditions: [
-          new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { hostSuffix: '.wikipedia.org' },
-          }),
-        ],
-        actions: [new chrome.declarativeContent.ShowPageAction()],
-      },
-    ]);
+if (process.env.FIREFOX) {
+  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+    console.log('tabs updated', tabId, changeInfo, tab);
+    if (tab.url.match(/\.wikipedia\.org/)) {
+      chrome.pageAction.show(tabId);
+    } else {
+      chrome.pageAction.hide(tabId);
+    }
   });
+}
+
+chrome.runtime.onInstalled.addListener((installObject) => {
+  if (!process.env.FIREFOX) {
+    chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
+      chrome.declarativeContent.onPageChanged.addRules([
+        {
+          conditions: [
+            new chrome.declarativeContent.PageStateMatcher({
+              pageUrl: { hostSuffix: '.wikipedia.org' },
+            }),
+          ],
+          actions: [new chrome.declarativeContent.ShowPageAction()],
+        },
+      ]);
+    });
+  }
 
   console.log(installObject);
   reset(() => {

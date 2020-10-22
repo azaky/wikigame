@@ -6,10 +6,19 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const package = require('./package.json');
 
-function tagManifestVersion(buffer) {
+function processManifest(buffer) {
   const manifest = JSON.parse(buffer.toString());
 
   manifest.version = package.version.replace(/-.*$/, ''); // removes -beta...
+
+  if (process.env.FIREFOX) {
+    if (manifest.permissions.includes('declarativeContent')) {
+      manifest.permissions = manifest.permissions.filter(
+        (p) => p !== 'declarativeContent'
+      );
+      manifest.permissions.push('tabs');
+    }
+  }
 
   return JSON.stringify(manifest, null, 2);
 }
@@ -35,7 +44,7 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, process.env.FIREFOX ? 'dist-ff' : 'dist'),
   },
   watchOptions: {
     ignored: ['node_modules/**'],
@@ -44,6 +53,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new EnvironmentPlugin({
       WIKIGAME_SERVER_URL: '',
+      FIREFOX: '',
     }),
     new CopyPlugin({
       patterns: [
@@ -66,7 +76,7 @@ module.exports = {
         {
           from: './src/manifest.json',
           transform(content, path) {
-            return tagManifestVersion(content);
+            return processManifest(content);
           },
         },
       ],
