@@ -60,7 +60,7 @@ module.exports = {
           to: 'popup.css',
         },
         {
-          from: 'src/content_script/ctrlf.js',
+          from: 'src/ctrlf.js',
           to: '.',
         },
         {

@@ -123,8 +123,8 @@ function initSocketio(initData, realCallback) {
     realCallback(...args);
   };
 
-  const onError = (message) => {
-    callback({ success: false, error: message });
+  const onError = (message, data) => {
+    callback({ success: false, error: message, ...data });
   };
 
   let query = `username=${encodeURIComponent(initData.username)}`;
@@ -188,7 +188,8 @@ function initSocketio(initData, realCallback) {
   socket.on('init_error', (data) => {
     console.log('socket.on(init_error):', data);
     socket.close();
-    onError(data.message);
+    active = false;
+    onError(data.message, initData);
   });
 
   socket.on('update', (data) => {
@@ -376,6 +377,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         tabId = sender.tab.id;
         sendResponse({
           roomId: data.roomId,
+          lang: data.lang,
           lastArticle:
             data.state === 'playing' && data.currentState.path.slice(-1)[0],
         });

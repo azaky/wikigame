@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Multiplayer Wikigame",
-  "version": "0.0.1",
+  "version": "",
   "description": "Play multiplayer Wikiracing online with your friends, directly from the Wikipedia Page!",
   "permissions": ["declarativeContent", "storage"],
   "background": {

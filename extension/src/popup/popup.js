@@ -94,6 +94,11 @@ function Form(props) {
     }
   }, [showRoomId]);
 
+  const onUsernameChange = (value) => {
+    setUsername(value);
+    chrome.storage.local.set({ username: value });
+  };
+
   const onSubmit = (e) => {
     e.preventDefault();
     console.log('onSubmit', username, roomId, lang);
@@ -128,7 +133,7 @@ function Form(props) {
           placeholder="Enter Username"
           id="username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => onUsernameChange(e.target.value)}
           required
         />
       </div>
