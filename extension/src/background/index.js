@@ -78,14 +78,28 @@ function sendMessage(type, data, callback) {
     return;
   } else {
     messageBuffer.splice(0).forEach((message) => {
-      chrome.tabs.sendMessage(
-        tabId,
-        { type: message.type, data: message.data },
-        (response) => {
-          console.log('sendMessage response:', response);
-          if (message.callback) message.callback(response);
-        }
-      );
+      try {
+        chrome.tabs.sendMessage(
+          tabId,
+          { type: message.type, data: message.data },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              console.log(
+                'error sendMessage to tabId',
+                tabId,
+                chrome.runtime.lastError.message
+              );
+              if (message.callback) message.callback(null);
+              return;
+            }
+            console.log('sendMessage response:', response);
+            if (message.callback) message.callback(response);
+          }
+        );
+      } catch (e) {
+        console.log('error sendMessage to tabId', tabId, e);
+        if (message.callback) message.callback(null);
+      }
     });
   }
 }
@@ -371,9 +385,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'change_tab') {
     chrome.storage.local.get(['roomId', 'state', 'currentState'], (data) => {
-      // inform old tab that we are changing tab
-      sendMessage('change_tab', null, () => {
-        // set tabId
+      const onDelegateTab = () => {
         tabId = sender.tab.id;
         sendResponse({
           roomId: data.roomId,
@@ -381,7 +393,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           lastArticle:
             data.state === 'playing' && data.currentState.path.slice(-1)[0],
         });
-      });
+      };
+      // inform old tab that we are changing tab
+      try {
+        chrome.tabs.sendMessage(tabId, { type: 'change_tab' }, () => {
+          if (chrome.runtime.lastError) {
+            console.log(
+              'error sending change_tab message:',
+              chrome.runtime.lastError.message
+            );
+          }
+          onDelegateTab();
+        });
+      } catch (e) {
+        console.log('error sending change_tab message:', e);
+        onDelegateTab();
+      }
     });
 
     return true;
