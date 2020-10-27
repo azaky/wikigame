@@ -348,6 +348,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
           );
         } else {
+          // handle multiple tabs
+          if (tabId !== sender.tab.id) {
+            sendResponse({
+              success: false,
+              error: 'Multiple tabs',
+            });
+            return;
+          }
+
           // a session is active: return current context
           sendResponse(data);
         }
@@ -361,7 +370,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // on a very rare case -- possibly only on development --
         // when someone inits from two different tabs at the same time,
         // race condition may occur
-        if (tabId) {
+        if (tabId && tabId !== sender.tab.id) {
           sendResponse({
             success: false,
             error: 'Multiple tabs',
