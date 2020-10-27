@@ -214,6 +214,7 @@ const socketHandler = async (socket) => {
     });
     room.currentState[username] = {
       path: [room.currentRound.start],
+      stack: [room.currentRound.start],
       clicks: 0,
       finished: false,
       timeTaken: 0,
