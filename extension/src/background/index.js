@@ -9,6 +9,7 @@ let active = false;
 let socket;
 let tabId;
 let portOpen = {};
+let pingTimeout;
 
 chrome.runtime.onConnect.addListener((port) => {
   console.log('received port connection:', port.name);
@@ -52,6 +53,16 @@ function reset(callback) {
       if (callback) callback();
     }
   );
+}
+
+function resetPingTimeout() {
+  if (pingTimeout) clearTimeout(pingTimeout);
+  pingTimeout = setTimeout(() => {
+    console.log('Been idle for 60 seconds, will disconnect self');
+    reset(() => {
+      tabId = null;
+    });
+  }, 60000);
 }
 
 const messageBuffer = [];
@@ -361,6 +372,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'ping') {
+    resetPingTimeout();
     if (active && socket && socket.connected) {
       sendResponse({ status: true });
     } else {
