@@ -171,6 +171,9 @@ function Form(props) {
           </div>
         </>
       ) : null}
+      <button type="submit" style={{ marginBottom: '10px' }}>
+        <strong>{loading ? 'Loading...' : 'Play Now!'}</strong>
+      </button>
       <a onClick={() => setMulti(!multi)}>
         <b>
           {multi
@@ -178,9 +181,6 @@ function Form(props) {
             : 'Create/join multiplayer room'}
         </b>
       </a>
-      <button type="submit" style={{ marginTop: '10px' }}>
-        <strong>{loading ? 'Loading...' : 'Play Now!'}</strong>
-      </button>
       {errorMessage ? <label>{errorMessage}</label> : null}
     </form>
   );
@@ -234,7 +234,7 @@ function Info(props) {
           &nbsp;
           {state === 'lobby' ? (
             <a onClick={() => setShowLanguagePicker(!showLanguagePicker)}>
-              ({showLanguagePicker ? '(cancel)' : '(change)'})
+              {showLanguagePicker ? '(cancel)' : '(change)'}
             </a>
           ) : null}
         </p>

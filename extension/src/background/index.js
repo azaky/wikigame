@@ -314,6 +314,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             'room_change_prompt',
             {
               old: data.roomId,
+              mode: data.mode,
+              username: data.username,
               new: message.data.roomId,
             },
             (changeRoomResponse) => {
@@ -322,7 +324,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 socket.close();
                 tabId = sender.tab.id;
                 init(
-                  Object.assign({}, message.data, { username: data.username }),
+                  Object.assign({}, message.data, {
+                    username: changeRoomResponse.username,
+                  }),
                   sendResponse
                 );
               } else {
@@ -334,7 +338,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                   });
                 }
 
-                sendResponse(null);
+                // load previous game context if current tab is the same as active tab
+                if (sender.tab.id === tabId) {
+                  sendResponse(data);
+                } else {
+                  sendResponse(null);
+                }
               }
             }
           );

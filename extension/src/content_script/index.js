@@ -417,10 +417,11 @@ function onMessageListener(message, sender, sendResponse) {
       onInitData(message.data);
       break;
 
-    case 'username_prompt':
+    case 'username_prompt': {
       const username = window.prompt('Enter your username:');
       sendResponse({ username });
       return false;
+    }
 
     case 'update':
       // on language changed
@@ -441,10 +442,26 @@ function onMessageListener(message, sender, sendResponse) {
       render(message.data);
       break;
 
-    case 'room_change_prompt':
-      const confirmMessage = `You are currently playing in room ${message.data.old}. You sure you want to join room ${message.data.new}? (You will be removed from the old room)`;
-      sendResponse({ confirm: window.confirm(confirmMessage) });
+    case 'room_change_prompt': {
+      const confirmMessage = `${
+        message.data.mode === 'single'
+          ? 'You are currently playing single player mode.'
+          : `You are currently playing in room ${message.data.old}.`
+      } You sure you want to join room ${
+        message.data.new
+      }? (You will be leaving the previous game)`;
+      if (!window.confirm(confirmMessage, message.data.username)) {
+        sendResponse({ confirm: false });
+        return false;
+      }
+      const username = window.prompt('Enter your username:');
+      if (!username) {
+        sendResponse({ confirm: false });
+        return false;
+      }
+      sendResponse({ confirm: true, username });
       return false;
+    }
 
     case 'disconnected':
       onShouldReload();
