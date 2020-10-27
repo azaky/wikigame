@@ -5,8 +5,7 @@ import * as util from './util';
 import { useData } from './DataContext';
 
 export function InGamePanel() {
-  const data = useData();
-  const { currentState, currentRound, rules, username, roomId } = data;
+  const { currentState, currentRound, rules } = useData();
 
   // enforce rules
   useEffect(() => {
@@ -37,6 +36,29 @@ export function InGamePanel() {
       window.addEventListener('keydown', handleCtrlf);
     }
 
+    // hide popups
+    let popupObserver;
+    if (
+      typeof rules.showArticlePreview === 'boolean' &&
+      !rules.showArticlePreview
+    ) {
+      popupObserver = new MutationObserver((mutationsList) => {
+        mutationsList.forEach((mutation) => {
+          if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach((node) => {
+              if (
+                node.tagName === 'DIV' &&
+                node.classList.contains('mwe-popups')
+              ) {
+                node.remove();
+              }
+            });
+          }
+        });
+      });
+      popupObserver.observe(document.body, { childList: true });
+    }
+
     return () => {
       // restore hidden elements
       hiddenElements.forEach((id) => {
@@ -49,6 +71,10 @@ export function InGamePanel() {
       if (handleCtrlf) {
         window.removeEventListener('keydown', handleCtrlf);
       }
+
+      if (popupObserver) {
+        popupObserver.disconnect();
+      }
     };
   }, [currentState.finished]);
 
@@ -56,7 +82,7 @@ export function InGamePanel() {
   useEffect(() => {
     if (currentState.finished) return;
 
-    const createClickHandler = (link) => {
+    const createClickHandler = (link, nav) => {
       return (e) => {
         if (!link) return;
 
@@ -85,6 +111,13 @@ export function InGamePanel() {
           return;
         }
 
+        // navigation pages
+        if (nav && !rules.allowNav && typeof rules.allowNav === 'boolean') {
+          toast.error(`You are not allowed to click navigational links!`);
+          console.log('Ignoring navigational link:', link);
+          return;
+        }
+
         console.log('Navigating to:', article);
 
         chrome.storage.local.get(['localState'], ({ localState }) => {
@@ -101,8 +134,12 @@ export function InGamePanel() {
       };
     };
 
+    const isNav = (el) => !!el.closest('.navbox');
+
     const links = [...document.getElementsByTagName('A')];
-    const clickHandlers = links.map((link) => createClickHandler(link.href));
+    const clickHandlers = links.map((link) =>
+      createClickHandler(link.href, isNav(link))
+    );
     links.forEach((link, i) =>
       link.addEventListener('click', clickHandlers[i])
     );

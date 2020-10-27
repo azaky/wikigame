@@ -49,6 +49,9 @@ const createRoom = (host, id, _lang, _mode) => {
       allowCtrlf: true,
       allowDisambiguation: true,
       allowBack: true,
+      allowNav: true,
+      allowCategory: true,
+      showArticlePreview: true,
       bannedArticles: [],
     },
     leaderboard: [
@@ -149,6 +152,7 @@ const validateArticle = async (title, lang) => {
       title: body.titles.canonical,
       normalizedTitle: body.titles.normalized,
       thumbnail: (body.thumbnail && body.thumbnail.source) || '',
+      namespace: (body.namespace && body.namespace.id) || 0,
     };
   } catch (e) {
     console.error(`Error validating article [lang=${lang}][${title}]:`, e);
@@ -334,6 +338,13 @@ const socketHandler = async (socket) => {
           });
           return;
         }
+        if (validated.namespace !== 0) {
+          ack({
+            success: false,
+            message: 'Start article cannot be a special Wikipedia page',
+          });
+          return;
+        }
         data.currentRound.start = validated.title;
         data.currentRound.startThumbnail = validated.thumbnail;
       } else {
@@ -351,6 +362,13 @@ const socketHandler = async (socket) => {
           ack({
             success: false,
             message: 'Target article cannot be a disambiguation page',
+          });
+          return;
+        }
+        if (validated.namespace !== 0) {
+          ack({
+            success: false,
+            message: 'Target article cannot be a special Wikipedia page',
           });
           return;
         }
@@ -644,6 +662,25 @@ const socketHandler = async (socket) => {
       ack({
         success: false,
         message: `${article} is a disambiguation page! You can't go there!`,
+      });
+      return;
+    }
+
+    if (
+      !room.rules.allowCategory &&
+      (validated.namespace === 14 || validated.namespace === 15) // https://en.wikipedia.org/wiki/Wikipedia%3ANamespace
+    ) {
+      ack({
+        success: false,
+        message: `${article} is a category page! You can't go there!`,
+      });
+      return;
+    }
+
+    if (validated.namespace !== 0 && validated.namespace !== 14) {
+      ack({
+        success: false,
+        message: `${article} is a special Wikipedia page! You can't go there!`,
       });
       return;
     }

@@ -244,9 +244,24 @@ export function Rules(props) {
     onRulesChange({ allowDisambiguation: !!allow });
   };
 
-  const onAllowBack = (allow) => {
+  const onAllowBackChange = (allow) => {
     if (disabled || roundStarted) return;
     onRulesChange({ allowBack: !!allow });
+  };
+
+  const onAllowCategoryChange = (allow) => {
+    if (disabled || roundStarted) return;
+    onRulesChange({ allowCategory: !!allow });
+  };
+
+  const onAllowNavChange = (allow) => {
+    if (disabled || roundStarted) return;
+    onRulesChange({ allowNav: !!allow });
+  };
+
+  const onShowArticlePreviewChange = (show) => {
+    if (disabled || roundStarted) return;
+    onRulesChange({ showArticlePreview: !!show });
   };
 
   const onBannedArticlesChange = (bannedArticles, callback) => {
@@ -270,6 +285,40 @@ export function Rules(props) {
         For example, first time you go back, it adds 1 click (just like when you
         click on links normally). But on the second time, it adds you 2 clicks,
         on the third time it adds you 3 clicks, and so on.
+      </div>,
+      {
+        closeOnClick: false,
+        autoClose: false,
+        toastId: 'help',
+      }
+    );
+  };
+
+  const onShowNavInfo = () => {
+    toast.dismiss('help');
+    toast(
+      <div>
+        <h3>Navigation Links</h3>
+        Navigational links are the links contained in the tables on the bottom
+        of an article (if there's any). Usually they allow you to quickly
+        navigate between topics within the same area.
+      </div>,
+      {
+        closeOnClick: false,
+        autoClose: false,
+        toastId: 'help',
+      }
+    );
+  };
+
+  const onShowPreviewInfo = () => {
+    toast.dismiss('help');
+    toast(
+      <div>
+        <h3>Article Preview</h3>
+        Article Preview is the popup that shows when you hover a link. It
+        usually contains the summary of the article the link points to. When you
+        disable it, no popups will be shown when you hover any links.
       </div>,
       {
         closeOnClick: false,
@@ -309,7 +358,7 @@ export function Rules(props) {
         <CheckBox
           label="Allow back"
           checked={rules.allowBack}
-          onChange={onAllowBack}
+          onChange={onAllowBackChange}
           disabled={disabled}
           onShowInfo={onShowBackInfo}
         />
@@ -318,6 +367,26 @@ export function Rules(props) {
           checked={rules.allowDisambiguation}
           onChange={onAllowDisambiguationChange}
           disabled={disabled}
+        />
+        <CheckBox
+          label="Allow category page"
+          checked={rules.allowCategory}
+          onChange={onAllowCategoryChange}
+          disabled={disabled}
+        />
+        <CheckBox
+          label="Allow navigation links"
+          checked={rules.allowNav}
+          onChange={onAllowNavChange}
+          disabled={disabled}
+          onShowInfo={onShowNavInfo}
+        />
+        <CheckBox
+          label="Show article preview"
+          checked={rules.showArticlePreview}
+          onChange={onShowArticlePreviewChange}
+          disabled={disabled}
+          onShowInfo={onShowPreviewInfo}
         />
       </div>
       <BannedArticles
