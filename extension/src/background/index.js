@@ -56,6 +56,21 @@ function reset(callback) {
 
 const messageBuffer = [];
 
+function sendMessageToTab(toTabId, type, data, callback) {
+  chrome.tabs.sendMessage(parseInt(toTabId, 10), { type, data }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.log(
+        'error sendMessage to tabId',
+        toTabId,
+        chrome.runtime.lastError.message
+      );
+      if (callback) callback(null);
+      return;
+    }
+    if (callback) callback(response);
+  });
+}
+
 function sendMessage(type, data, callback) {
   if (!tabId) {
     console.error(
@@ -192,10 +207,8 @@ function initSocketio(initData, realCallback) {
     reconnectQuery += `&lang=${encodeURIComponent(data.lang)}`;
     socket.io.opts.query = reconnectQuery;
 
-    chrome.storage.local.set(data, () => {
-      chrome.storage.local.get(null, (initData) => {
-        callback(Object.assign({}, initData, { initial: true }));
-      });
+    chrome.storage.local.set(Object.assign(data, { initial: true }), () => {
+      chrome.storage.local.get(null, callback);
     });
   });
 
@@ -266,28 +279,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'init') {
     if (active && socket && socket.connected) {
-      // handle multiple tabs
-      if (tabId !== sender.tab.id) {
-        sendResponse({
-          success: false,
-          error: 'Multiple tabs',
-        });
-        return false;
-      }
-
       chrome.storage.local.get(null, (data) => {
+        console.log('sending room change prompt ???');
         // when roomId is different, kick ourself out from the old room and join the new one
         if (message.roomId && message.roomId !== data.roomId) {
-          sendMessage(
+          console.log('sending room change prompt ...');
+          sendMessageToTab(
+            sender.tab.id,
             'room_change_prompt',
             {
               old: data.roomId,
               new: message.roomId,
             },
-            (changeRoomData) => {
-              if (changeRoomData && changeRoomData.confirm) {
+            (changeRoomResponse) => {
+              if (changeRoomResponse && changeRoomResponse.confirm) {
                 active = false;
                 socket.close();
+                tabId = sender.tab.id;
                 init(
                   data.username,
                   message.roomId,
@@ -295,6 +303,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                   sendResponse
                 );
               } else {
+                // handle multiple tabs
+                if (tabId !== sender.tab.id) {
+                  sendResponse({
+                    success: false,
+                    error: 'Multiple tabs',
+                  });
+                }
+
                 sendResponse(null);
               }
             }
@@ -396,15 +412,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       };
       // inform old tab that we are changing tab
       try {
-        chrome.tabs.sendMessage(tabId, { type: 'change_tab' }, () => {
-          if (chrome.runtime.lastError) {
-            console.log(
-              'error sending change_tab message:',
-              chrome.runtime.lastError.message
-            );
-          }
-          onDelegateTab();
-        });
+        sendMessageToTab(tabId, 'change_tab', null, onDelegateTab);
       } catch (e) {
         console.log('error sending change_tab message:', e);
         onDelegateTab();
@@ -493,7 +501,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: true });
       Object.keys(portOpen).forEach((portTabId) => {
         if (portOpen[portTabId]) {
-          chrome.tabs.sendMessage(parseInt(portTabId, 10), { type: 'leave' });
+          sendMessageToTab(portTabId, 'leave');
         }
       });
     });

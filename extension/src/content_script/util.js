@@ -2,10 +2,13 @@ export function getRoomId() {
   return new URLSearchParams(window.location.search).get('roomId');
 }
 
+export function getAddrLang() {
+  return window.location.hostname.split('.')[0];
+}
+
 export function getLang() {
   return encodeURIComponent(
-    new URLSearchParams(window.location.search).get('lang') ||
-      window.location.hostname.split('.')[0]
+    new URLSearchParams(window.location.search).get('lang') || getAddrLang()
   );
 }
 

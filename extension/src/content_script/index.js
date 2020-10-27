@@ -26,7 +26,7 @@ function removeHandleCtrlfOnInitialLoad() {
 }
 
 // hacks to pass lang to popup
-chrome.storage.local.set({ pageLang: window.location.hostname.split('.')[0] });
+chrome.storage.local.set({ pageLang: util.getAddrLang() });
 
 function Root(props) {
   const { data } = props;
@@ -160,6 +160,7 @@ function leaveGame() {
 function handleMultipleTabs() {
   removeWholeContent();
   restoreFavicon();
+  toast.dismiss();
 
   const changeTab = () => {
     chrome.runtime.sendMessage({ type: 'change_tab' }, (reply) => {
@@ -257,7 +258,7 @@ const onInitData = (data) => {
   const currentArticle = util.getCurrentArticle();
 
   // check if language mismatched
-  if (data.lang !== window.location.hostname.split('.')[0]) {
+  if (data.lang !== util.getAddrLang()) {
     // on initial, redirect to data.url instead
     if (data.initial) {
       window.location.href = data.url || util.getCurrentArticle();
@@ -273,24 +274,26 @@ const onInitData = (data) => {
 
   changeFavicon();
   if (data.initial) {
-    toast(
-      () => (
-        <div>
-          Welcome to Wikigame, <b>{data.username}</b>!
-        </div>
-      ),
-      {
-        toastId: 'welcome',
-        position: toast.POSITION.BOTTOM_LEFT,
-      }
-    );
-    // animate resize only when joining for the first time
-    enablePanelTransitionAnimation();
+    chrome.storage.local.set({ initial: null }, () => {
+      toast(
+        () => (
+          <div>
+            Welcome to Wikigame, <b>{data.username}</b>!
+          </div>
+        ),
+        {
+          toastId: 'welcome',
+          position: toast.POSITION.BOTTOM_LEFT,
+        }
+      );
+      // animate resize only when joining for the first time
+      enablePanelTransitionAnimation();
 
-    // show additional help on install
-    if (isOnInstalled()) {
-      onInstalledPlay();
-    }
+      // show additional help on install
+      if (isOnInstalled()) {
+        onInstalledPlay();
+      }
+    });
   }
 
   // this (supposedly) resolves inactive background page
@@ -390,7 +393,7 @@ function onMessageListener(message, sender, sendResponse) {
 
     case 'update':
       // on language changed
-      if (message.data.lang !== window.location.hostname.split('.')[0]) {
+      if (message.data.lang !== util.getAddrLang()) {
         util.setRoomIdOnUrl(message.data.roomId, message.data.lang);
         util.goto(util.getCurrentArticle());
       } else {
