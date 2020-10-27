@@ -56,7 +56,7 @@ export function NextRoundArticlePicker(props) {
             disabled={disabled}
           />
         </div>
-        {round.start || round.target ? (
+        {!disabled && (round.start || round.target) ? (
           <div style={{ marginTop: '5px' }}>
             <a onClick={() => onSwapArticles()} style={{ fontSize: '0.75em' }}>
               (swap start/target articles)

@@ -10,6 +10,7 @@ import { isOnInstalled, onInstalled, onInstalledPlay } from './welcome';
 
 import 'react-toastify/dist/ReactToastify.css';
 import './styles/style.css';
+import copy from 'copy-to-clipboard';
 
 // prevent people from clicking ctrl+f before the page loads
 // disable ctrl+f on initial load, then remove the listener when render is called
@@ -207,15 +208,17 @@ function render(data, possiblyObsolete = false) {
 }
 
 const initData = ({ username, roomId, lang }) => {
-  if (!lang) lang = util.getLang();
-
-  const initMessage = {
-    type: 'init',
-    roomId,
-    lang,
-    username,
-  };
-  chrome.runtime.sendMessage(initMessage, onInitData);
+  chrome.runtime.sendMessage(
+    {
+      type: 'init',
+      data: {
+        roomId,
+        username,
+        lang: lang || util.getLang(),
+      },
+    },
+    onInitData
+  );
 };
 
 const onInitData = (data) => {
@@ -275,15 +278,43 @@ const onInitData = (data) => {
   changeFavicon();
   if (data.initial) {
     chrome.storage.local.set({ initial: null }, () => {
+      const onShareClick = () => {
+        copy(
+          util.getLinkWithRoomId(
+            util.getCurrentArticle(),
+            data.roomId,
+            data.lang
+          ),
+          {
+            format: 'text/plain',
+            onCopy: () => {
+              toast.dismiss('welcome');
+              toast('Room link copied to clipboard!', {
+                position: toast.POSITION.TOP_CENTER,
+              });
+            },
+          }
+        );
+      };
       toast(
-        () => (
-          <div>
-            Welcome to Wikigame, <b>{data.username}</b>!
-          </div>
-        ),
+        () =>
+          data.mode === 'single' ? (
+            <div>Welcome to Wikigame!</div>
+          ) : (
+            <div>
+              Welcome to Wikigame, <b>{data.username}</b>!
+              {data.username === data.host && data.players.length === 1 ? (
+                <span>
+                  <br />
+                  <a onClick={onShareClick}>Click here</a> to share your room
+                  link!
+                </span>
+              ) : null}
+            </div>
+          ),
         {
           toastId: 'welcome',
-          position: toast.POSITION.BOTTOM_LEFT,
+          position: toast.POSITION.TOP_CENTER,
         }
       );
       // animate resize only when joining for the first time

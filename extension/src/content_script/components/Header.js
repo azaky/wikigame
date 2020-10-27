@@ -1,19 +1,12 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import copy from 'copy-to-clipboard';
-import {
-  getCurrentArticle,
-  getLang,
-  getLink,
-  getLinkWithRoomId,
-} from '../util';
+import { getLinkWithRoomId } from '../util';
 import languages from '../../lang.json';
-import { useLang } from '../DataContext';
+import { useData } from '../DataContext';
 
-export function Header(props) {
-  const { roomId } = props;
-
-  const lang = useLang();
+export function Header() {
+  const { lang, roomId, mode } = useData();
   const langObj = languages.find((lg) => lg.lang === lang);
   const humanizedLang = langObj.labelLocal;
   const englishLang = langObj.label;
@@ -36,6 +29,31 @@ export function Header(props) {
       chrome.runtime.sendMessage({ type: 'leave' });
     }
   };
+
+  if (mode === 'single') {
+    return (
+      <nav class="vector-menu vector-menu-portal portal">
+        <div role="banner" style={{ paddingTop: '20px' }}>
+          <img
+            src={chrome.runtime.getURL('images/header.png')}
+            style={{ width: '100%' }}
+          />
+        </div>
+        <h3>
+          <span>
+            Language:&nbsp;
+            <b title={englishLang}>
+              {humanizedLang} ({lang})
+            </b>
+          </span>
+          <br />
+          <span>
+            <a onClick={onLeaveClick}>(leave game)</a>
+          </span>
+        </h3>
+      </nav>
+    );
+  }
 
   return (
     <nav class="vector-menu vector-menu-portal portal">

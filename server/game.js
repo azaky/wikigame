@@ -2,6 +2,7 @@ const fetch = require('node-fetch');
 const express = require('express');
 const util = require('./util');
 const persistence = require('./persistence');
+const e = require('express');
 
 const rooms = [];
 const activeConnections = {}; // roomId -> [players]
@@ -17,8 +18,9 @@ const generateRoomId = () => {
   return `${id}`.padStart(randomRoomIdDigits, '0');
 };
 
-const createRoom = (host, id, _lang) => {
+const createRoom = (host, id, _lang, _mode) => {
   const lang = _lang || 'en';
+  const mode = _mode || 'multi';
   let roomId = id;
   if (!roomId) {
     do {
@@ -27,6 +29,7 @@ const createRoom = (host, id, _lang) => {
   }
   const room = {
     roomId,
+    mode,
     lang,
     url: `https://${lang}.wikipedia.org/wiki/Main_Page?roomId=${encodeURIComponent(
       roomId
@@ -113,16 +116,65 @@ const calculateLeaderboard = (room) => {
 const getElapsedTime = (start) =>
   Math.ceil((new Date().getTime() - start) / 1000);
 
+/*
+  on valid articles, this return:
+
+  {
+    found: true,
+    type: standard | disambiguation | no-extract (category included),
+    title: <canonical title>,
+    normalizedTitle: <normalized title>,
+    thumbnail: <url to thumbnail>,
+  }
+
+  on invalid articles, this returns { found: false }
+*/
+const validateArticle = async (title, lang) => {
+  try {
+    if (!title) return { found: false };
+    const response = await fetch(
+      `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
+        title
+      )}`
+    );
+    const body = await response.json();
+    if (
+      body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found'
+    ) {
+      return { found: false };
+    }
+    return {
+      found: true,
+      type: body.type,
+      title: body.titles.canonical,
+      normalizedTitle: body.titles.normalized,
+      thumbnail: (body.thumbnail && body.thumbnail.source) || '',
+    };
+  } catch (e) {
+    console.error(`Error validating article [lang=${lang}][${title}]:`, e);
+    return { found: false };
+  }
+};
+
+const validateArticles = async (titles, lang) =>
+  Promise.all(titles.map((title) => validateArticle(title, lang)));
+
 const socketHandler = async (socket) => {
   console.log('a user connected!');
   console.log(socket.handshake.query);
-  const { username, roomId } = socket.handshake.query;
+  const { query } = socket.handshake;
+  const username = query.username || '';
+  const mode = query.mode || 'multi';
 
   let room;
-  if (!roomId || !existsRoomById(roomId)) {
-    room = createRoom(username, roomId, socket.handshake.query.lang || 'en');
+  if (mode === 'single') {
+    room = createRoom(username, '', query.lang || 'en', mode);
   } else {
-    room = getRoomById(roomId);
+    if (!query.roomId || !existsRoomById(query.roomId)) {
+      room = createRoom(username, query.roomId, query.lang || 'en');
+    } else {
+      room = getRoomById(query.roomId);
+    }
   }
 
   // allow claim connection if there's no active connection under the name
@@ -145,54 +197,19 @@ const socketHandler = async (socket) => {
     return;
   }
 
+  // We're not allowed to join single rooms.
+  if (room.mode === 'single' && room.players.length > 0) {
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] ${username} attempts to join single room`
+    );
+    socket.emit('init_error', {
+      message: `You cannot join rooms for single game!`,
+    });
+    socket.disconnect(true);
+    return;
+  }
+
   activeConnections[room.roomId].push(username);
-
-  /*
-   on valid articles, this return:
-
-   {
-     found: true,
-     type: standard | disambiguation | no-extract (category included),
-     title: <canonical title>,
-     normalizedTitle: <normalized title>,
-     thumbnail: <url to thumbnail>,
-   }
-
-   on invalid articles, this returns { found: false }
-*/
-  // TODO: cache this for God's sake
-  const validateArticle = async (title) => {
-    try {
-      if (!title) return { found: false };
-      const response = await fetch(
-        `https://${
-          room.lang
-        }.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
-      );
-      const body = await response.json();
-      if (
-        body.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found'
-      ) {
-        return { found: false };
-      }
-      return {
-        found: true,
-        type: body.type,
-        title: body.titles.canonical,
-        normalizedTitle: body.titles.normalized,
-        thumbnail: (body.thumbnail && body.thumbnail.source) || '',
-      };
-    } catch (e) {
-      console.error(
-        `Error validating article [lang=${room.lang}][${title}]:`,
-        e
-      );
-      return { found: false };
-    }
-  };
-
-  const validateArticles = async (titles) =>
-    Promise.all(titles.map(validateArticle));
 
   // special case of orphaned room, set self as host
   if (!room.players.length) {
@@ -240,6 +257,7 @@ const socketHandler = async (socket) => {
 
   socket.emit('init', {
     roomId: room.roomId,
+    mode: room.mode,
     lang: room.lang,
     url: room.url,
     host: room.host,
@@ -304,7 +322,10 @@ const socketHandler = async (socket) => {
     }
 
     if (data.currentRound && data.currentRound.start) {
-      const validated = await validateArticle(data.currentRound.start);
+      const validated = await validateArticle(
+        data.currentRound.start,
+        room.lang
+      );
       if (validated.found) {
         if (validated.type === 'disambiguation') {
           ack({
@@ -321,7 +342,10 @@ const socketHandler = async (socket) => {
       }
     }
     if (data.currentRound && data.currentRound.target) {
-      const validated = await validateArticle(data.currentRound.target);
+      const validated = await validateArticle(
+        data.currentRound.target,
+        room.lang
+      );
       if (validated.found) {
         if (validated.type === 'disambiguation') {
           ack({
@@ -338,7 +362,10 @@ const socketHandler = async (socket) => {
       }
     }
     if (data.rules && data.rules.bannedArticles) {
-      const validated = await validateArticles(data.rules.bannedArticles);
+      const validated = await validateArticles(
+        data.rules.bannedArticles,
+        room.lang
+      );
       data.rules.bannedArticles = validated
         .filter((v) => v.found)
         .map((v) => v.title);
@@ -595,7 +622,7 @@ const socketHandler = async (socket) => {
     }
 
     // resolve article, including redirects etc.
-    const validated = await validateArticle(data.article);
+    const validated = await validateArticle(data.article, room.lang);
     if (!validated.found) {
       ack({ success: false });
       return;
@@ -683,7 +710,7 @@ const socketHandler = async (socket) => {
     }
 
     // resolve article, including redirects etc.
-    const validated = await validateArticle(data.article);
+    const validated = await validateArticle(data.article, room.lang);
     if (!validated.found) {
       ack({ success: false });
       return;

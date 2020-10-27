@@ -125,7 +125,7 @@ export function InGamePanel() {
 
   return (
     <Wrapper>
-      <Header username={username} roomId={roomId} />
+      <Header />
       <CurrentRoundOverview round={currentRound} currentState={currentState} />
       <Rules rules={rules} disabled={true} roundStarted={true} />
     </Wrapper>

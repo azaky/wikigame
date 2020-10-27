@@ -21,9 +21,12 @@ app.use('/game', game.handler);
 
 io.use((socket, next) => {
   console.log('Query: ', socket.handshake.query);
-  if (!socket.handshake.query.username) {
-    console.log('no username');
-    return next(new Error('username is required'));
+  if (
+    !socket.handshake.query.username &&
+    socket.handshake.query.mode !== 'single'
+  ) {
+    console.log('no username on multi mode');
+    return next(new Error('username is required on multi mode'));
   }
   if (socket.handshake.query.lang) {
     if (!util.isLanguageValid(socket.handshake.query.lang)) {

@@ -72,7 +72,7 @@ export function ArticlePicker(props) {
 
   return (
     <div class="wikigame-article-picker">
-      <div title={props.value}>
+      <div title={props.value && props.value.replace(/_/g, ' ')}>
         <AsyncSelect
           cacheOptions
           loadOptions={loadOptions}

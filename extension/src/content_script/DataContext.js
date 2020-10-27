@@ -5,6 +5,7 @@ const DataContext = React.createContext(null);
 export const useData = () => useContext(DataContext);
 
 export const useRoomId = () => useData().roomId;
+export const useMode = () => useData().mode;
 export const useLang = () => useData().lang;
 export const useUrl = () => useData().url;
 export const useHost = () => useData().host;

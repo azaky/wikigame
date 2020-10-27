@@ -1,4 +1,5 @@
 import React from 'react';
+import { useData } from '../DataContext';
 
 function LeaderboardItem(props) {
   const { player, index, username, host, isOnline, onTransferHost } = props;
@@ -40,7 +41,18 @@ function LeaderboardItem(props) {
 }
 
 export function Leaderboard(props) {
-  const { leaderboard, host, username, onTransferHost, players } = props;
+  const { onTransferHost } = props;
+  const { leaderboard, host, username, players, mode } = useData();
+
+  if (mode === 'single') {
+    return (
+      <nav class="vector-menu vector-menu-portal portal">
+        <h3 style={{ fontSize: '0.9em' }}>
+          <span>Score: {leaderboard[0].score}</span>
+        </h3>
+      </nav>
+    );
+  }
 
   return (
     <nav class="vector-menu vector-menu-portal portal">

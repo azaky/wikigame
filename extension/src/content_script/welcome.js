@@ -14,9 +14,8 @@ function WelcomeMessage() {
       {
         type: 'init_popup',
         data: {
-          username: 'username',
-          roomId: '',
           lang: 'en',
+          mode: 'single',
         },
       },
       () => {

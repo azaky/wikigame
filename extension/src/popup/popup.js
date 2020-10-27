@@ -77,7 +77,7 @@ function Form(props) {
   const [username, setUsername] = useState(props.username);
   const [roomId, setRoomId] = useState('');
   const [lang, setLang] = useState(props.pageLang);
-  const [showRoomId, setShowRoomId] = useState(false);
+  const [multi, setMulti] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -86,13 +86,10 @@ function Form(props) {
   const roomIdRef = useRef(null);
 
   useEffect(() => {
-    usernameRef.current.focus();
-  }, []);
-  useEffect(() => {
-    if (showRoomId) {
-      roomIdRef.current.focus();
+    if (multi) {
+      usernameRef.current.focus();
     }
-  }, [showRoomId]);
+  }, [multi]);
 
   const onUsernameChange = (value) => {
     setUsername(value);
@@ -102,64 +99,84 @@ function Form(props) {
   const onSubmit = (e) => {
     e.preventDefault();
     console.log('onSubmit', username, roomId, lang);
-    if (username !== '') {
-      setLoading(true);
-      chrome.runtime.sendMessage(
-        {
-          type: 'init_popup',
-          data: { username, roomId, lang },
-        },
-        ({ success, error }) => {
-          setLoading(false);
-          if (!success) {
-            setErrorMessage(error);
-          } else {
-            window.close();
-          }
-        }
-      );
+    if (multi && (!username || !roomId)) {
+      if (!username) {
+        setErrorMessage('Username cannot be empty!');
+        usernameRef.current.focus();
+      } else if (!roomId) {
+        setErrorMessage('Room name cannot be empty!');
+        roomIdRef.current.focus();
+      }
+      return;
     }
+    setErrorMessage('');
+
+    const data = multi
+      ? { username, roomId, lang, mode: 'multi' }
+      : { lang, mode: 'single' };
+    setLoading(true);
+    chrome.runtime.sendMessage(
+      {
+        type: 'init_popup',
+        data,
+      },
+      ({ success, error }) => {
+        setLoading(false);
+        if (!success) {
+          setErrorMessage(error);
+        } else {
+          window.close();
+        }
+      }
+    );
   };
 
   return (
     <form onSubmit={onSubmit}>
-      <div class="form-group">
-        <label for="username">
-          <strong>Username</strong>
-        </label>
-        <input
-          ref={usernameRef}
-          type="text"
-          placeholder="Enter Username"
-          id="username"
-          value={username}
-          onChange={(e) => onUsernameChange(e.target.value)}
-          required
-        />
-      </div>
       <div class="form-group">
         <label for="lang">
           <strong>Language</strong>
         </label>
         <LanguagePicker lang={lang} onChange={setLang} />
       </div>
-      {showRoomId ? (
-        <div class="form-group">
-          <label for="roomId">
-            <strong>Room Name</strong>
-          </label>
-          <input
-            ref={roomIdRef}
-            type="text"
-            placeholder="Enter Room Name"
-            id="roomId"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-          />
-        </div>
+      {multi ? (
+        <>
+          <div class="form-group">
+            <label for="username">
+              <strong>Username</strong>
+            </label>
+            <input
+              ref={usernameRef}
+              type="text"
+              placeholder="Enter Username"
+              id="username"
+              value={username}
+              onChange={(e) => onUsernameChange(e.target.value)}
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="roomId">
+              <strong>Room Name</strong>
+            </label>
+            <input
+              ref={roomIdRef}
+              type="text"
+              placeholder="Enter Room Name"
+              id="roomId"
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
+              required
+            />
+          </div>
+        </>
       ) : null}
-      <a onClick={() => setShowRoomId(!showRoomId)}>
-        {showRoomId ? 'Do not create custom room' : 'Create custom room'}
+      <a onClick={() => setMulti(!multi)}>
+        <b>
+          {multi
+            ? 'Play single player instead'
+            : 'Create/join multiplayer room'}
+        </b>
       </a>
       <button type="submit" style={{ marginTop: '10px' }}>
         <strong>{loading ? 'Loading...' : 'Play Now!'}</strong>
@@ -170,7 +187,7 @@ function Form(props) {
 }
 
 function Info(props) {
-  const { host, username, lang, roomId, url, state } = props;
+  const { host, username, lang, roomId, url, state, mode } = props;
 
   const [copying, setCopying] = useState(false);
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
@@ -210,17 +227,35 @@ function Info(props) {
 
   return (
     <div>
-      <p>
-        Hello, <strong>{username}</strong>!
-      </p>
-      <p>
-        You are currently playing in room <strong>{roomId}</strong> in language{' '}
-        <strong>{languages.find((lg) => lg.lang === lang).label}</strong>
-        &nbsp;
-        {host === username && state === 'lobby' ? (
-          <a onClick={() => setShowLanguagePicker(true)}>(change)</a>
-        ) : null}
-      </p>
+      {mode === 'single' ? (
+        <p>
+          You are currently playing Wikigame in language{' '}
+          <strong>{languages.find((lg) => lg.lang === lang).label}</strong>
+          &nbsp;
+          {state === 'lobby' ? (
+            <a onClick={() => setShowLanguagePicker(!showLanguagePicker)}>
+              ({showLanguagePicker ? '(cancel)' : '(change)'})
+            </a>
+          ) : null}
+        </p>
+      ) : (
+        <>
+          <p>
+            Hello, <strong>{username}</strong>!
+          </p>
+          <p>
+            You are currently playing in room <strong>{roomId}</strong> in
+            language{' '}
+            <strong>{languages.find((lg) => lg.lang === lang).label}</strong>
+            &nbsp;
+            {host === username && state === 'lobby' ? (
+              <a onClick={() => setShowLanguagePicker(!showLanguagePicker)}>
+                {showLanguagePicker ? '(cancel)' : '(change)'}
+              </a>
+            ) : null}
+          </p>
+        </>
+      )}
       {showLanguagePicker ? (
         <div style={{ marginBottom: '10px' }}>
           <div style={{ marginBottom: '10px' }}>
@@ -235,15 +270,17 @@ function Info(props) {
           </button>
         </div>
       ) : null}
-      <button
-        type="button"
-        onClick={copyRoomUrl}
-        style={{ marginBottom: '10px' }}
-      >
-        <strong>{copying ? 'Room Link Copied!' : 'Copy Room Link'}</strong>
-      </button>
+      {mode === 'single' ? null : (
+        <button
+          type="button"
+          onClick={copyRoomUrl}
+          style={{ marginBottom: '10px' }}
+        >
+          <strong>{copying ? 'Room Link Copied!' : 'Copy Room Link'}</strong>
+        </button>
+      )}
       <button type="button" onClick={leave}>
-        <strong>Leave Room</strong>
+        <strong>Leave Game</strong>
       </button>
     </div>
   );
@@ -251,7 +288,7 @@ function Info(props) {
 
 function init() {
   chrome.storage.local.get(
-    ['pageLang', 'state', 'roomId', 'lang', 'username', 'host', 'url'],
+    ['pageLang', 'state', 'roomId', 'lang', 'username', 'host', 'url', 'mode'],
     (data) => {
       console.log('init', data);
       if (data.state) {

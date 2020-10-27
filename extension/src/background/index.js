@@ -156,13 +156,18 @@ function initSocketio(initData, realCallback) {
     callback({ success: false, error: message, ...data });
   };
 
-  let query = `username=${encodeURIComponent(initData.username)}`;
-  if (initData.roomId) {
-    query += `&roomId=${encodeURIComponent(initData.roomId)}`;
-  }
-  if (initData.lang) {
-    query += `&lang=${encodeURIComponent(initData.lang)}`;
-  }
+  const createQueryParam = (params) =>
+    Object.keys(params)
+      .filter((k) => params[k])
+      .map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join('&');
+
+  const query = createQueryParam({
+    username: initData.username,
+    mode: initData.mode || 'multi',
+    roomId: initData.roomId,
+    lang: initData.lang,
+  });
 
   if (socket && socket.connected) {
     console.warn(
@@ -202,9 +207,12 @@ function initSocketio(initData, realCallback) {
     console.log('socket.on(init):', data);
 
     // update query params on reconnect
-    let reconnectQuery = `username=${encodeURIComponent(initData.username)}`;
-    reconnectQuery += `&roomId=${encodeURIComponent(data.roomId)}`;
-    reconnectQuery += `&lang=${encodeURIComponent(data.lang)}`;
+    const reconnectQuery = createQueryParam({
+      username: initData.username,
+      roomId: data.roomId,
+      lang: data.lang,
+      mode: data.mode,
+    });
     socket.io.opts.query = reconnectQuery;
 
     chrome.storage.local.set(Object.assign(data, { initial: true }), () => {
@@ -246,23 +254,29 @@ function initSocketio(initData, realCallback) {
   });
 }
 
-function init(username, roomId, lang, callback) {
+function init(data, callback) {
   reset(() => {
+    const { username, mode } = data;
     if (username) {
       chrome.storage.local.set({ username }, () => {
-        initSocketio({ roomId, username, lang }, callback);
+        initSocketio(data, callback);
       });
+    } else if (mode === 'single') {
+      initSocketio(data, callback);
     } else {
       // prompt for username
       console.log('sending username_prompt to tabId', tabId);
-      sendMessage('username_prompt', null, (data) => {
-        if (!data || !data.username) {
+      sendMessage('username_prompt', null, (response) => {
+        if (!response || !response.username) {
           callback(null);
           return;
         }
 
-        chrome.storage.local.set({ username: data.username }, () => {
-          initSocketio({ roomId, lang, username: data.username }, callback);
+        chrome.storage.local.set({ username: response.username }, () => {
+          initSocketio(
+            Object.assign(data, { username: response.username }),
+            callback
+          );
         });
       });
     }
@@ -282,14 +296,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       chrome.storage.local.get(null, (data) => {
         console.log('sending room change prompt ???');
         // when roomId is different, kick ourself out from the old room and join the new one
-        if (message.roomId && message.roomId !== data.roomId) {
+        if (message.data.roomId && message.data.roomId !== data.roomId) {
           console.log('sending room change prompt ...');
           sendMessageToTab(
             sender.tab.id,
             'room_change_prompt',
             {
               old: data.roomId,
-              new: message.roomId,
+              new: message.data.roomId,
             },
             (changeRoomResponse) => {
               if (changeRoomResponse && changeRoomResponse.confirm) {
@@ -297,9 +311,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 socket.close();
                 tabId = sender.tab.id;
                 init(
-                  data.username,
-                  message.roomId,
-                  message.lang || 'en',
+                  Object.assign({}, message.data, { username: data.username }),
                   sendResponse
                 );
               } else {
@@ -323,7 +335,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     } else {
       // if both roomId and username is not defined, then it means that the user
       // does not intentionally start a new game. so we're ignoring that case
-      if (!message.roomId && !message.username) {
+      if (!message.data || (!message.data.roomId && !message.data.username)) {
         sendResponse(null);
       } else {
         // on a very rare case -- possibly only on development --
@@ -336,12 +348,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           });
         } else {
           tabId = sender.tab.id;
-          init(
-            message.username,
-            message.roomId,
-            message.lang || 'en',
-            sendResponse
-          );
+          init(message.data, sendResponse);
         }
       }
     }
@@ -366,28 +373,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'init_popup') {
     if (active && socket && socket.connected) {
       // on init popup, do not do anything
-      console.log('active || !username');
       sendResponse({ success: false, error: 'A game is currently active!' });
-    } else if (!message.data.username) {
+    } else if (!message.data.username && message.data.mode !== 'single') {
       // on init popup, do not do anything
-      console.log('active || !username');
       sendResponse({ success: false, error: 'Username cannot be empty!' });
     } else {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs.length > 0) {
-          console.log('success kok == 0');
           tabId = tabs[0].id;
-          init(
-            message.data.username,
-            message.data.roomId,
-            message.data.lang || 'en',
-            (initData) => {
-              sendResponse({ success: true });
-              sendMessage('init', initData);
-            }
-          );
+          init(message.data, (initData) => {
+            sendResponse({ success: true });
+            sendMessage('init', initData);
+          });
         } else {
-          console.log('tabs.length == 0');
           sendResponse({
             success: false,
             error:
@@ -575,7 +573,6 @@ chrome.runtime.onInstalled.addListener((installObject) => {
     });
   }
 
-  console.log(installObject);
   reset(() => {
     chrome.tabs.create(
       { url: 'https://en.wikipedia.org/wiki/Wikiracing?welcome=true' },

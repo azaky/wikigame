@@ -21,8 +21,10 @@ export function LobbyPanel() {
     username,
     players,
     roomId,
+    mode,
   } = data;
-  const isHost = host === username;
+  console.log('host:', host, 'username:', username, 'mode:', mode);
+  const isHost = host === username || mode === 'single';
 
   const onUpdate = (toUpdate, callback) => {
     if (!isHost) return;
@@ -94,15 +96,9 @@ export function LobbyPanel() {
 
   return (
     <Wrapper>
-      <Header username={username} roomId={roomId} />
+      <Header />
       {leaderboard && leaderboard.length ? (
-        <Leaderboard
-          leaderboard={leaderboard}
-          host={host}
-          username={username}
-          players={players}
-          onTransferHost={onTransferHost}
-        />
+        <Leaderboard onTransferHost={onTransferHost} />
       ) : null}
       <NextRoundArticlePicker
         round={currentRound}
