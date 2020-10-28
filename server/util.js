@@ -36,8 +36,13 @@ function mergeDeep(target, ...sources) {
   return mergeDeep(target, ...sources);
 }
 
+function now() {
+  return Math.floor(new Date().getTime() / 1000);
+}
+
 module.exports = {
   isObject,
   mergeDeep,
   isLanguageValid,
+  now,
 };

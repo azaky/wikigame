@@ -2,7 +2,6 @@ const fetch = require('node-fetch');
 const express = require('express');
 const util = require('./util');
 const persistence = require('./persistence');
-const e = require('express');
 
 const rooms = [];
 const activeConnections = {}; // roomId -> [players]
@@ -62,15 +61,15 @@ const createRoom = (host, id, _lang, _mode) => {
       },
     ],
     pastRounds: [],
-    created: new Date().getTime() / 1000,
-    updated: new Date().getTime() / 1000,
+    created: util.now(),
+    updated: util.now(),
   };
   rooms.push(room);
   return room;
 };
 
 const updateUpdated = (room) => {
-  room.updated = new Date().getTime() / 1000;
+  room.updated = util.now();
 };
 
 const generateCurrentRoundResult = (room) => {
@@ -893,7 +892,7 @@ const gc = setInterval(() => {
   // garbage-collect rooms that's been idle for > 30 mins
   let toDelete = [];
   rooms.forEach((room) => {
-    if (new Date().getTime() / 1000 - room.updated > 30 * 60) {
+    if (util.now() - room.updated > 30 * 60) {
       toDelete.push(room.roomId);
     }
   });
