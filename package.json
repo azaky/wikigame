@@ -2,7 +2,7 @@
   "scripts": {
     "heroku-prebuild": "cd server && npm install",
     "start": "cd server && npm start",
-    "pack-extension": "cd `git rev-parse --show-toplevel`/extension && npm run pack && :"
+    "pack-extension": "cd `git rev-parse --show-toplevel`/extension && npm run pack && npm run pack-ff && :"
   },
   "devDependencies": {
     "husky": "^4.3.0",
