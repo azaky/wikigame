@@ -398,6 +398,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
   }
 
+  if (message.type === 'get_status') {
+    sendResponse({ active });
+  }
+
   if (message.type === 'init_popup') {
     if (active && socket && socket.connected) {
       // on init popup, do not do anything

@@ -287,23 +287,37 @@ function Info(props) {
 }
 
 function init() {
-  chrome.storage.local.get(
-    ['pageLang', 'state', 'roomId', 'lang', 'username', 'host', 'url', 'mode'],
-    (data) => {
-      console.log('init', data);
-      if (data.state) {
-        ReactDOM.render(
-          <Info {...data} />,
-          document.getElementById('container')
-        );
-      } else {
-        ReactDOM.render(
-          <Form {...data} />,
-          document.getElementById('container')
-        );
+  // ping background first
+  chrome.runtime.sendMessage({ type: 'get_status' }, (response) => {
+    const active = response && response.active;
+
+    chrome.storage.local.get(
+      [
+        'pageLang',
+        'state',
+        'roomId',
+        'lang',
+        'username',
+        'host',
+        'url',
+        'mode',
+      ],
+      (data) => {
+        console.log('init', data);
+        if (active && data.state) {
+          ReactDOM.render(
+            <Info {...data} />,
+            document.getElementById('container')
+          );
+        } else {
+          ReactDOM.render(
+            <Form {...data} />,
+            document.getElementById('container')
+          );
+        }
       }
-    }
-  );
+    );
+  });
 }
 
 const documentReadyInterval = setInterval(() => {
