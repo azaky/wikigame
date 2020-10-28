@@ -1,9 +1,7 @@
 import io from 'socket.io-client';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 
-const serverUrl =
-  process.env.WIKIGAME_SERVER_URL ||
-  'https://wikigame-multiplayer.herokuapp.com/';
+const serverUrl = process.env.WIKIGAME_SERVER_URL;
 
 let active = false;
 let socket;

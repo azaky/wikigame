@@ -52,7 +52,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new EnvironmentPlugin({
-      WIKIGAME_SERVER_URL: '',
+      WIKIGAME_SERVER_URL: 'https://wikigame-multiplayer.herokuapp.com',
       FIREFOX: '',
     }),
     new CopyPlugin({
