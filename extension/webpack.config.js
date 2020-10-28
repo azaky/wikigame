@@ -6,6 +6,8 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const package = require('./package.json');
 
+const defaultServerUrl = 'https://wikigame-multiplayer.herokuapp.com';
+
 function processManifest(buffer) {
   const manifest = JSON.parse(buffer.toString());
 
@@ -18,6 +20,10 @@ function processManifest(buffer) {
       );
       manifest.permissions.push('tabs');
     }
+    // https://github.com/github/fetch/issues/310#issuecomment-454662463
+    manifest.permissions.push(
+      `${process.env.WIKIGAME_SERVER_URL || defaultServerUrl}/*`
+    );
   }
 
   return JSON.stringify(manifest, null, 2);

@@ -27,6 +27,10 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+/* for firefox */
+#wikigame-wrapper {
+  scrollbar-width: thin;
+}
 
 #wikigame-wrapper input[type='text'],
 #wikigame-wrapper input[type='number'],
