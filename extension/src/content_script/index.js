@@ -52,7 +52,7 @@ function Root(props) {
       );
 
     default:
-      onShouldReload(`There's a problem loading Wikigame. Please reload`);
+      onDisconnected(`There's a problem loading Wikigame. Please reload`);
       console.error('Root called with unknown data.state:', data.state);
       return null;
   }
@@ -75,7 +75,7 @@ function initToast() {
   );
 }
 
-function onShouldReload(message) {
+function onDisconnected(message) {
   const reload = () => window.location.reload();
   const defaultMessage = 'You are disconnected! Reload this page to reconnect!';
 
@@ -103,7 +103,7 @@ function onShouldReload(message) {
         showToast();
       });
     } catch (e) {
-      console.log('get state in onShouldReload error:', e);
+      console.log('get state in onDisconnected error:', e);
       showToast();
     }
   } else {
@@ -154,10 +154,6 @@ function handleLeaveGame() {
   }, 1000);
 }
 
-function leaveGame() {
-  chrome.runtime.sendMessage({ type: 'leave' });
-}
-
 function handleMultipleTabs() {
   removeWholeContent();
   restoreFavicon();
@@ -176,7 +172,7 @@ function handleMultipleTabs() {
       <br />
       <a onClick={changeTab}>(play here)</a>
       &nbsp;
-      <a title="back to browsing Wikipedia like usual" onClick={leaveGame}>
+      <a title="back to browsing Wikipedia like usual" onClick={util.leaveGame}>
         (leave game)
       </a>
     </div>
@@ -333,13 +329,17 @@ const onInitData = (data) => {
       chrome.runtime.sendMessage({ type: 'ping' }, (reply) => {
         if (!reply || !reply.status) {
           clearInterval(pingInterval);
-          onShouldReload();
+          onDisconnected();
         }
       });
     } catch (e) {
       clearInterval(pingInterval);
       console.log('ping error:', e);
-      onShouldReload();
+      onDisconnected();
+      // automatically "leave" the game when ignored for 60s
+      setTimeout(() => {
+        util.leaveGame();
+      }, 60000);
     }
   }, 1000);
 
@@ -464,7 +464,7 @@ function onMessageListener(message, sender, sendResponse) {
     }
 
     case 'disconnected':
-      onShouldReload();
+      onDisconnected();
       break;
 
     case 'reconnected':

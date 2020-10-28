@@ -95,3 +95,25 @@ export function getLinkWithRoomId(article, roomId, lang) {
     article
   )}?roomId=${encodeURIComponent(roomId)}&lang=${lang}`;
 }
+
+export function leaveGame() {
+  const leave = () => {
+    window.location.href = getLink(getCurrentArticle());
+  };
+
+  // The main code path will be through background to make sure we cleanup
+  // all the resources properly. then the actual leave will be handled in
+  // index.js.
+  // In case the communication already closed, make sure that we always
+  // succeed to leave the game no matter what.
+  try {
+    chrome.runtime.sendMessage({ type: 'leave' }, () => {
+      if (chrome.runtime.lastError) {
+        leave();
+      }
+    });
+  } catch (e) {
+    console.log('Error while leaving:', e);
+    leave();
+  }
+}

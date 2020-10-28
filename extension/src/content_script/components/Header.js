@@ -1,7 +1,7 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import copy from 'copy-to-clipboard';
-import { getLinkWithRoomId } from '../util';
+import { getLinkWithRoomId, leaveGame } from '../util';
 import languages from '../../lang.json';
 import { useData } from '../DataContext';
 
@@ -25,8 +25,7 @@ export function Header() {
       'Are you sure you want to leave Wikigame?'
     );
     if (confirmed) {
-      // the response will be handled in message listener in ../index.js
-      chrome.runtime.sendMessage({ type: 'leave' });
+      leaveGame();
     }
   };
 
