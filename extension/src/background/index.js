@@ -400,6 +400,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'get_status') {
     sendResponse({ active });
+    return false;
   }
 
   if (message.type === 'init_popup') {

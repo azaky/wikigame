@@ -29,7 +29,6 @@ function LanguagePicker(props) {
           container: (provided) => ({
             ...provided,
             minHeight: '1px',
-            // fontSize: '0.8em',
           }),
           control: (provided) => ({
             ...provided,

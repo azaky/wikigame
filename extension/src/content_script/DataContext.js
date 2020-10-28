@@ -2,7 +2,12 @@ import React, { useContext } from 'react';
 
 const DataContext = React.createContext(null);
 
-export const useData = () => useContext(DataContext);
+export const useData = () => {
+  const data = useContext(DataContext);
+
+  const isHost = data.mode === 'single' || data.host === data.username;
+  return Object.assign(data, { isHost });
+};
 
 export const useRoomId = () => useData().roomId;
 export const useMode = () => useData().mode;
@@ -16,5 +21,6 @@ export const useRules = () => useData().rules;
 export const useLeaderboard = () => useData().leaderboard;
 export const useCurrentState = () => useData().currentState;
 export const useUsername = () => useData().username;
+export const useIsHost = () => useData().isHost;
 
 export default DataContext;

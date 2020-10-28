@@ -12,19 +12,7 @@ import { useData } from './DataContext';
 
 export function LobbyPanel() {
   const data = useData();
-  const {
-    currentRound,
-    rules,
-    leaderboard,
-    lastRound,
-    host,
-    username,
-    players,
-    roomId,
-    mode,
-  } = data;
-  console.log('host:', host, 'username:', username, 'mode:', mode);
-  const isHost = host === username || mode === 'single';
+  const { currentRound, rules, leaderboard, lastRound, players, isHost } = data;
 
   const onUpdate = (toUpdate, callback) => {
     if (!isHost) return;
