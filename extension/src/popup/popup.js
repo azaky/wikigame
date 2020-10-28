@@ -214,7 +214,7 @@ function Info(props) {
   };
 
   const onChangeLang = () => {
-    if (host !== username || newLang === lang) return;
+    if ((host !== username && mode !== 'single') || newLang === lang) return;
 
     chrome.runtime.sendMessage(
       { type: 'change_lang', data: { lang: newLang } },

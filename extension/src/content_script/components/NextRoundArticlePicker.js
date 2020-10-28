@@ -5,13 +5,6 @@ import * as util from '../util';
 import { ArticlePicker } from './ArticlePicker';
 import { CheckBox } from './CheckBox';
 
-function getRandom() {
-  return window
-    .fetch(`${process.env.WIKIGAME_SERVER_URL}/wiki/random`)
-    .then((res) => res.json())
-    .then((data) => data.data && data.data.title);
-}
-
 export function NextRoundArticlePicker(props) {
   const {
     round,
@@ -23,7 +16,17 @@ export function NextRoundArticlePicker(props) {
   } = props;
   const lang = useLang();
 
-  const [useFilteredRandom, setUseFitleredRandom] = useState(true);
+  const [useFilteredRandom, setUseFilteredRandom] = useState(lang === 'en');
+
+  const getRandom = () =>
+    window
+      .fetch(
+        `${process.env.WIKIGAME_SERVER_URL}/wiki/random?${new URLSearchParams({
+          lang,
+        })}`
+      )
+      .then((res) => res.json())
+      .then((data) => data.data && data.data.title);
 
   const onStartClick = () => {
     if (disabled) return;
@@ -102,7 +105,7 @@ export function NextRoundArticlePicker(props) {
             <CheckBox
               label="random from most linked articles only"
               checked={useFilteredRandom}
-              onChange={setUseFitleredRandom}
+              onChange={setUseFilteredRandom}
               onShowInfo={onShowRandomInfo}
               infoTitle="Show info about most linked articles"
             />
