@@ -205,11 +205,6 @@ export function Rules(props) {
     onRulesChange({ allowCtrlf: !!allow });
   };
 
-  const onAllowDisambiguationChange = (allow) => {
-    if (disabled || roundStarted) return;
-    onRulesChange({ allowDisambiguation: !!allow });
-  };
-
   const onAllowBackChange = (allow) => {
     if (disabled || roundStarted) return;
     onRulesChange({ allowBack: !!allow });
@@ -218,6 +213,11 @@ export function Rules(props) {
   const onAllowCategoryChange = (allow) => {
     if (disabled || roundStarted) return;
     onRulesChange({ allowCategory: !!allow });
+  };
+
+  const onAllowNoteChange = (allow) => {
+    if (disabled || roundStarted) return;
+    onRulesChange({ allowNote: !!allow });
   };
 
   const onAllowNavChange = (allow) => {
@@ -251,6 +251,45 @@ export function Rules(props) {
         For example, first time you go back, it adds 1 click (just like when you
         click on links normally). But on the second time, it adds you 2 clicks,
         on the third time it adds you 3 clicks, and so on.
+      </div>,
+      {
+        closeOnClick: false,
+        autoClose: false,
+        toastId: 'help',
+      }
+    );
+  };
+
+  const onShowCategoryInfo = () => {
+    toast.dismiss('help');
+    toast(
+      <div>
+        <h3>Category Pages</h3>
+        Category pages are the lists of articles that share a common topic.
+        Category pages are indicated with <em>Category:</em> prefix on the
+        title. You may find all categories of an article at the bottom of the
+        page.
+      </div>,
+      {
+        closeOnClick: false,
+        autoClose: false,
+        toastId: 'help',
+      }
+    );
+  };
+
+  const onShowNoteInfo = () => {
+    toast.dismiss('help');
+    toast(
+      <div>
+        <h3>Note Links</h3>
+        Note links are the links on the note, usually on the beginning of an
+        article or a section. Notes are usually <em>written in italic</em>.
+        <br />
+        <br />
+        It may contain several types of links, such as disambiguation pages,
+        more in-depth article about a particular topic, or related articles
+        (e.g. "See also").
       </div>,
       {
         closeOnClick: false,
@@ -329,16 +368,18 @@ export function Rules(props) {
           onShowInfo={onShowBackInfo}
         />
         <CheckBox
-          label="Allow disambiguation page"
-          checked={rules.allowDisambiguation}
-          onChange={onAllowDisambiguationChange}
-          disabled={disabled}
-        />
-        <CheckBox
-          label="Allow category page"
+          label="Allow category pages"
           checked={rules.allowCategory}
           onChange={onAllowCategoryChange}
           disabled={disabled}
+          onShowInfo={onShowCategoryInfo}
+        />
+        <CheckBox
+          label="Allow note links"
+          checked={rules.allowNote}
+          onChange={onAllowNoteChange}
+          disabled={disabled}
+          onShowInfo={onShowNoteInfo}
         />
         <CheckBox
           label="Allow navigation links"

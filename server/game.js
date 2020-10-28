@@ -51,6 +51,7 @@ const createRoom = (host, id, _lang, _mode) => {
       allowBack: true,
       allowNav: true,
       allowCategory: true,
+      allowNote: true,
       showArticlePreview: true,
       bannedArticles: [],
     },
@@ -656,6 +657,7 @@ const socketHandler = async (socket) => {
     }
 
     if (
+      typeof room.rules.allowDisambiguation === 'boolean' &&
       !room.rules.allowDisambiguation &&
       validated.type === 'disambiguation'
     ) {

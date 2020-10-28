@@ -82,7 +82,7 @@ export function InGamePanel() {
   useEffect(() => {
     if (currentState.finished) return;
 
-    const createClickHandler = (link, nav) => {
+    const createClickHandler = (link, nav, note) => {
       return (e) => {
         if (!link) return;
 
@@ -111,10 +111,17 @@ export function InGamePanel() {
           return;
         }
 
-        // navigation pages
+        // navigation links
         if (nav && !rules.allowNav && typeof rules.allowNav === 'boolean') {
           toast.error(`You are not allowed to click navigational links!`);
           console.log('Ignoring navigational link:', link);
+          return;
+        }
+
+        // note links
+        if (note && !rules.allowNote && typeof rules.allowNote === 'boolean') {
+          toast.error(`You are not allowed to click note links!`);
+          console.log('Ignoring note link:', link);
           return;
         }
 
@@ -135,10 +142,11 @@ export function InGamePanel() {
     };
 
     const isNav = (el) => !!el.closest('.navbox');
+    const isNote = (el) => !!el.closest('.hatnote');
 
     const links = [...document.getElementsByTagName('A')];
     const clickHandlers = links.map((link) =>
-      createClickHandler(link.href, isNav(link))
+      createClickHandler(link.href, isNav(link), isNote(link))
     );
     links.forEach((link, i) =>
       link.addEventListener('click', clickHandlers[i])
