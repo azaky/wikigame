@@ -6,3 +6,4 @@ export * from './ArticlePicker';
 export * from './Rules';
 export * from './Header';
 export * from './Wrapper';
+export * from './CheckBox';

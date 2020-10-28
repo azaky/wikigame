@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+import { useLang } from '../DataContext';
 import * as util from '../util';
 import { ArticlePicker } from './ArticlePicker';
+import { CheckBox } from './CheckBox';
+
+function getRandom() {
+  return window
+    .fetch(`${process.env.WIKIGAME_SERVER_URL}/wiki/random`)
+    .then((res) => res.json())
+    .then((data) => data.data && data.data.title);
+}
 
 export function NextRoundArticlePicker(props) {
   const {
@@ -11,11 +21,35 @@ export function NextRoundArticlePicker(props) {
     onSwapArticles,
     onStartRound,
   } = props;
+  const lang = useLang();
+
+  const [useFilteredRandom, setUseFitleredRandom] = useState(true);
 
   const onStartClick = () => {
     if (disabled) return;
 
     onStartRound();
+  };
+
+  const onShowRandomInfo = () => {
+    toast.dismiss('help');
+    toast(
+      <div>
+        <h3>Most Linked Articles</h3>
+        When this option is checked, we will only randomize target articles from
+        top 10k articles based on the number of other articles that link to
+        them.
+        <br />
+        <br />
+        To give you an idea, all these articles have at least 2000 other
+        articles that have links to them.
+      </div>,
+      {
+        closeOnClick: false,
+        autoClose: false,
+        toastId: 'help',
+      }
+    );
   };
 
   return (
@@ -40,6 +74,14 @@ export function NextRoundArticlePicker(props) {
             disabled={disabled}
           />
         </div>
+        {!disabled && (round.start || round.target) ? (
+          <div style={{ marginBottom: '10px' }}>
+            <a onClick={() => onSwapArticles()} style={{ fontSize: '0.75em' }}>
+              (swap start/target articles)
+            </a>
+            <br />
+          </div>
+        ) : null}
         <label>Target Article</label>
         {round.target ? (
           <a
@@ -54,16 +96,18 @@ export function NextRoundArticlePicker(props) {
             value={round.target}
             onChange={onTargetArticleChange}
             disabled={disabled}
+            randomFn={useFilteredRandom ? getRandom : null}
           />
+          {lang === 'en' && !disabled ? (
+            <CheckBox
+              label="random from most linked articles only"
+              checked={useFilteredRandom}
+              onChange={setUseFitleredRandom}
+              onShowInfo={onShowRandomInfo}
+              infoTitle="Show info about most linked articles"
+            />
+          ) : null}
         </div>
-        {!disabled && (round.start || round.target) ? (
-          <div style={{ marginTop: '5px' }}>
-            <a onClick={() => onSwapArticles()} style={{ fontSize: '0.75em' }}>
-              (swap start/target articles)
-            </a>
-            <br />
-          </div>
-        ) : null}
         {!disabled ? (
           <button
             id="wikigame-start"

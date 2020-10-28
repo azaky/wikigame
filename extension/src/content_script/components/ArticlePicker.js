@@ -10,6 +10,8 @@ export function ArticlePicker(props) {
   const [loading, setLoading] = useState(false);
   const lang = useLang();
 
+  const randomFn = props.randomFn || getRandomPage;
+
   useEffect(() => {
     setLoading(false);
   }, [props.value]);
@@ -58,7 +60,7 @@ export function ArticlePicker(props) {
     if (disabled) return;
 
     setLoading(true);
-    getRandomPage(lang)
+    randomFn(lang)
       .then((title) => {
         onChange(title, () => {
           setLoading(false);

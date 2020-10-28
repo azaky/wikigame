@@ -5,6 +5,7 @@ const socketio = require('socket.io');
 const game = require('./game');
 const util = require('./util');
 const package = require('./package.json');
+const wiki = require('./wiki');
 
 const app = express();
 app.use(cors());
@@ -16,6 +17,7 @@ const io = socketio(server);
 app.get('/', (req, res) => {
   res.json({ message: 'Hello from Wikigame', version: package.version });
 });
+app.use('/wiki', wiki.handler);
 
 app.use('/game', game.handler);
 

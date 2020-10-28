@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { ArticlePicker } from './ArticlePicker';
+import { CheckBox } from './CheckBox';
 import * as util from '../util';
 
 function TimeLimit(props) {
@@ -61,7 +62,7 @@ function ScoringMetrics(props) {
         <b>Click:</b> <code>score = 10 &times; (11 - min(10, clicks))</code>
         <br />
         It means that your score will be 100 for 1 click, 90 for 2 clicks, etc.
-        until 90 for 10+ clicks.
+        until only 10 points for 10 or more clicks.
         <br />
         <br />
         <b>Combined:</b> <code>score = (score time + score click) / 2</code>
@@ -99,41 +100,6 @@ function ScoringMetrics(props) {
           <option value={m}>{m}</option>
         ))}
       </select>
-    </div>
-  );
-}
-
-function CheckBox(props) {
-  const { label, disabled, onChange, onShowInfo } = props;
-
-  const [checked, setChecked] = useState(props.checked);
-
-  useEffect(() => {
-    setChecked(props.checked);
-  }, [props.checked]);
-
-  return (
-    <div>
-      <label>
-        <input
-          type="checkbox"
-          checked={checked}
-          disabled={disabled}
-          onChange={(e) => {
-            setChecked(e.target.checked);
-            onChange(e.target.checked);
-          }}
-        />
-        {label}
-      </label>
-      {onShowInfo ? (
-        <>
-          &nbsp;
-          <a title={`Show info about "${label}"`} onClick={onShowInfo}>
-            🛈
-          </a>
-        </>
-      ) : null}
     </div>
   );
 }
