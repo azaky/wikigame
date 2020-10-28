@@ -82,7 +82,7 @@ export function InGamePanel() {
   useEffect(() => {
     if (currentState.finished) return;
 
-    const createClickHandler = (link, nav, note) => {
+    const createClickHandler = (link, nav, note, cat) => {
       return (e) => {
         if (!link) return;
 
@@ -125,6 +125,17 @@ export function InGamePanel() {
           return;
         }
 
+        // category links
+        if (
+          cat &&
+          !rules.allowCategory &&
+          typeof rules.allowCategory === 'boolean'
+        ) {
+          toast.error(`You are not allowed to go to Category pages!`);
+          console.log('Ignoring category link:', link);
+          return;
+        }
+
         console.log('Navigating to:', article);
 
         chrome.storage.local.get(['localState'], ({ localState }) => {
@@ -143,10 +154,20 @@ export function InGamePanel() {
 
     const isNav = (el) => !!el.closest('.navbox');
     const isNote = (el) => !!el.closest('.hatnote');
+    const isCat = (el) => !!el.closest('.catlinks');
 
     const links = [...document.getElementsByTagName('A')];
     const clickHandlers = links.map((link) =>
-      createClickHandler(link.href, isNav(link), isNote(link))
+      createClickHandler(
+        link.href,
+        typeof rules.allowNav === 'boolean' && !rules.allowNav && isNav(link),
+        typeof rules.allowNote === 'boolean' &&
+          !rules.allowNote &&
+          isNote(link),
+        typeof rules.allowCategory === 'boolean' &&
+          !rules.allowCategory &&
+          isCat(link)
+      )
     );
     links.forEach((link, i) =>
       link.addEventListener('click', clickHandlers[i])
