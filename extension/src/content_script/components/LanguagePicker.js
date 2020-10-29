@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from 'react-select';
 
-import languages from '../../lang.json';
+import languages from '../../../../scripts/languages/lang.json';
 
 export function LanguagePicker(props) {
   const { lang, onChange } = props;

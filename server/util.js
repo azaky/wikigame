@@ -1,4 +1,4 @@
-const languages = require('./lang.json');
+const languages = require('../scripts/languages/lang.json');
 
 function isLanguageValid(lang) {
   return languages.findIndex((lg) => lg.lang === lang) !== -1;

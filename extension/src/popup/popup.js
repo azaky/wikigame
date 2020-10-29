@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Select from 'react-select';
 import copy from 'copy-to-clipboard';
 
-import languages from '../lang.json';
+import languages from '../../../scripts/languages/lang.json';
 
 function LanguagePicker(props) {
   const { lang, onChange } = props;

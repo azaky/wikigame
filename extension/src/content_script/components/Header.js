@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import copy from 'copy-to-clipboard';
 import { getLinkWithRoomId, leaveGame } from '../util';
-import languages from '../../lang.json';
+import languages from '../../../../scripts/languages/lang.json';
 import { useData } from '../DataContext';
 import { LanguagePicker } from './LanguagePicker';
 

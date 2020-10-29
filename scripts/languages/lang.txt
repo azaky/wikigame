@@ -1,0 +1,303 @@
+en	English	English	6181181
+ceb	Cebuano	Cebuano	5350062
+sv	Swedish	svenska	3607303
+de	German	Deutsch	2494108
+fr	French	français	2260701
+nl	Dutch	Nederlands	2037062
+ru	Russian	русский	1671273
+it	Italian	italiano	1644049
+es	Spanish	español	1636174
+pl	Polish	polski	1434225
+war	Waray	Winaray	1264484
+vi	Vietnamese	Tiếng Việt	1257941
+ja	Japanese	日本語	1234915
+zh	Chinese	中文	1154322
+arz	Egyptian Arabic	مصرى	1140889
+ar	Arabic	العربية	1072500
+uk	Ukrainian	українська	1051470
+pt	Portuguese	português	1044583
+fa	Persian	فارسی	751299
+ca	Catalan	català	660487
+sr	Serbian	српски / srpski	639396
+id	Indonesian	Bahasa Indonesia	549678
+no	Norwegian (Bokmål)	norsk	542497
+ko	Korean	한국어	524389
+fi	Finnish	suomi	495527
+hu	Hungarian	magyar	477548
+cs	Czech	čeština	464749
+sh	Serbo-Croatian	srpskohrvatski / српскохрватски	453341
+zh-min-nan	Southern Min	Bân-lâm-gú	419026
+ro	Romanian	română	412772
+tr	Turkish	Türkçe	378935
+eu	Basque	euskara	365797
+ms	Malay	Bahasa Melayu	344174
+ce	Chechen	нохчийн	313763
+eo	Esperanto	Esperanto	286904
+he	Hebrew	עברית	279314
+hy	Armenian	հայերեն	276955
+bg	Bulgarian	български	266596
+da	Danish	dansk	262681
+azb	South Azerbaijani	تۆرکجه	239589
+sk	Slovak	slovenčina	234768
+kk	Kazakh	қазақша	227267
+min	Minangkabau	Minangkabau	224115
+hr	Croatian	hrvatski	223041
+et	Estonian	eesti	212863
+lt	Lithuanian	lietuvių	201337
+be	Belarusian	беларуская	197215
+tt	Tatar	татарча/tatarça	189752
+el	Greek	Ελληνικά	183042
+simple	Simple English	Simple English	175313
+az	Azerbaijani	azərbaycanca	174034
+sl	Slovene	slovenščina	169853
+gl	Galician	galego	167757
+ur	Urdu	اردو	157697
+nn	Norwegian (Nynorsk)	norsk nynorsk	155118
+ka	Georgian	ქართული	143634
+hi	Hindi	हिन्दी	142777
+th	Thai	ไทย	140147
+uz	Uzbek	oʻzbekcha/ўзбекча	138715
+la	Latin	Latina	133983
+cy	Welsh	Cymraeg	132029
+ta	Tamil	தமிழ்	131974
+vo	Volapük	Volapük	125214
+mk	Macedonian	македонски	109180
+ast	Asturian	asturianu	107544
+lv	Latvian	latviešu	103738
+zh-yue	Cantonese	粵語	103502
+tg	Tajik	тоҷикӣ	101575
+bn	Bengali	বাংলা	96656
+af	Afrikaans	Afrikaans	94679
+mg	Malagasy	Malagasy	93346
+oc	Occitan	occitan	86120
+bs	Bosnian	bosanski	84425
+sq	Albanian	shqip	81565
+ky	Kyrgyz	Кыргызча	80725
+nds	Low German	Plattdüütsch	77766
+new	Newar	नेपाल भाषा	72295
+be-tarask	Belarusian (Taraškievica)	беларуская (тарашкевіца)‎	71545
+ml	Malayalam	മലയാളം	70763
+te	Telugu	తెలుగు	69818
+br	Breton	brezhoneg	68727
+vec	Venetian	vèneto	66679
+tl	Tagalog	Tagalog	65705
+pms	Piedmontese	Piemontèis	64840
+mr	Marathi	मराठी	64405
+su	Sundanese	Sunda	60540
+ht	Haitian Creole	Kreyòl ayisyen	60258
+sw	Swahili	Kiswahili	59856
+lb	Luxembourgish	Lëtzebuergesch	58939
+jv	Javanese	Jawa	58936
+pnb	Western Punjabi	پنجابی	56085
+ba	Bashkir	башҡортса	54144
+ga	Irish	Gaeilge	53806
+szl	Silesian	ślůnski	52483
+is	Icelandic	íslenska	50762
+my	Burmese	မြန်မာဘာသာ	50004
+fy	West Frisian	Frysk	44658
+cv	Chuvash	Чӑвашла	44198
+lmo	Lombard	lumbaart	43185
+sco	Scots	Scots	42499
+wuu	Wu	吴语	40315
+an	Aragonese	aragonés	38370
+diq	Zazaki	Zazaki	37748
+pa	Punjabi	ਪੰਜਾਬੀ	34823
+ku	Kurdish (Kurmanji)	kurdî	33997
+ne	Nepali	नेपाली	33534
+yo	Yoruba	Yorùbá	32873
+bar	Bavarian	Boarisch	31426
+io	Ido	Ido	29857
+gu	Gujarati	ગુજરાતી	29138
+ckb	Kurdish (Sorani)	کوردی	27968
+als	Alemannic	Alemannisch	27398
+kn	Kannada	ಕನ್ನಡ	26649
+scn	Sicilian	sicilianu	26061
+bpy	Bishnupriya Manipuri	বিষ্ণুপ্রিয়া মণিপুরী	25095
+qu	Quechua	Runa Simi	22712
+ia	Interlingua	interlingua	22633
+mn	Mongolian	монгол	19745
+bat-smg	Samogitian	žemaitėška	16907
+si	Sinhalese	සිංහල	15896
+nv	Navajo	Diné bizaad	15871
+or	Odia	ଓଡ଼ିଆ	15711
+cdo	Eastern Min	Mìng-dĕ̤ng-ngṳ̄	15495
+ilo	Ilokano	Ilokano	15389
+gd	Scottish Gaelic	Gàidhlig	15153
+xmf	Mingrelian	მარგალური	15004
+yi	Yiddish	ייִדיש	14947
+am	Amharic	አማርኛ	14890
+nap	Neapolitan	Napulitano	14614
+bug	Buginese	ᨅᨔ ᨕᨘᨁᨗ	14139
+wa	Walloon	walon	14099
+sd	Sindhi	سنڌي	13810
+hsb	Upper Sorbian	hornjoserbsce	13630
+mai	Maithili	मैथिली	13607
+fo	Faroese	føroyskt	13404
+map-bms	Banyumasan	Basa Banyumasan	13370
+mzn	Mazanderani	مازِرونی	13199
+li	Limburgish	Limburgs	13118
+sah	Sakha	саха тыла	12788
+eml	Emilian-Romagnol	emiliàn e rumagnòl	12540
+os	Ossetian	Ирон	12524
+ps	Pashto	پښتو	11600
+sa	Sanskrit	संस्कृतम्	11463
+frr	North Frisian	Nordfriisk	11302
+bcl	Central Bikol	Bikol Central	10568
+zh-classical	Classical Chinese	文言	10511
+ace	Acehnese	Acèh	10353
+mrj	Hill Mari	кырык мары	10277
+avk	Kotava	Kotava	10267
+gor	Gorontalo	Bahasa Hulontalo	10227
+mhr	Meadow Mari	олык марий	10206
+hif	Fiji Hindi	Fiji Hindi	9800
+hak	Hakka	客家語/Hak-kâ-ngî	9378
+roa-tara	Tarantino	tarandíne	9302
+pam	Kapampangan	Kapampangan	8699
+hyw	Western Armenian	Արեւմտահայերէն	8502
+km	Khmer	ភាសាខ្មែរ	8317
+nso	Northern Sotho	Sesotho sa Leboa	8208
+rue	Rusyn	русиньскый	7873
+crh	Crimean Tatar	qırımtatarca	7802
+se	Northern Sami	davvisámegiella	7713
+as	Assamese	অসমীয়া	7443
+bh	Bhojpuri	भोजपुरी	7373
+shn	Shan	ၽႃႇသႃႇတႆး 	7318
+vls	West Flemish	West-Vlams	7262
+mi	Māori	Māori	7170
+nds-nl	Dutch Low Saxon	Nedersaksies	7089
+nah	Nahuatl	Nāhuatl	7000
+sc	Sardinian	sardu	6752
+vep	Veps	vepsän kel’	6615
+gan	Gan	贛語	6435
+sn	Shona	chiShona	6234
+myv	Erzya	эрзянь	6224
+ab	Abkhazian	Аҧсшәа	6087
+lrc	Northern Luri	لۊری شومالی	6051
+glk	Gilaki	گیلکی	6043
+bo	Tibetan	བོད་ཡིག	5923
+so	Somali	Soomaaliga	5858
+co	Corsican	corsu	5843
+tk	Turkmen	Türkmençe	5815
+fiu-vro	Võro	Võro	5609
+ha	Hausa	Hausa	5467
+csb	Kashubian	kaszëbsczi	5354
+kv	Komi	коми	5349
+ie	Interlingue	Interlingue	5141
+gv	Manx	Gaelg	5012
+udm	Udmurt	удмурт	4960
+pcd	Picard	Picard	4887
+kab	Kabyle	Taqbaylit	4868
+ay	Aymara	Aymar aru	4853
+sat	Santali	ᱥᱟᱱᱛᱟᱲᱤ	4755
+zea	Zeelandic	Zeêuws	4741
+zu	Zulu	isiZulu	4600
+nrm	Norman	Nouormand	4516
+ug	Uyghur	ئۇيغۇرچە / Uyghurche	4434
+ban	Balinese	Basa Bali	4423
+lij	Ligurian	Ligure	4324
+kw	Cornish	kernowek	4229
+frp	Franco-Provençal	arpetan	4160
+lez	Lezgian	лезги	4146
+lfn	Lingua Franca Nova	Lingua Franca Nova	4033
+stq	Saterland Frisian	Seeltersk	4025
+gn	Guarani	Avañe'ẽ	3899
+mwl	Mirandese	Mirandés	3830
+gom	Konkani	गोंयची कोंकणी / Gõychi Konknni	3723
+rm	Romansh	rumantsch	3695
+mt	Maltese	Malti	3624
+lo	Lao	ລາວ	3575
+lad	Ladino	Ladino	3556
+koi	Komi-Permyak	Перем Коми	3452
+olo	Livvi-Karelian	Livvinkarjala	3443
+fur	Friulian	furlan	3420
+ang	Anglo-Saxon	Ænglisc	3302
+dsb	Lower Sorbian	dolnoserbski	3287
+dty	Doteli	डोटेली	3286
+bjn	Banjar	Banjar	3284
+ext	Extremaduran	estremeñu	3226
+ln	Lingala	lingála	3178
+cbk-zam	Chavacano	Chavacano de Zamboanga	3097
+dv	Dhivehi	ދިވެހިބަސް	2958
+tyv	Tuvan	тыва дыл	2912
+ksh	Ripuarian	Ripoarisch	2880
+ary	Moroccan Arabic	الدارجة	2879
+gag	Gagauz	Gagauz	2726
+pfl	Palatinate German	Pälzisch	2684
+pag	Pangasinan	Pangasinan	2664
+pi	Pali	पालि	2543
+av	Avar	авар	2463
+awa	Awadhi	अवधी	2431
+haw	Hawaiian	Hawaiʻi	2292
+bxr	Buryat	буряад	2172
+xal	Kalmyk	хальмг	2088
+krc	Karachay-Balkar	къарачай-малкъар	2048
+pap	Papiamento	Papiamentu	2005
+za	Zhuang	Vahcuengh	1954
+rw	Kinyarwanda	Kinyarwanda	1931
+pdc	Pennsylvania German	Deitsch	1907
+kaa	Karakalpak	Qaraqalpaqsha	1872
+szy	Sakizaya	Sakizaya	1824
+arc	Aramaic	ܐܪܡܝܐ	1764
+to	Tongan	lea faka-Tonga	1741
+nov	Novial	Novial	1679
+jam	Jamaican Patois	Patois	1660
+tpi	Tok Pisin	Tok Pisin	1625
+kbp	Kabiye	Kabɩyɛ	1612
+ig	Igbo	Igbo	1595
+kbd	Kabardian	Адыгэбзэ	1587
+inh	Ingush	ГӀалгӀай	1515
+na	Nauruan	Dorerin Naoero	1483
+tet	Tetum	tetun	1480
+wo	Wolof	Wolof	1422
+tcy	Tulu	ತುಳು	1407
+smn	Inari Sami	anarâškielâ	1402
+ki	Kikuyu	Gĩkũyũ	1366
+ak	Akan	Akan	1315
+atj	Atikamekw	Atikamekw	1313
+jbo	Lojban	la .lojban.	1258
+bi	Bislama	Bislama	1235
+roa-rup	Aromanian	armãneashti	1232
+lbe	Lak	лакку	1223
+kg	Kongo	Kongo	1210
+ty	Tahitian	reo tahiti	1208
+lg	Luganda	Luganda	1206
+mdf	Moksha	мокшень	1196
+fj	Fijian	Na Vosa Vakaviti	1104
+lld	Ladin	Ladin	1101
+srn	Sranan Tongo	Sranantongo	1071
+xh	Xhosa	isiXhosa	1061
+gcr	Guianan Creole	kriyòl gwiyannen	1034
+ltg	Latgalian	latgaļu	1001
+chr	Cherokee	ᏣᎳᎩ	916
+sm	Samoan	Gagana Samoa	869
+om	Oromo	Oromoo	857
+kl	Greenlandic	kalaallisut	832
+got	Gothic	𐌲𐌿𐍄𐌹𐍃𐌺	830
+pih	Norfolk	Norfuk / Pitkern	803
+st	Sotho	Sesotho	789
+ny	Chewa	Chi-Chewa	764
+cu	Old Church Slavonic	словѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ	744
+nqo	N'Ko	ߒߞߏ	741
+mnw	Mon	ဘာသာ မန်	713
+tn	Tswana	Setswana	712
+tw	Twi	Twi	709
+ts	Tsonga	Xitsonga	700
+rmy	Romani	romani čhib	678
+bm	Bambara	bamanankan	669
+chy	Cheyenne	Tsetsêhestâhese	619
+rn	Kirundi	Kirundi	617
+tum	Tumbuka	chiTumbuka	588
+ss	Swazi	SiSwati	519
+ch	Chamorro	Chamoru	514
+iu	Inuktitut	ᐃᓄᒃᑎᑐᑦ/inuktitut	472
+pnt	Pontic Greek	Ποντιακά	470
+ks	Kashmiri	कॉशुर / کٲشُر	426
+ady	Adyghe	адыгабзэ	423
+ve	Venda	Tshivenda	370
+ee	Ewe	eʋegbe	361
+ik	Inupiaq	Iñupiak	280
+ff	Fula	Fulfulde	272
+sg	Sango	Sängö	264
+din	Dinka	Thuɔŋjäŋ	256
+dz	Dzongkha	ཇོང་ཁ	219
+ti	Tigrinya	ትግርኛ	198

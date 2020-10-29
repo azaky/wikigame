@@ -1,6 +1,5 @@
 const fs = require('fs');
 const es = require('event-stream');
-const { parse } = require('path');
 
 const regex = /^(.*)\s+\[(\d+)\]\s*→\s*(\d+)\s*\((\d+)\s*\+\s*(\d+)\)$/;
 

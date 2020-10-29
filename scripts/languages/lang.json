@@ -3,457 +3,457 @@
     "lang": "en",
     "label": "English",
     "labelLocal": "English",
-    "articleCount": 6177358
+    "articleCount": 6181181
   },
   {
     "lang": "ceb",
     "label": "Cebuano",
     "labelLocal": "Cebuano",
-    "articleCount": 5344552
+    "articleCount": 5350062
   },
   {
     "lang": "sv",
     "label": "Swedish",
     "labelLocal": "svenska",
-    "articleCount": 3622777
+    "articleCount": 3607303
   },
   {
     "lang": "de",
     "label": "German",
     "labelLocal": "Deutsch",
-    "articleCount": 2491591
+    "articleCount": 2494108
   },
   {
     "lang": "fr",
     "label": "French",
     "labelLocal": "français",
-    "articleCount": 2258155
+    "articleCount": 2260701
   },
   {
     "lang": "nl",
     "label": "Dutch",
     "labelLocal": "Nederlands",
-    "articleCount": 2036118
+    "articleCount": 2037062
   },
   {
     "lang": "ru",
     "label": "Russian",
     "labelLocal": "русский",
-    "articleCount": 1669327
+    "articleCount": 1671273
   },
   {
     "lang": "it",
     "label": "Italian",
     "labelLocal": "italiano",
-    "articleCount": 1642389
+    "articleCount": 1644049
   },
   {
     "lang": "es",
     "label": "Spanish",
     "labelLocal": "español",
-    "articleCount": 1634351
+    "articleCount": 1636174
   },
   {
     "lang": "pl",
     "label": "Polish",
     "labelLocal": "polski",
-    "articleCount": 1432215
+    "articleCount": 1434225
   },
   {
     "lang": "war",
     "label": "Waray",
     "labelLocal": "Winaray",
-    "articleCount": 1264476
+    "articleCount": 1264484
   },
   {
     "lang": "vi",
     "label": "Vietnamese",
     "labelLocal": "Tiếng Việt",
-    "articleCount": 1257656
+    "articleCount": 1257941
   },
   {
     "lang": "ja",
     "label": "Japanese",
     "labelLocal": "日本語",
-    "articleCount": 1233716
+    "articleCount": 1234915
   },
   {
     "lang": "zh",
     "label": "Chinese",
     "labelLocal": "中文",
-    "articleCount": 1153103
+    "articleCount": 1154322
   },
   {
     "lang": "arz",
     "label": "Egyptian Arabic",
     "labelLocal": "مصرى",
-    "articleCount": 1135558
+    "articleCount": 1140889
   },
   {
     "lang": "ar",
     "label": "Arabic",
     "labelLocal": "العربية",
-    "articleCount": 1071467
+    "articleCount": 1072500
   },
   {
     "lang": "uk",
     "label": "Ukrainian",
     "labelLocal": "українська",
-    "articleCount": 1049970
+    "articleCount": 1051470
   },
   {
     "lang": "pt",
     "label": "Portuguese",
     "labelLocal": "português",
-    "articleCount": 1044133
+    "articleCount": 1044583
   },
   {
     "lang": "fa",
     "label": "Persian",
     "labelLocal": "فارسی",
-    "articleCount": 750225
+    "articleCount": 751299
   },
   {
     "lang": "ca",
     "label": "Catalan",
     "labelLocal": "català",
-    "articleCount": 659885
+    "articleCount": 660487
   },
   {
     "lang": "sr",
     "label": "Serbian",
     "labelLocal": "српски / srpski",
-    "articleCount": 639134
+    "articleCount": 639396
   },
   {
     "lang": "id",
     "label": "Indonesian",
     "labelLocal": "Bahasa Indonesia",
-    "articleCount": 549026
+    "articleCount": 549678
   },
   {
     "lang": "no",
     "label": "Norwegian (Bokmål)",
     "labelLocal": "norsk",
-    "articleCount": 542124
+    "articleCount": 542497
   },
   {
     "lang": "ko",
     "label": "Korean",
     "labelLocal": "한국어",
-    "articleCount": 523756
+    "articleCount": 524389
   },
   {
     "lang": "fi",
     "label": "Finnish",
     "labelLocal": "suomi",
-    "articleCount": 495007
+    "articleCount": 495527
   },
   {
     "lang": "hu",
     "label": "Hungarian",
     "labelLocal": "magyar",
-    "articleCount": 477193
+    "articleCount": 477548
   },
   {
     "lang": "cs",
     "label": "Czech",
     "labelLocal": "čeština",
-    "articleCount": 464252
+    "articleCount": 464749
   },
   {
     "lang": "sh",
     "label": "Serbo-Croatian",
     "labelLocal": "srpskohrvatski / српскохрватски",
-    "articleCount": 453220
+    "articleCount": 453341
   },
   {
     "lang": "zh-min-nan",
     "label": "Southern Min",
     "labelLocal": "Bân-lâm-gú",
-    "articleCount": 415286
+    "articleCount": 419026
   },
   {
     "lang": "ro",
     "label": "Romanian",
     "labelLocal": "română",
-    "articleCount": 412615
+    "articleCount": 412772
   },
   {
     "lang": "tr",
     "label": "Turkish",
     "labelLocal": "Türkçe",
-    "articleCount": 377929
+    "articleCount": 378935
   },
   {
     "lang": "eu",
     "label": "Basque",
     "labelLocal": "euskara",
-    "articleCount": 365564
+    "articleCount": 365797
   },
   {
     "lang": "ms",
     "label": "Malay",
     "labelLocal": "Bahasa Melayu",
-    "articleCount": 343860
+    "articleCount": 344174
   },
   {
     "lang": "ce",
     "label": "Chechen",
     "labelLocal": "нохчийн",
-    "articleCount": 300542
+    "articleCount": 313763
   },
   {
     "lang": "eo",
     "label": "Esperanto",
     "labelLocal": "Esperanto",
-    "articleCount": 286550
+    "articleCount": 286904
   },
   {
     "lang": "he",
     "label": "Hebrew",
     "labelLocal": "עברית",
-    "articleCount": 278687
+    "articleCount": 279314
   },
   {
     "lang": "hy",
     "label": "Armenian",
     "labelLocal": "հայերեն",
-    "articleCount": 276474
+    "articleCount": 276955
   },
   {
     "lang": "bg",
     "label": "Bulgarian",
     "labelLocal": "български",
-    "articleCount": 266370
+    "articleCount": 266596
   },
   {
     "lang": "da",
     "label": "Danish",
     "labelLocal": "dansk",
-    "articleCount": 262545
+    "articleCount": 262681
   },
   {
     "lang": "azb",
     "label": "South Azerbaijani",
     "labelLocal": "تۆرکجه",
-    "articleCount": 239535
+    "articleCount": 239589
   },
   {
     "lang": "sk",
     "label": "Slovak",
     "labelLocal": "slovenčina",
-    "articleCount": 234711
+    "articleCount": 234768
   },
   {
     "lang": "kk",
     "label": "Kazakh",
     "labelLocal": "қазақша",
-    "articleCount": 227253
+    "articleCount": 227267
   },
   {
     "lang": "min",
     "label": "Minangkabau",
     "labelLocal": "Minangkabau",
-    "articleCount": 224098
+    "articleCount": 224115
   },
   {
     "lang": "hr",
     "label": "Croatian",
     "labelLocal": "hrvatski",
-    "articleCount": 222900
+    "articleCount": 223041
   },
   {
     "lang": "et",
     "label": "Estonian",
     "labelLocal": "eesti",
-    "articleCount": 212722
+    "articleCount": 212863
   },
   {
     "lang": "lt",
     "label": "Lithuanian",
     "labelLocal": "lietuvių",
-    "articleCount": 201236
+    "articleCount": 201337
   },
   {
     "lang": "be",
     "label": "Belarusian",
     "labelLocal": "беларуская",
-    "articleCount": 196903
-  },
-  {
-    "lang": "el",
-    "label": "Greek",
-    "labelLocal": "Ελληνικά",
-    "articleCount": 182847
+    "articleCount": 197215
   },
   {
     "lang": "tt",
     "label": "Tatar",
     "labelLocal": "татарча/tatarça",
-    "articleCount": 175957
+    "articleCount": 189752
+  },
+  {
+    "lang": "el",
+    "label": "Greek",
+    "labelLocal": "Ελληνικά",
+    "articleCount": 183042
   },
   {
     "lang": "simple",
     "label": "Simple English",
     "labelLocal": "Simple English",
-    "articleCount": 174813
+    "articleCount": 175313
   },
   {
     "lang": "az",
     "label": "Azerbaijani",
     "labelLocal": "azərbaycanca",
-    "articleCount": 173912
+    "articleCount": 174034
   },
   {
     "lang": "sl",
     "label": "Slovene",
     "labelLocal": "slovenščina",
-    "articleCount": 169742
+    "articleCount": 169853
   },
   {
     "lang": "gl",
     "label": "Galician",
     "labelLocal": "galego",
-    "articleCount": 167592
+    "articleCount": 167757
   },
   {
     "lang": "ur",
     "label": "Urdu",
     "labelLocal": "اردو",
-    "articleCount": 157651
+    "articleCount": 157697
   },
   {
     "lang": "nn",
     "label": "Norwegian (Nynorsk)",
     "labelLocal": "norsk nynorsk",
-    "articleCount": 154882
+    "articleCount": 155118
   },
   {
     "lang": "ka",
     "label": "Georgian",
     "labelLocal": "ქართული",
-    "articleCount": 143345
+    "articleCount": 143634
   },
   {
     "lang": "hi",
     "label": "Hindi",
     "labelLocal": "हिन्दी",
-    "articleCount": 142555
+    "articleCount": 142777
   },
   {
     "lang": "th",
     "label": "Thai",
     "labelLocal": "ไทย",
-    "articleCount": 140037
+    "articleCount": 140147
   },
   {
     "lang": "uz",
     "label": "Uzbek",
     "labelLocal": "oʻzbekcha/ўзбекча",
-    "articleCount": 137877
+    "articleCount": 138715
   },
   {
     "lang": "la",
     "label": "Latin",
     "labelLocal": "Latina",
-    "articleCount": 133900
+    "articleCount": 133983
   },
   {
     "lang": "cy",
     "label": "Welsh",
     "labelLocal": "Cymraeg",
-    "articleCount": 131990
+    "articleCount": 132029
   },
   {
     "lang": "ta",
     "label": "Tamil",
     "labelLocal": "தமிழ்",
-    "articleCount": 131812
+    "articleCount": 131974
   },
   {
     "lang": "vo",
     "label": "Volapük",
     "labelLocal": "Volapük",
-    "articleCount": 125187
+    "articleCount": 125214
   },
   {
     "lang": "mk",
     "label": "Macedonian",
     "labelLocal": "македонски",
-    "articleCount": 108989
+    "articleCount": 109180
   },
   {
     "lang": "ast",
     "label": "Asturian",
     "labelLocal": "asturianu",
-    "articleCount": 107526
+    "articleCount": 107544
   },
   {
     "lang": "lv",
     "label": "Latvian",
     "labelLocal": "latviešu",
-    "articleCount": 103598
+    "articleCount": 103738
   },
   {
     "lang": "zh-yue",
     "label": "Cantonese",
     "labelLocal": "粵語",
-    "articleCount": 103254
+    "articleCount": 103502
   },
   {
     "lang": "tg",
     "label": "Tajik",
     "labelLocal": "тоҷикӣ",
-    "articleCount": 101537
+    "articleCount": 101575
   },
   {
     "lang": "bn",
     "label": "Bengali",
     "labelLocal": "বাংলা",
-    "articleCount": 96242
+    "articleCount": 96656
   },
   {
     "lang": "af",
     "label": "Afrikaans",
     "labelLocal": "Afrikaans",
-    "articleCount": 94622
+    "articleCount": 94679
   },
   {
     "lang": "mg",
     "label": "Malagasy",
     "labelLocal": "Malagasy",
-    "articleCount": 93340
+    "articleCount": 93346
   },
   {
     "lang": "oc",
     "label": "Occitan",
     "labelLocal": "occitan",
-    "articleCount": 86262
+    "articleCount": 86120
   },
   {
     "lang": "bs",
     "label": "Bosnian",
     "labelLocal": "bosanski",
-    "articleCount": 84376
+    "articleCount": 84425
   },
   {
     "lang": "sq",
     "label": "Albanian",
     "labelLocal": "shqip",
-    "articleCount": 81546
+    "articleCount": 81565
   },
   {
     "lang": "ky",
     "label": "Kyrgyz",
     "labelLocal": "Кыргызча",
-    "articleCount": 80726
+    "articleCount": 80725
   },
   {
     "lang": "nds",
     "label": "Low German",
     "labelLocal": "Plattdüütsch",
-    "articleCount": 77058
+    "articleCount": 77766
   },
   {
     "lang": "new",
@@ -465,207 +465,207 @@
     "lang": "be-tarask",
     "label": "Belarusian (Taraškievica)",
     "labelLocal": "беларуская (тарашкевіца)‎",
-    "articleCount": 71497
+    "articleCount": 71545
   },
   {
     "lang": "ml",
     "label": "Malayalam",
     "labelLocal": "മലയാളം",
-    "articleCount": 70703
+    "articleCount": 70763
   },
   {
     "lang": "te",
     "label": "Telugu",
     "labelLocal": "తెలుగు",
-    "articleCount": 69751
+    "articleCount": 69818
   },
   {
     "lang": "br",
     "label": "Breton",
     "labelLocal": "brezhoneg",
-    "articleCount": 68713
+    "articleCount": 68727
   },
   {
     "lang": "vec",
     "label": "Venetian",
     "labelLocal": "vèneto",
-    "articleCount": 66658
+    "articleCount": 66679
   },
   {
     "lang": "tl",
     "label": "Tagalog",
     "labelLocal": "Tagalog",
-    "articleCount": 66581
+    "articleCount": 65705
   },
   {
     "lang": "pms",
     "label": "Piedmontese",
     "labelLocal": "Piemontèis",
-    "articleCount": 64836
+    "articleCount": 64840
   },
   {
     "lang": "mr",
     "label": "Marathi",
     "labelLocal": "मराठी",
-    "articleCount": 63900
+    "articleCount": 64405
   },
   {
     "lang": "su",
     "label": "Sundanese",
     "labelLocal": "Sunda",
-    "articleCount": 60534
+    "articleCount": 60540
   },
   {
     "lang": "ht",
     "label": "Haitian Creole",
     "labelLocal": "Kreyòl ayisyen",
-    "articleCount": 60187
+    "articleCount": 60258
   },
   {
     "lang": "sw",
     "label": "Swahili",
     "labelLocal": "Kiswahili",
-    "articleCount": 59791
+    "articleCount": 59856
   },
   {
     "lang": "lb",
     "label": "Luxembourgish",
     "labelLocal": "Lëtzebuergesch",
-    "articleCount": 58888
+    "articleCount": 58939
   },
   {
     "lang": "jv",
     "label": "Javanese",
     "labelLocal": "Jawa",
-    "articleCount": 58512
+    "articleCount": 58936
   },
   {
     "lang": "pnb",
     "label": "Western Punjabi",
     "labelLocal": "پنجابی",
-    "articleCount": 55702
+    "articleCount": 56085
   },
   {
     "lang": "ba",
     "label": "Bashkir",
     "labelLocal": "башҡортса",
-    "articleCount": 54076
+    "articleCount": 54144
   },
   {
     "lang": "ga",
     "label": "Irish",
     "labelLocal": "Gaeilge",
-    "articleCount": 53760
+    "articleCount": 53806
   },
   {
     "lang": "szl",
     "label": "Silesian",
     "labelLocal": "ślůnski",
-    "articleCount": 52482
+    "articleCount": 52483
   },
   {
     "lang": "is",
     "label": "Icelandic",
     "labelLocal": "íslenska",
-    "articleCount": 50699
+    "articleCount": 50762
   },
   {
     "lang": "my",
     "label": "Burmese",
     "labelLocal": "မြန်မာဘာသာ",
-    "articleCount": 48479
+    "articleCount": 50004
   },
   {
     "lang": "fy",
     "label": "West Frisian",
     "labelLocal": "Frysk",
-    "articleCount": 44637
+    "articleCount": 44658
   },
   {
     "lang": "cv",
     "label": "Chuvash",
     "labelLocal": "Чӑвашла",
-    "articleCount": 44119
+    "articleCount": 44198
   },
   {
     "lang": "lmo",
     "label": "Lombard",
     "labelLocal": "lumbaart",
-    "articleCount": 43058
+    "articleCount": 43185
   },
   {
     "lang": "sco",
     "label": "Scots",
     "labelLocal": "Scots",
-    "articleCount": 42501
+    "articleCount": 42499
   },
-  { "lang": "wuu", "label": "Wu", "labelLocal": "吴语", "articleCount": 40227 },
+  { "lang": "wuu", "label": "Wu", "labelLocal": "吴语", "articleCount": 40315 },
   {
     "lang": "an",
     "label": "Aragonese",
     "labelLocal": "aragonés",
-    "articleCount": 38313
+    "articleCount": 38370
   },
   {
     "lang": "diq",
     "label": "Zazaki",
     "labelLocal": "Zazaki",
-    "articleCount": 36394
+    "articleCount": 37748
   },
   {
     "lang": "pa",
     "label": "Punjabi",
     "labelLocal": "ਪੰਜਾਬੀ",
-    "articleCount": 34828
+    "articleCount": 34823
   },
   {
     "lang": "ku",
     "label": "Kurdish (Kurmanji)",
     "labelLocal": "kurdî",
-    "articleCount": 33833
+    "articleCount": 33997
   },
   {
     "lang": "ne",
     "label": "Nepali",
     "labelLocal": "नेपाली",
-    "articleCount": 33512
+    "articleCount": 33534
   },
   {
     "lang": "yo",
     "label": "Yoruba",
     "labelLocal": "Yorùbá",
-    "articleCount": 32831
+    "articleCount": 32873
   },
   {
     "lang": "bar",
     "label": "Bavarian",
     "labelLocal": "Boarisch",
-    "articleCount": 31422
+    "articleCount": 31426
   },
-  { "lang": "io", "label": "Ido", "labelLocal": "Ido", "articleCount": 29844 },
+  { "lang": "io", "label": "Ido", "labelLocal": "Ido", "articleCount": 29857 },
   {
     "lang": "gu",
     "label": "Gujarati",
     "labelLocal": "ગુજરાતી",
-    "articleCount": 29133
+    "articleCount": 29138
   },
   {
     "lang": "ckb",
     "label": "Kurdish (Sorani)",
     "labelLocal": "کوردی",
-    "articleCount": 27783
+    "articleCount": 27968
   },
   {
     "lang": "als",
     "label": "Alemannic",
     "labelLocal": "Alemannisch",
-    "articleCount": 27386
+    "articleCount": 27398
   },
   {
     "lang": "kn",
     "label": "Kannada",
     "labelLocal": "ಕನ್ನಡ",
-    "articleCount": 26634
+    "articleCount": 26649
   },
   {
     "lang": "scn",
@@ -683,31 +683,31 @@
     "lang": "qu",
     "label": "Quechua",
     "labelLocal": "Runa Simi",
-    "articleCount": 22706
+    "articleCount": 22712
   },
   {
     "lang": "ia",
     "label": "Interlingua",
     "labelLocal": "interlingua",
-    "articleCount": 22608
+    "articleCount": 22633
   },
   {
     "lang": "mn",
     "label": "Mongolian",
     "labelLocal": "монгол",
-    "articleCount": 19726
+    "articleCount": 19745
   },
   {
     "lang": "bat-smg",
     "label": "Samogitian",
     "labelLocal": "žemaitėška",
-    "articleCount": 16906
+    "articleCount": 16907
   },
   {
     "lang": "si",
     "label": "Sinhalese",
     "labelLocal": "සිංහල",
-    "articleCount": 15880
+    "articleCount": 15896
   },
   {
     "lang": "nv",
@@ -719,13 +719,13 @@
     "lang": "or",
     "label": "Odia",
     "labelLocal": "ଓଡ଼ିଆ",
-    "articleCount": 15692
+    "articleCount": 15711
   },
   {
     "lang": "cdo",
     "label": "Eastern Min",
     "labelLocal": "Mìng-dĕ̤ng-ngṳ̄",
-    "articleCount": 15490
+    "articleCount": 15495
   },
   {
     "lang": "ilo",
@@ -737,31 +737,31 @@
     "lang": "gd",
     "label": "Scottish Gaelic",
     "labelLocal": "Gàidhlig",
-    "articleCount": 15152
+    "articleCount": 15153
   },
   {
     "lang": "xmf",
     "label": "Mingrelian",
     "labelLocal": "მარგალური",
-    "articleCount": 14980
+    "articleCount": 15004
   },
   {
     "lang": "yi",
     "label": "Yiddish",
     "labelLocal": "ייִדיש",
-    "articleCount": 14934
+    "articleCount": 14947
   },
   {
     "lang": "am",
     "label": "Amharic",
     "labelLocal": "አማርኛ",
-    "articleCount": 14885
+    "articleCount": 14890
   },
   {
     "lang": "nap",
     "label": "Neapolitan",
     "labelLocal": "Napulitano",
-    "articleCount": 14612
+    "articleCount": 14614
   },
   {
     "lang": "bug",
@@ -773,19 +773,19 @@
     "lang": "wa",
     "label": "Walloon",
     "labelLocal": "walon",
-    "articleCount": 14068
+    "articleCount": 14099
   },
   {
     "lang": "sd",
     "label": "Sindhi",
     "labelLocal": "سنڌي",
-    "articleCount": 13788
+    "articleCount": 13810
   },
   {
     "lang": "hsb",
     "label": "Upper Sorbian",
     "labelLocal": "hornjoserbsce",
-    "articleCount": 13629
+    "articleCount": 13630
   },
   {
     "lang": "mai",
@@ -797,7 +797,7 @@
     "lang": "fo",
     "label": "Faroese",
     "labelLocal": "føroyskt",
-    "articleCount": 13392
+    "articleCount": 13404
   },
   {
     "lang": "map-bms",
@@ -809,37 +809,37 @@
     "lang": "mzn",
     "label": "Mazanderani",
     "labelLocal": "مازِرونی",
-    "articleCount": 13189
+    "articleCount": 13199
   },
   {
     "lang": "li",
     "label": "Limburgish",
     "labelLocal": "Limburgs",
-    "articleCount": 13117
+    "articleCount": 13118
   },
   {
     "lang": "sah",
     "label": "Sakha",
     "labelLocal": "саха тыла",
-    "articleCount": 12785
+    "articleCount": 12788
   },
   {
     "lang": "eml",
     "label": "Emilian-Romagnol",
     "labelLocal": "emiliàn e rumagnòl",
-    "articleCount": 12536
+    "articleCount": 12540
   },
   {
     "lang": "os",
     "label": "Ossetian",
     "labelLocal": "Ирон",
-    "articleCount": 12510
+    "articleCount": 12524
   },
   {
     "lang": "ps",
     "label": "Pashto",
     "labelLocal": "پښتو",
-    "articleCount": 11593
+    "articleCount": 11600
   },
   {
     "lang": "sa",
@@ -851,7 +851,7 @@
     "lang": "frr",
     "label": "North Frisian",
     "labelLocal": "Nordfriisk",
-    "articleCount": 11275
+    "articleCount": 11302
   },
   {
     "lang": "bcl",
@@ -863,19 +863,31 @@
     "lang": "zh-classical",
     "label": "Classical Chinese",
     "labelLocal": "文言",
-    "articleCount": 10466
+    "articleCount": 10511
   },
   {
     "lang": "ace",
     "label": "Acehnese",
     "labelLocal": "Acèh",
-    "articleCount": 10356
+    "articleCount": 10353
   },
   {
     "lang": "mrj",
     "label": "Hill Mari",
     "labelLocal": "кырык мары",
-    "articleCount": 10276
+    "articleCount": 10277
+  },
+  {
+    "lang": "avk",
+    "label": "Kotava",
+    "labelLocal": "Kotava",
+    "articleCount": 10267
+  },
+  {
+    "lang": "gor",
+    "label": "Gorontalo",
+    "labelLocal": "Bahasa Hulontalo",
+    "articleCount": 10227
   },
   {
     "lang": "mhr",
@@ -884,28 +896,16 @@
     "articleCount": 10206
   },
   {
-    "lang": "avk",
-    "label": "Kotava",
-    "labelLocal": "Kotava",
-    "articleCount": 10159
-  },
-  {
-    "lang": "gor",
-    "label": "Gorontalo",
-    "labelLocal": "Bahasa Hulontalo",
-    "articleCount": 10100
-  },
-  {
     "lang": "hif",
     "label": "Fiji Hindi",
     "labelLocal": "Fiji Hindi",
-    "articleCount": 9799
+    "articleCount": 9800
   },
   {
     "lang": "hak",
     "label": "Hakka",
     "labelLocal": "客家語/Hak-kâ-ngî",
-    "articleCount": 9376
+    "articleCount": 9378
   },
   {
     "lang": "roa-tara",
@@ -923,13 +923,13 @@
     "lang": "hyw",
     "label": "Western Armenian",
     "labelLocal": "Արեւմտահայերէն",
-    "articleCount": 8472
+    "articleCount": 8502
   },
   {
     "lang": "km",
     "label": "Khmer",
     "labelLocal": "ភាសាខ្មែរ",
-    "articleCount": 8315
+    "articleCount": 8317
   },
   {
     "lang": "nso",
@@ -941,55 +941,55 @@
     "lang": "rue",
     "label": "Rusyn",
     "labelLocal": "русиньскый",
-    "articleCount": 7847
+    "articleCount": 7873
   },
   {
     "lang": "crh",
     "label": "Crimean Tatar",
     "labelLocal": "qırımtatarca",
-    "articleCount": 7778
+    "articleCount": 7802
   },
   {
     "lang": "se",
     "label": "Northern Sami",
     "labelLocal": "davvisámegiella",
-    "articleCount": 7703
+    "articleCount": 7713
   },
   {
     "lang": "as",
     "label": "Assamese",
     "labelLocal": "অসমীয়া",
-    "articleCount": 7389
+    "articleCount": 7443
   },
   {
     "lang": "bh",
     "label": "Bhojpuri",
     "labelLocal": "भोजपुरी",
-    "articleCount": 7363
+    "articleCount": 7373
   },
   {
     "lang": "shn",
     "label": "Shan",
-    "labelLocal": "ၽႃႇသႃႇတႆး",
-    "articleCount": 7317
+    "labelLocal": "ၽႃႇသႃႇတႆး ",
+    "articleCount": 7318
   },
   {
     "lang": "vls",
     "label": "West Flemish",
     "labelLocal": "West-Vlams",
-    "articleCount": 7257
+    "articleCount": 7262
   },
   {
     "lang": "mi",
     "label": "Māori",
     "labelLocal": "Māori",
-    "articleCount": 7169
+    "articleCount": 7170
   },
   {
     "lang": "nds-nl",
     "label": "Dutch Low Saxon",
     "labelLocal": "Nedersaksies",
-    "articleCount": 7087
+    "articleCount": 7089
   },
   {
     "lang": "nah",
@@ -1001,44 +1001,44 @@
     "lang": "sc",
     "label": "Sardinian",
     "labelLocal": "sardu",
-    "articleCount": 6747
+    "articleCount": 6752
   },
   {
     "lang": "vep",
     "label": "Veps",
     "labelLocal": "vepsän kel’",
-    "articleCount": 6611
+    "articleCount": 6615
   },
   { "lang": "gan", "label": "Gan", "labelLocal": "贛語", "articleCount": 6435 },
-  {
-    "lang": "myv",
-    "label": "Erzya",
-    "labelLocal": "эрзянь",
-    "articleCount": 6202
-  },
   {
     "lang": "sn",
     "label": "Shona",
     "labelLocal": "chiShona",
-    "articleCount": 6164
+    "articleCount": 6234
+  },
+  {
+    "lang": "myv",
+    "label": "Erzya",
+    "labelLocal": "эрзянь",
+    "articleCount": 6224
   },
   {
     "lang": "ab",
     "label": "Abkhazian",
     "labelLocal": "Аҧсшәа",
-    "articleCount": 6086
-  },
-  {
-    "lang": "glk",
-    "label": "Gilaki",
-    "labelLocal": "گیلکی",
-    "articleCount": 6032
+    "articleCount": 6087
   },
   {
     "lang": "lrc",
     "label": "Northern Luri",
     "labelLocal": "لۊری شومالی",
-    "articleCount": 5979
+    "articleCount": 6051
+  },
+  {
+    "lang": "glk",
+    "label": "Gilaki",
+    "labelLocal": "گیلکی",
+    "articleCount": 6043
   },
   {
     "lang": "bo",
@@ -1050,62 +1050,68 @@
     "lang": "so",
     "label": "Somali",
     "labelLocal": "Soomaaliga",
-    "articleCount": 5853
+    "articleCount": 5858
   },
   {
     "lang": "co",
     "label": "Corsican",
     "labelLocal": "corsu",
-    "articleCount": 5841
+    "articleCount": 5843
   },
   {
     "lang": "tk",
     "label": "Turkmen",
     "labelLocal": "Türkmençe",
-    "articleCount": 5814
+    "articleCount": 5815
   },
   {
     "lang": "fiu-vro",
     "label": "Võro",
     "labelLocal": "Võro",
-    "articleCount": 5601
+    "articleCount": 5609
   },
   {
     "lang": "ha",
     "label": "Hausa",
     "labelLocal": "Hausa",
-    "articleCount": 5449
+    "articleCount": 5467
   },
   {
     "lang": "csb",
     "label": "Kashubian",
     "labelLocal": "kaszëbsczi",
-    "articleCount": 5352
+    "articleCount": 5354
   },
   { "lang": "kv", "label": "Komi", "labelLocal": "коми", "articleCount": 5349 },
   {
     "lang": "ie",
     "label": "Interlingue",
     "labelLocal": "Interlingue",
-    "articleCount": 5135
+    "articleCount": 5141
   },
   {
     "lang": "gv",
     "label": "Manx",
     "labelLocal": "Gaelg",
-    "articleCount": 5014
+    "articleCount": 5012
   },
   {
     "lang": "udm",
     "label": "Udmurt",
     "labelLocal": "удмурт",
-    "articleCount": 4955
+    "articleCount": 4960
   },
   {
     "lang": "pcd",
     "label": "Picard",
     "labelLocal": "Picard",
-    "articleCount": 4874
+    "articleCount": 4887
+  },
+  {
+    "lang": "kab",
+    "label": "Kabyle",
+    "labelLocal": "Taqbaylit",
+    "articleCount": 4868
   },
   {
     "lang": "ay",
@@ -1114,10 +1120,10 @@
     "articleCount": 4853
   },
   {
-    "lang": "kab",
-    "label": "Kabyle",
-    "labelLocal": "Taqbaylit",
-    "articleCount": 4850
+    "lang": "sat",
+    "label": "Santali",
+    "labelLocal": "ᱥᱟᱱᱛᱟᱲᱤ",
+    "articleCount": 4755
   },
   {
     "lang": "zea",
@@ -1126,10 +1132,10 @@
     "articleCount": 4741
   },
   {
-    "lang": "sat",
-    "label": "Santali",
-    "labelLocal": "ᱥᱟᱱᱛᱟᱲᱤ",
-    "articleCount": 4663
+    "lang": "zu",
+    "label": "Zulu",
+    "labelLocal": "isiZulu",
+    "articleCount": 4600
   },
   {
     "lang": "nrm",
@@ -1138,52 +1144,46 @@
     "articleCount": 4516
   },
   {
-    "lang": "zu",
-    "label": "Zulu",
-    "labelLocal": "isiZulu",
-    "articleCount": 4501
-  },
-  {
     "lang": "ug",
     "label": "Uyghur",
     "labelLocal": "ئۇيغۇرچە / Uyghurche",
-    "articleCount": 4392
-  },
-  {
-    "lang": "lij",
-    "label": "Ligurian",
-    "labelLocal": "Ligure",
-    "articleCount": 4309
+    "articleCount": 4434
   },
   {
     "lang": "ban",
     "label": "Balinese",
     "labelLocal": "Basa Bali",
-    "articleCount": 4258
+    "articleCount": 4423
+  },
+  {
+    "lang": "lij",
+    "label": "Ligurian",
+    "labelLocal": "Ligure",
+    "articleCount": 4324
   },
   {
     "lang": "kw",
     "label": "Cornish",
     "labelLocal": "kernowek",
-    "articleCount": 4228
+    "articleCount": 4229
   },
   {
     "lang": "frp",
     "label": "Franco-Provençal",
     "labelLocal": "arpetan",
-    "articleCount": 4142
+    "articleCount": 4160
   },
   {
     "lang": "lez",
     "label": "Lezgian",
     "labelLocal": "лезги",
-    "articleCount": 4134
+    "articleCount": 4146
   },
   {
     "lang": "lfn",
     "label": "Lingua Franca Nova",
     "labelLocal": "Lingua Franca Nova",
-    "articleCount": 4030
+    "articleCount": 4033
   },
   {
     "lang": "stq",
@@ -1195,7 +1195,7 @@
     "lang": "gn",
     "label": "Guarani",
     "labelLocal": "Avañe'ẽ",
-    "articleCount": 3889
+    "articleCount": 3899
   },
   {
     "lang": "mwl",
@@ -1219,9 +1219,9 @@
     "lang": "mt",
     "label": "Maltese",
     "labelLocal": "Malti",
-    "articleCount": 3620
+    "articleCount": 3624
   },
-  { "lang": "lo", "label": "Lao", "labelLocal": "ລາວ", "articleCount": 3572 },
+  { "lang": "lo", "label": "Lao", "labelLocal": "ລາວ", "articleCount": 3575 },
   {
     "lang": "lad",
     "label": "Ladino",
@@ -1238,7 +1238,7 @@
     "lang": "olo",
     "label": "Livvi-Karelian",
     "labelLocal": "Livvinkarjala",
-    "articleCount": 3430
+    "articleCount": 3443
   },
   {
     "lang": "fur",
@@ -1250,7 +1250,13 @@
     "lang": "ang",
     "label": "Anglo-Saxon",
     "labelLocal": "Ænglisc",
-    "articleCount": 3299
+    "articleCount": 3302
+  },
+  {
+    "lang": "dsb",
+    "label": "Lower Sorbian",
+    "labelLocal": "dolnoserbski",
+    "articleCount": 3287
   },
   {
     "lang": "dty",
@@ -1259,22 +1265,16 @@
     "articleCount": 3286
   },
   {
-    "lang": "dsb",
-    "label": "Lower Sorbian",
-    "labelLocal": "dolnoserbski",
-    "articleCount": 3285
-  },
-  {
     "lang": "bjn",
     "label": "Banjar",
     "labelLocal": "Banjar",
-    "articleCount": 3281
+    "articleCount": 3284
   },
   {
     "lang": "ext",
     "label": "Extremaduran",
     "labelLocal": "estremeñu",
-    "articleCount": 3223
+    "articleCount": 3226
   },
   {
     "lang": "ln",
@@ -1295,22 +1295,22 @@
     "articleCount": 2958
   },
   {
-    "lang": "ksh",
-    "label": "Ripuarian",
-    "labelLocal": "Ripoarisch",
-    "articleCount": 2877
-  },
-  {
     "lang": "tyv",
     "label": "Tuvan",
     "labelLocal": "тыва дыл",
-    "articleCount": 2853
+    "articleCount": 2912
+  },
+  {
+    "lang": "ksh",
+    "label": "Ripuarian",
+    "labelLocal": "Ripoarisch",
+    "articleCount": 2880
   },
   {
     "lang": "ary",
     "label": "Moroccan Arabic",
     "labelLocal": "الدارجة",
-    "articleCount": 2820
+    "articleCount": 2879
   },
   {
     "lang": "gag",
@@ -1322,21 +1322,21 @@
     "lang": "pfl",
     "label": "Palatinate German",
     "labelLocal": "Pälzisch",
-    "articleCount": 2682
+    "articleCount": 2684
   },
   {
     "lang": "pag",
     "label": "Pangasinan",
     "labelLocal": "Pangasinan",
-    "articleCount": 2663
+    "articleCount": 2664
   },
   { "lang": "pi", "label": "Pali", "labelLocal": "पालि", "articleCount": 2543 },
-  { "lang": "av", "label": "Avar", "labelLocal": "авар", "articleCount": 2460 },
+  { "lang": "av", "label": "Avar", "labelLocal": "авар", "articleCount": 2463 },
   {
     "lang": "awa",
     "label": "Awadhi",
     "labelLocal": "अवधी",
-    "articleCount": 2415
+    "articleCount": 2431
   },
   {
     "lang": "haw",
@@ -1366,19 +1366,19 @@
     "lang": "pap",
     "label": "Papiamento",
     "labelLocal": "Papiamentu",
-    "articleCount": 2004
+    "articleCount": 2005
   },
   {
     "lang": "za",
     "label": "Zhuang",
     "labelLocal": "Vahcuengh",
-    "articleCount": 1952
+    "articleCount": 1954
   },
   {
     "lang": "rw",
     "label": "Kinyarwanda",
     "labelLocal": "Kinyarwanda",
-    "articleCount": 1932
+    "articleCount": 1931
   },
   {
     "lang": "pdc",
@@ -1390,13 +1390,13 @@
     "lang": "kaa",
     "label": "Karakalpak",
     "labelLocal": "Qaraqalpaqsha",
-    "articleCount": 1863
+    "articleCount": 1872
   },
   {
     "lang": "szy",
     "label": "Sakizaya",
     "labelLocal": "Sakizaya",
-    "articleCount": 1818
+    "articleCount": 1824
   },
   {
     "lang": "arc",
@@ -1414,7 +1414,7 @@
     "lang": "nov",
     "label": "Novial",
     "labelLocal": "Novial",
-    "articleCount": 1680
+    "articleCount": 1679
   },
   {
     "lang": "jam",
@@ -1434,18 +1434,18 @@
     "labelLocal": "Kabɩyɛ",
     "articleCount": 1612
   },
+  { "lang": "ig", "label": "Igbo", "labelLocal": "Igbo", "articleCount": 1595 },
   {
     "lang": "kbd",
     "label": "Kabardian",
     "labelLocal": "Адыгэбзэ",
-    "articleCount": 1586
+    "articleCount": 1587
   },
-  { "lang": "ig", "label": "Igbo", "labelLocal": "Igbo", "articleCount": 1585 },
   {
     "lang": "inh",
     "label": "Ingush",
     "labelLocal": "ГӀалгӀай",
-    "articleCount": 1504
+    "articleCount": 1515
   },
   {
     "lang": "na",
@@ -1457,7 +1457,7 @@
     "lang": "tet",
     "label": "Tetum",
     "labelLocal": "tetun",
-    "articleCount": 1479
+    "articleCount": 1480
   },
   {
     "lang": "wo",
@@ -1469,7 +1469,13 @@
     "lang": "tcy",
     "label": "Tulu",
     "labelLocal": "ತುಳು",
-    "articleCount": 1406
+    "articleCount": 1407
+  },
+  {
+    "lang": "smn",
+    "label": "Inari Sami",
+    "labelLocal": "anarâškielâ",
+    "articleCount": 1402
   },
   {
     "lang": "ki",
@@ -1477,24 +1483,24 @@
     "labelLocal": "Gĩkũyũ",
     "articleCount": 1366
   },
-  { "lang": "ak", "label": "Akan", "labelLocal": "Akan", "articleCount": 1305 },
+  { "lang": "ak", "label": "Akan", "labelLocal": "Akan", "articleCount": 1315 },
   {
     "lang": "atj",
     "label": "Atikamekw",
     "labelLocal": "Atikamekw",
-    "articleCount": 1290
+    "articleCount": 1313
   },
   {
     "lang": "jbo",
     "label": "Lojban",
     "labelLocal": "la .lojban.",
-    "articleCount": 1257
+    "articleCount": 1258
   },
   {
     "lang": "bi",
     "label": "Bislama",
     "labelLocal": "Bislama",
-    "articleCount": 1234
+    "articleCount": 1235
   },
   {
     "lang": "roa-rup",
@@ -1512,7 +1518,7 @@
     "lang": "kg",
     "label": "Kongo",
     "labelLocal": "Kongo",
-    "articleCount": 1212
+    "articleCount": 1210
   },
   {
     "lang": "ty",
@@ -1524,7 +1530,7 @@
     "lang": "lg",
     "label": "Luganda",
     "labelLocal": "Luganda",
-    "articleCount": 1201
+    "articleCount": 1206
   },
   {
     "lang": "mdf",
@@ -1533,16 +1539,16 @@
     "articleCount": 1196
   },
   {
+    "lang": "fj",
+    "label": "Fijian",
+    "labelLocal": "Na Vosa Vakaviti",
+    "articleCount": 1104
+  },
+  {
     "lang": "lld",
     "label": "Ladin",
     "labelLocal": "Ladin",
     "articleCount": 1101
-  },
-  {
-    "lang": "fj",
-    "label": "Fijian",
-    "labelLocal": "Na Vosa Vakaviti",
-    "articleCount": 1095
   },
   {
     "lang": "srn",
@@ -1554,7 +1560,7 @@
     "lang": "xh",
     "label": "Xhosa",
     "labelLocal": "isiXhosa",
-    "articleCount": 1057
+    "articleCount": 1061
   },
   {
     "lang": "gcr",
@@ -1578,7 +1584,7 @@
     "lang": "sm",
     "label": "Samoan",
     "labelLocal": "Gagana Samoa",
-    "articleCount": 867
+    "articleCount": 869
   },
   {
     "lang": "om",
@@ -1590,13 +1596,13 @@
     "lang": "kl",
     "label": "Greenlandic",
     "labelLocal": "kalaallisut",
-    "articleCount": 833
+    "articleCount": 832
   },
   {
     "lang": "got",
     "label": "Gothic",
     "labelLocal": "𐌲𐌿𐍄𐌹𐍃𐌺",
-    "articleCount": 829
+    "articleCount": 830
   },
   {
     "lang": "pih",
@@ -1608,7 +1614,7 @@
     "lang": "st",
     "label": "Sotho",
     "labelLocal": "Sesotho",
-    "articleCount": 790
+    "articleCount": 789
   },
   {
     "lang": "ny",
@@ -1622,25 +1628,25 @@
     "labelLocal": "словѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ",
     "articleCount": 744
   },
-  { "lang": "nqo", "label": "N'Ko", "labelLocal": "ߒߞߏ", "articleCount": 739 },
+  { "lang": "nqo", "label": "N'Ko", "labelLocal": "ߒߞߏ", "articleCount": 741 },
+  {
+    "lang": "mnw",
+    "label": "Mon",
+    "labelLocal": "ဘာသာ မန်",
+    "articleCount": 713
+  },
   {
     "lang": "tn",
     "label": "Tswana",
     "labelLocal": "Setswana",
     "articleCount": 712
   },
-  { "lang": "tw", "label": "Twi", "labelLocal": "Twi", "articleCount": 708 },
+  { "lang": "tw", "label": "Twi", "labelLocal": "Twi", "articleCount": 709 },
   {
     "lang": "ts",
     "label": "Tsonga",
     "labelLocal": "Xitsonga",
     "articleCount": 700
-  },
-  {
-    "lang": "mnw",
-    "label": "Mon",
-    "labelLocal": "ဘာသာ မန်",
-    "articleCount": 682
   },
   {
     "lang": "rmy",
@@ -1676,13 +1682,13 @@
     "lang": "ss",
     "label": "Swazi",
     "labelLocal": "SiSwati",
-    "articleCount": 518
+    "articleCount": 519
   },
   {
     "lang": "ch",
     "label": "Chamorro",
     "labelLocal": "Chamoru",
-    "articleCount": 513
+    "articleCount": 514
   },
   {
     "lang": "iu",
@@ -1706,7 +1712,7 @@
     "lang": "ady",
     "label": "Adyghe",
     "labelLocal": "адыгабзэ",
-    "articleCount": 421
+    "articleCount": 423
   },
   {
     "lang": "ve",
@@ -1714,7 +1720,7 @@
     "labelLocal": "Tshivenda",
     "articleCount": 370
   },
-  { "lang": "ee", "label": "Ewe", "labelLocal": "eʋegbe", "articleCount": 359 },
+  { "lang": "ee", "label": "Ewe", "labelLocal": "eʋegbe", "articleCount": 361 },
   {
     "lang": "ik",
     "label": "Inupiaq",
@@ -1749,18 +1755,6 @@
     "lang": "ti",
     "label": "Tigrinya",
     "labelLocal": "ትግርኛ",
-    "articleCount": 199
-  },
-  {
-    "lang": "cr",
-    "label": "Cree",
-    "labelLocal": "Nēhiyawēwin / ᓀᐦᐃᔭᐍᐏᐣ",
-    "articleCount": 118
-  },
-  {
-    "lang": "kj",
-    "label": "Kuanyama",
-    "labelLocal": "Kwanyama",
-    "articleCount": 4
+    "articleCount": 198
   }
 ]
