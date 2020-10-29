@@ -1,4 +1,7 @@
 import React from 'react';
+import { toast } from 'react-toastify';
+import { useUsername } from '../DataContext';
+import { getLink } from '../util';
 
 function ArticleOverview(props) {
   const { article, label, thumbnail } = props;
@@ -45,14 +48,58 @@ function Countdown(props) {
 }
 
 function CurrentRoundStandings(props) {
-  const standings = props.standings || [];
+  const { standings, finished } = props;
+  const username = useUsername();
+
+  const showPlayerPath = (username) => {
+    chrome.runtime.sendMessage(
+      { type: 'show_path', data: { username } },
+      (response) => {
+        if (!response || !response.success) return;
+        const { data } = response;
+
+        toast(
+          <div>
+            <div>
+              <h3>
+                {username}'s path {!data.finished ? ' (so far)' : ''}
+              </h3>
+            </div>
+            <div>
+              {data.clicks} {data.clicks > 1 ? ' clicks' : ' click'}{' '}
+            </div>
+            <div>
+              {data.path.map((p) => (
+                <div>
+                  → <a href={getLink(p)}>{p.replace(/_/g, ' ')}</a>
+                </div>
+              ))}
+            </div>
+          </div>,
+          {
+            toastId: 'playerPathInGame',
+            autoClose: false,
+          }
+        );
+      }
+    );
+  };
+
   return (
     <div>
       <ul>
-        {standings.map((player) => (
+        {(standings || []).map((player) => (
           <li>
-            {player.username} ({player.clicks} click
-            {player.clicks > 1 ? 's' : ''})
+            {player.username}{' '}
+            {finished && player.username !== username ? (
+              <a onClick={() => showPlayerPath(player.username)}>
+                ({player.clicks} {player.clicks > 1 ? 'clicks' : 'click'})
+              </a>
+            ) : (
+              <>
+                ({player.clicks} {player.clicks > 1 ? 'clicks' : 'click'})
+              </>
+            )}
             {player.finished ? <> (score = {player.score})</> : null}
           </li>
         ))}
@@ -76,6 +123,7 @@ function CurrentPath(props) {
 
 export function CurrentRoundOverview(props) {
   const { round, currentState } = props;
+  const { finished } = currentState;
 
   return (
     <nav class="vector-menu vector-menu-portal portal">
@@ -83,7 +131,7 @@ export function CurrentRoundOverview(props) {
         <span>Round standings</span>
       </h3>
       <div class="body vector-menu-content">
-        <CurrentRoundStandings standings={round.result} />
+        <CurrentRoundStandings standings={round.result} finished={finished} />
       </div>
       <h3 style={{ fontSize: '0.9em' }}>
         <span>Current Round</span>

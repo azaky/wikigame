@@ -792,6 +792,37 @@ const socketHandler = async (socket) => {
     ack({ success: false });
   });
 
+  socket.on('show_path', async (data, ack) => {
+    console.log(
+      `[room=${room.roomId},lang=${room.lang}] [${username}] requests path for`,
+      data
+    );
+
+    if (room.state !== 'playing') {
+      ack({ success: false });
+      return;
+    }
+
+    if (!room.currentState[username].finished) {
+      ack({ success: false });
+      return;
+    }
+
+    if (!room.currentState[data && data.username]) {
+      ack({ success: false });
+      return;
+    }
+
+    ack({
+      success: true,
+      data: {
+        finished: room.currentState[data.username].finished,
+        path: room.currentState[data.username].path,
+        clicks: room.currentState[data.username].clicks,
+      },
+    });
+  });
+
   socket.on('disconnect', () => {
     console.log(
       `[room=${room.roomId},lang=${room.lang}] [${username}] disconnected!`

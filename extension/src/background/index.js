@@ -565,6 +565,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
 
     return true;
+  } else if (message.type === 'show_path') {
+    socket.emit('show_path', message.data, (ack) => {
+      if (!ack || !ack.success) {
+        sendResponse({
+          success: false,
+          message: ack.message,
+        });
+      } else {
+        sendResponse({ success: true, data: ack.data });
+      }
+    });
+    return true;
   } else {
     console.warn('onMessage unknown message.type:', message);
   }
